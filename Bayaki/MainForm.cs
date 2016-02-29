@@ -104,7 +104,10 @@ namespace Bayaki
             if (null == item) return;
 
             bykIFv1.PlugInInterface plugin = item.Tag as bykIFv1.PlugInInterface;
-            foreach (bykIFv1.TrackItem track in plugin.GetTrackItems(this))
+            bykIFv1.TrackItem[] results = plugin.GetTrackItems(this);
+            if (null == results) return;
+
+            foreach (bykIFv1.TrackItem track in results)
             {
                 if (null == track) continue;
                 if (1 > track.Items.Count) continue;
@@ -213,31 +216,33 @@ namespace Bayaki
 
                     foreach (string dropFile in dropFiles)
                     {
-                        Image bmp = Bitmap.FromFile(dropFile);
-                        if (null != bmp)
+                        using (Image bmp = Bitmap.FromFile(dropFile))
                         {
-                            int index = _targets.LargeImageList.Images.Count;
-                            _targets.LargeImageList.Images.Add(stretchImage(bmp, _targets.LargeImageList.ImageSize, _targets.LargeImageList.TransparentColor));
-                            string fileName = System.IO.Path.GetFileName(dropFile);
-
-                            JPEGFileItem jpegItem = new JPEGFileItem(dropFile);
-                            jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
-
-                            ListViewItem item = new ListViewItem(fileName);
-                            item.ImageIndex = index;
-                            item.Tag = jpegItem;
-
-                            if (null != jpegItem.NewLocation)
+                            if (null != bmp)
                             {
-                                _update.Enabled = true;
-                                item.Checked = true;
-                            }
-                            else
-                            {
-                                item.Checked = false;
-                            }
+                                int index = _targets.LargeImageList.Images.Count;
+                                _targets.LargeImageList.Images.Add(stretchImage(bmp, _targets.LargeImageList.ImageSize, _targets.LargeImageList.TransparentColor));
+                                string fileName = System.IO.Path.GetFileName(dropFile);
 
-                            _targets.Items.Add(item);
+                                JPEGFileItem jpegItem = new JPEGFileItem(dropFile);
+                                jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
+
+                                ListViewItem item = new ListViewItem(fileName);
+                                item.ImageIndex = index;
+                                item.Tag = jpegItem;
+
+                                if (null != jpegItem.NewLocation)
+                                {
+                                    _update.Enabled = true;
+                                    item.Checked = true;
+                                }
+                                else
+                                {
+                                    item.Checked = false;
+                                }
+
+                                _targets.Items.Add(item);
+                            }
                         }
                     }
                 }
@@ -260,9 +265,17 @@ namespace Bayaki
             JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
             if (null == jpegItem) return;
 
+
+            /*
+            //FileStream オブジェクトを使用し、画像を読み込む
+            System.IO.FileStream fs = new System.IO.FileStream(jpegItem.FilePath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            Image LoadImage = Image.FromStream(fs);
+            fs.Close();
+            */
+
             Image bmp = Bitmap.FromFile(jpegItem.FilePath);
             _previewImage.Image = bmp;
-            switch(jpegItem.Orientation)
+            switch (jpegItem.Orientation)
             {
                 case Orientation.Orientation_90:
                     _previewImage.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
@@ -362,10 +375,30 @@ namespace Bayaki
 
         private void _update_Click(object sender, EventArgs e)
         {
-            foreach(JPEGFileItem item in _images)
+            foreach(ListViewItem lvItem in _targets.Items)
             {
-                Bitmap bmp = new Bitmap(item.FileName);
-                if (null == bmp) continue;
+                JPEGFileItem item = lvItem.Tag as JPEGFileItem;
+                if (null == item) continue;
+
+                File.Delete(item.FilePath);
+                Image bmp = Bitmap.FromFile(item.FilePath);
+
+                /*
+                System.IO.FileInfo fi = new FileInfo(item.FilePath);
+                byte[] readArea = new byte[fi.Length];
+
+                using (FileStream fs = new FileStream(item.FilePath, FileMode.Open))
+                {
+                    fs.Read(readArea, 0, (int)fi.Length);
+                }
+
+                Bitmap bmp = null;
+                using (MemoryStream ms = new MemoryStream(readArea))
+                {
+                    bmp = new Bitmap(ms);
+                }*/
+
+            if (null == bmp) continue;
 
                 PointConvertor converter = new PointConvertor(item.NewLocation);
 
@@ -410,8 +443,9 @@ namespace Bayaki
                 p1.Len = p1.Value.Length;
                 bmp.SetPropertyItem(p1);
 
+                string hoge = @"C:\Users\Tomo\Documents\Bluetooth 交換フォルダ\新しいフォルダー\hoge.jpg";
                 // 保存する
-                bmp.Save(item.FileName);
+                bmp.Save(item.FilePath);
             }
         }
     }
