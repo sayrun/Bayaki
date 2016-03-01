@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -214,18 +215,30 @@ namespace Bayaki
                     // ドラッグ中のファイルやディレクトリの取得
                     string[] dropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
 
+                    DateTime debugTime = DateTime.Now;
+                    TimeSpan debugSpan;
                     foreach (string dropFile in dropFiles)
                     {
                         using (Image bmp = Bitmap.FromFile(dropFile))
                         {
                             if (null != bmp)
                             {
+                                debugTime = DateTime.Now;
                                 int index = _targets.LargeImageList.Images.Count;
                                 _targets.LargeImageList.Images.Add(stretchImage(bmp, _targets.LargeImageList.ImageSize, _targets.LargeImageList.TransparentColor));
                                 string fileName = System.IO.Path.GetFileName(dropFile);
+                                debugSpan = DateTime.Now - debugTime;
+                                System.Diagnostics.Debug.Print(string.Format("stretchImage:{0}", debugSpan.TotalMilliseconds));
 
+                                debugTime = DateTime.Now;
                                 JPEGFileItem jpegItem = new JPEGFileItem(dropFile);
+                                debugSpan = DateTime.Now - debugTime;
+                                System.Diagnostics.Debug.Print(string.Format("JPEGFileItem:{0}", debugSpan.TotalMilliseconds));
+
+                                debugTime = DateTime.Now;
                                 jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
+                                debugSpan = DateTime.Now - debugTime;
+                                System.Diagnostics.Debug.Print(string.Format("FindPoint:{0}", debugSpan.TotalMilliseconds));
 
                                 ListViewItem item = new ListViewItem(fileName);
                                 item.ImageIndex = index;
@@ -265,15 +278,14 @@ namespace Bayaki
             JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
             if (null == jpegItem) return;
 
+            //Image bmp = Bitmap.FromFile(jpegItem.FilePath);
+            Image bmp = null;
+            using (FileStream fs = new FileStream(jpegItem.FilePath, FileMode.Open, FileAccess.Read))
+            {
+                bmp = Bitmap.FromStream(fs);
+                fs.Close();
+            }
 
-            /*
-            //FileStream オブジェクトを使用し、画像を読み込む
-            System.IO.FileStream fs = new System.IO.FileStream(jpegItem.FilePath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
-            Image LoadImage = Image.FromStream(fs);
-            fs.Close();
-            */
-
-            Image bmp = Bitmap.FromFile(jpegItem.FilePath);
             _previewImage.Image = bmp;
             switch (jpegItem.Orientation)
             {
@@ -373,79 +385,76 @@ namespace Bayaki
             _locations.Insert(index + 1, summary);
         }
 
+        private void SetPropertyValue(Image bmp, int ID, short Type, byte[] value)
+        {
+            foreach(PropertyItem item in bmp.PropertyItems)
+            {
+                if( item.Id == ID)
+                {
+                    item.Type = Type;
+                    item.Value = value;
+                    item.Len = value.Length;
+                    bmp.SetPropertyItem(item);
+                    return;
+                }
+            }
+            System.Drawing.Imaging.PropertyItem p1 = bmp.PropertyItems[0];
+            // 緯度
+            p1.Id = ID;
+            p1.Type = Type;
+            p1.Value = value;
+            p1.Len = value.Length;
+            bmp.SetPropertyItem(p1);
+        }
+
         private void _update_Click(object sender, EventArgs e)
         {
             foreach(ListViewItem lvItem in _targets.Items)
             {
+                // チェックされていないのは保存対象外
+                if (!lvItem.Checked) continue;
+
                 JPEGFileItem item = lvItem.Tag as JPEGFileItem;
                 if (null == item) continue;
 
-                File.Delete(item.FilePath);
-                Image bmp = Bitmap.FromFile(item.FilePath);
+                Image bmp = null;
+                FileStream fs = new FileStream(item.FilePath, FileMode.Open, FileAccess.Read, FileShare.Write);
+                bmp = Bitmap.FromStream(fs);
 
-                /*
-                System.IO.FileInfo fi = new FileInfo(item.FilePath);
-                byte[] readArea = new byte[fi.Length];
+                if (null == bmp) continue;
 
-                using (FileStream fs = new FileStream(item.FilePath, FileMode.Open))
-                {
-                    fs.Read(readArea, 0, (int)fi.Length);
-                }
-
-                Bitmap bmp = null;
-                using (MemoryStream ms = new MemoryStream(readArea))
-                {
-                    bmp = new Bitmap(ms);
-                }*/
-
-            if (null == bmp) continue;
-
+                // 書き込みデータに変換する
                 PointConvertor converter = new PointConvertor(item.NewLocation);
 
-                System.Drawing.Imaging.PropertyItem p1 = bmp.PropertyItems[0];
                 // 緯度
-                p1.Id = 1;
-                p1.Type = 2;
-                p1.Value = converter.LatitudeMark;
-                p1.Len = p1.Value.Length;
-                bmp.SetPropertyItem(p1);
-
-                p1.Id = 2;
-                p1.Type = 5;
-                p1.Value = converter.Latitude;
-                p1.Len = p1.Value.Length;
-                bmp.SetPropertyItem(p1);
+                SetPropertyValue(bmp, 1, 2, converter.LatitudeMark);
+                SetPropertyValue(bmp, 2, 5, converter.Latitude);
 
                 // 経度
-                p1.Id = 3;
-                p1.Type = 2;
-                p1.Value = converter.LongitudeMark;
-                p1.Len = p1.Value.Length;
-                bmp.SetPropertyItem(p1);
-
-                p1.Id = 4;
-                p1.Type = 5;
-                p1.Value = converter.Longtude;
-                p1.Len = p1.Value.Length;
-                bmp.SetPropertyItem(p1);
+                SetPropertyValue(bmp, 3, 2, converter.LongitudeMark);
+                SetPropertyValue(bmp, 4, 5, converter.Longtude);
 
                 // 高度基準
-                p1.Id = 5;
-                p1.Type = 7;
-                p1.Value = converter.AltitudeRef;
-                p1.Len = p1.Value.Length;
-                bmp.SetPropertyItem(p1);
+                SetPropertyValue(bmp, 5, 7, converter.AltitudeRef);
 
                 // 高度
-                p1.Id = 6;
-                p1.Type = 5;
-                p1.Value = converter.Altitude;
-                p1.Len = p1.Value.Length;
-                bmp.SetPropertyItem(p1);
+                SetPropertyValue(bmp, 6, 5, converter.Altitude);
 
-                string hoge = @"C:\Users\Tomo\Documents\Bluetooth 交換フォルダ\新しいフォルダー\hoge.jpg";
+                // 一時ファイルに保存します
+                string workPath = Path.GetTempFileName();
+
                 // 保存する
-                bmp.Save(item.FilePath);
+                bmp.Save(workPath);
+
+                // 保存するためにクローズする
+                bmp.Dispose();
+                fs.Close();
+
+                // 元ファイルを削除します。
+                File.Delete(item.FilePath);
+
+                // 一時ファイルを移動します。
+                File.Move(workPath, item.FilePath);
             }
         }
     }
