@@ -4,18 +4,23 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using bykIFv1;
+using System.Windows.Forms;
 
-namespace Bayaki
+namespace SkyTraqPlugin
 {
-    class SkytraqDownloaderv1 : bykIFv1.PlugInInterface
+    public class Downloaderv1 : bykIFv1.PlugInInterface
     {
+        public Downloaderv1()
+        {
+
+        }
+
         public Bitmap Icon
         {
             get
             {
-                return Properties.Resources.SkytraqDownloader_ICON;
+                return Properties.Resources.Downloader_ICON;
             }
         }
 
@@ -23,13 +28,13 @@ namespace Bayaki
         {
             get
             {
-                return Properties.Resources.SkytraqDownloader_NAME;
+                return Properties.Resources.Downloader_NAME;
             }
         }
 
         public TrackItem[] GetTrackItems(IWin32Window owner)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("まだ実装していないです");
         }
     }
 }

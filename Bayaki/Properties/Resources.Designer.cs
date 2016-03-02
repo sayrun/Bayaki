@@ -118,16 +118,6 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
-        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
-        /// </summary>
-        internal static System.Drawing.Bitmap SkytraqDownloader_ICON {
-            get {
-                object obj = ResourceManager.GetObject("SkytraqDownloader_ICON", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Skytraq Downloader に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SkytraqDownloader_NAME {
