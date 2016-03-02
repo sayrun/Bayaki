@@ -13,7 +13,7 @@ namespace Bayaki
     {
         public void Dispose()
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public Bitmap Icon

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using System.Reflection;
 
 namespace Bayaki
 {
@@ -105,9 +106,18 @@ namespace Bayaki
             if (null == item) return;
 
             bykIFv1.PlugInInterface plugin = item.Tag as bykIFv1.PlugInInterface;
-            bykIFv1.TrackItem[] results = plugin.GetTrackItems(this);
+            bykIFv1.TrackItem[] results = null;
+            try
+            {
+                results = plugin.GetTrackItems(this);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("plugin[{0}]でエラーが発生しました。\n\n詳細\n{1}", plugin.Name, ex.Message), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             if (null == results) return;
 
+            bool blNewTracks = false;
             foreach (bykIFv1.TrackItem track in results)
             {
                 if (null == track) continue;
@@ -117,11 +127,34 @@ namespace Bayaki
 
                 TrackItemSummary summary = new TrackItemSummary(track);
                 _locations.Add(summary);
+                blNewTracks = true;
             }
 
-            SerializeLocationList();
+            if (blNewTracks)
+            {
+                SerializeLocationList();
+                UpdateLocationList();
 
-            UpdateLocationList();
+                // 読み込んでいるイメージに対して再度位置情報のマッチングを実施する
+                ReMatching();
+            }
+        }
+
+        private void ReMatching()
+        {
+            foreach(ListViewItem item in _targets.Items)
+            {
+                JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
+                if (null == jpegItem) continue;
+                if (null != jpegItem.NewLocation) continue;
+
+                jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
+                if( null != jpegItem.NewLocation)
+                {
+                    _update.Enabled = true;
+                    item.Checked = true;
+                }
+            }
         }
 
         private void SerializeLocationList()
@@ -201,69 +234,106 @@ namespace Bayaki
             return null;
         }
 
-        private void _dropCover_DragDrop(object sender, DragEventArgs e)
+        private void PreviewDropFiles(string[] dropFiles, bool add)
         {
             try
             {
                 _targets.BeginUpdate();
-                _targets.Clear();
-                _targets.LargeImageList.Images.Clear();
+                if (!add)
+                {
+                    _targets.Clear();
+                    _targets.LargeImageList.Images.Clear();
+                }
                 _targets.LargeImageList.TransparentColor = Color.Transparent;
 
-                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+
+                DateTime debugTime = DateTime.Now;
+                TimeSpan debugSpan;
+                bool match = false;
+                foreach (string dropFile in dropFiles)
                 {
-                    // ドラッグ中のファイルやディレクトリの取得
-                    string[] dropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-                    DateTime debugTime = DateTime.Now;
-                    TimeSpan debugSpan;
-                    foreach (string dropFile in dropFiles)
+                    // すでに登録されているものを二重登録しない
+                    match = false;
+                    foreach( ListViewItem item in _targets.Items)
                     {
-                        using (Image bmp = Bitmap.FromFile(dropFile))
+                        JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
+                        if (null == jpegItem) continue;
+
+                        if ( dropFile == jpegItem.FilePath)
                         {
-                            if (null != bmp)
+                            match = true;
+                            break;
+                        }
+                    }
+                    if (match) continue;
+
+                    using (Image bmp = Bitmap.FromFile(dropFile))
+                    {
+                        if (null != bmp)
+                        {
+                            debugTime = DateTime.Now;
+                            int index = _targets.LargeImageList.Images.Count;
+                            _targets.LargeImageList.Images.Add(stretchImage(bmp, _targets.LargeImageList.ImageSize, _targets.LargeImageList.TransparentColor));
+                            string fileName = System.IO.Path.GetFileName(dropFile);
+                            debugSpan = DateTime.Now - debugTime;
+                            System.Diagnostics.Debug.Print(string.Format("stretchImage:{0}", debugSpan.TotalMilliseconds));
+
+                            debugTime = DateTime.Now;
+                            JPEGFileItem jpegItem = new JPEGFileItem(dropFile);
+                            debugSpan = DateTime.Now - debugTime;
+                            System.Diagnostics.Debug.Print(string.Format("JPEGFileItem:{0}", debugSpan.TotalMilliseconds));
+
+                            debugTime = DateTime.Now;
+                            jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
+                            debugSpan = DateTime.Now - debugTime;
+                            System.Diagnostics.Debug.Print(string.Format("FindPoint:{0}", debugSpan.TotalMilliseconds));
+
+                            ListViewItem item = new ListViewItem(fileName);
+                            item.ImageIndex = index;
+                            item.Tag = jpegItem;
+
+                            if (null != jpegItem.NewLocation)
                             {
-                                debugTime = DateTime.Now;
-                                int index = _targets.LargeImageList.Images.Count;
-                                _targets.LargeImageList.Images.Add(stretchImage(bmp, _targets.LargeImageList.ImageSize, _targets.LargeImageList.TransparentColor));
-                                string fileName = System.IO.Path.GetFileName(dropFile);
-                                debugSpan = DateTime.Now - debugTime;
-                                System.Diagnostics.Debug.Print(string.Format("stretchImage:{0}", debugSpan.TotalMilliseconds));
-
-                                debugTime = DateTime.Now;
-                                JPEGFileItem jpegItem = new JPEGFileItem(dropFile);
-                                debugSpan = DateTime.Now - debugTime;
-                                System.Diagnostics.Debug.Print(string.Format("JPEGFileItem:{0}", debugSpan.TotalMilliseconds));
-
-                                debugTime = DateTime.Now;
-                                jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
-                                debugSpan = DateTime.Now - debugTime;
-                                System.Diagnostics.Debug.Print(string.Format("FindPoint:{0}", debugSpan.TotalMilliseconds));
-
-                                ListViewItem item = new ListViewItem(fileName);
-                                item.ImageIndex = index;
-                                item.Tag = jpegItem;
-
-                                if (null != jpegItem.NewLocation)
-                                {
-                                    _update.Enabled = true;
-                                    item.Checked = true;
-                                }
-                                else
-                                {
-                                    item.Checked = false;
-                                }
-
-                                _targets.Items.Add(item);
+                                _update.Enabled = true;
+                                item.Checked = true;
                             }
+                            else
+                            {
+                                item.Checked = false;
+                            }
+
+                            _targets.Items.Add(item);
                         }
                     }
                 }
-                _dropCover.Visible = false;
             }
             finally
             {
                 _targets.EndUpdate();
+            }
+        }
+
+        private void _targets_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                // ドラッグ中のファイルやディレクトリの取得
+                string[] dropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                PreviewDropFiles(dropFiles, true);
+            }
+        }
+
+        private void _dropCover_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                // ドラッグ中のファイルやディレクトリの取得
+                string[] dropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                PreviewDropFiles(dropFiles, false);
+
+                _dropCover.Visible = false;
             }
         }
 
@@ -455,6 +525,42 @@ namespace Bayaki
 
                 // 一時ファイルを移動します。
                 File.Move(workPath, item.FilePath);
+            }
+        }
+
+        private void addToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog of = new OpenFileDialog();
+            of.Title = "プラグイン選択";
+            of.DefaultExt = ".dll";
+            of.InitialDirectory = Path.GetDirectoryName(Application.ExecutablePath);
+            of.Filter = "byk plugin(*.dll)|*.dll|all(*.*)|*.*";
+            of.Multiselect = false;
+            if (DialogResult.OK == of.ShowDialog(this))
+            {
+                bykIFv1.PlugInInterface plugin;
+                Assembly asm = Assembly.LoadFrom(of.FileName);
+                foreach (var t in asm.GetTypes())
+                {
+                    try
+                    {
+                        if (t.IsInterface) continue;
+
+                        plugin = Activator.CreateInstance(t) as bykIFv1.PlugInInterface;
+                        if (null == plugin) continue;
+
+                        ToolStripItem item = new ToolStripButton(plugin.Icon);
+                        item.ToolTipText = plugin.Name;
+                        item.Tag = plugin;
+                        item.Click += Item_Click;
+
+                        _locationToolbar.Items.Add(item);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
             }
         }
     }

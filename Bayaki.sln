@@ -4,8 +4,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bayaki", "Bayaki\Bayaki.csproj", "{F5841F42-C74C-4320-A196-7FF9383CF326}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB} = {7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bykIFv1", "bykIFv1\bykIFv1.csproj", "{5F304F85-B09A-4FF0-9197-DBABF1BDEEAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyTraqPlugin", "SkyTraqPlugin\SkyTraqPlugin.csproj", "{7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +26,10 @@ Global
 		{5F304F85-B09A-4FF0-9197-DBABF1BDEEAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F304F85-B09A-4FF0-9197-DBABF1BDEEAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F304F85-B09A-4FF0-9197-DBABF1BDEEAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

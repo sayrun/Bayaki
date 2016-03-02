@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Bayaki.Properties {
+namespace SkyTraqPlugin.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Bayaki.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bayaki.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SkyTraqPlugin.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,78 +61,40 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
-        ///   &lt;html&gt;
-        ///&lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.google.com/maps/api/js?sensor=false&quot;&gt;&lt;/script&gt;
-        ///&lt;script type=&quot;text/javascript&quot;&gt;
-        ///var map;
-        ///var marker = null;
-        ///
-        ///function initialize() {
-        ///	// 東京都庁の座標
-        ///	var y = 35.689634;
-        ///	var x = 139.692101;
-        ///	var latlng = new google.maps.LatLng(y, x);
-        ///	var opts = {
-        ///			zoom: 14,
-        ///			center: latlng,
-        ///			mapTypeId: google.maps.MapTypeId.ROADMAP
-        ///		};
-        ///	map = new google.maps.Map(document.getElementById(&quot;gmap&quot;), opts);
-        ///}
-        ///
-        ///function movePos( x, y) {
-        ///	var pos = new go [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
-        internal static string googlemapsHTML {
+        internal static System.Drawing.Bitmap Downloader_ICON {
             get {
-                return ResourceManager.GetString("googlemapsHTML", resourceCulture);
+                object obj = ResourceManager.GetObject("Downloader_ICON", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Skytraq download に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string Downloader_NAME {
+            get {
+                return ResourceManager.GetString("Downloader_NAME", resourceCulture);
             }
         }
         
         /// <summary>
         ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
-        internal static System.Drawing.Bitmap GPXLoader_ICON {
+        internal static System.Drawing.Bitmap Eraser_ICON {
             get {
-                object obj = ResourceManager.GetObject("GPXLoader_ICON", resourceCulture);
+                object obj = ResourceManager.GetObject("Eraser_ICON", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         /// <summary>
-        ///   GPXLoader に類似しているローカライズされた文字列を検索します。
+        ///   Skytraq Erase に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string GPXLoader_NAME {
+        internal static string Eraser_NAME {
             get {
-                return ResourceManager.GetString("GPXLoader_NAME", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   削除してもよいですか？ に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string MSG1 {
-            get {
-                return ResourceManager.GetString("MSG1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
-        /// </summary>
-        internal static System.Drawing.Bitmap SkytraqDownloader_ICON {
-            get {
-                object obj = ResourceManager.GetObject("SkytraqDownloader_ICON", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Skytraq Downloader に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string SkytraqDownloader_NAME {
-            get {
-                return ResourceManager.GetString("SkytraqDownloader_NAME", resourceCulture);
+                return ResourceManager.GetString("Eraser_NAME", resourceCulture);
             }
         }
     }

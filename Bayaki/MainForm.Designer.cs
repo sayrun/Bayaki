@@ -54,6 +54,10 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this._deleteTrackItem = new System.Windows.Forms.ToolStripMenuItem();
             this._locationToolbar = new System.Windows.Forms.ToolStrip();
+            this._locationToolbarContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.addToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -68,6 +72,7 @@
             ((System.ComponentModel.ISupportInitialize)(this._previewImage)).BeginInit();
             this.tabPage2.SuspendLayout();
             this._locationContextMenu.SuspendLayout();
+            this._locationToolbarContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -127,6 +132,7 @@
             // 
             // _targets
             // 
+            this._targets.AllowDrop = true;
             this._targets.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -138,6 +144,8 @@
             this._targets.TabIndex = 0;
             this._targets.UseCompatibleStateImageBehavior = false;
             this._targets.SelectedIndexChanged += new System.EventHandler(this._targets_SelectedIndexChanged);
+            this._targets.DragDrop += new System.Windows.Forms.DragEventHandler(this._targets_DragDrop);
+            this._targets.DragEnter += new System.Windows.Forms.DragEventHandler(this._dropCover_DragEnter);
             // 
             // _targetsImage
             // 
@@ -196,11 +204,14 @@
             // 
             // _previewMap
             // 
+            this._previewMap.AllowWebBrowserDrop = false;
             this._previewMap.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._previewMap.IsWebBrowserContextMenuEnabled = false;
             this._previewMap.Location = new System.Drawing.Point(0, 0);
             this._previewMap.MinimumSize = new System.Drawing.Size(20, 20);
             this._previewMap.Name = "_previewMap";
             this._previewMap.ScriptErrorsSuppressed = true;
+            this._previewMap.ScrollBarsEnabled = false;
             this._previewMap.Size = new System.Drawing.Size(334, 186);
             this._previewMap.TabIndex = 0;
             // 
@@ -266,24 +277,24 @@
             this.toolStripSeparator2,
             this._deleteTrackItem});
             this._locationContextMenu.Name = "_locationContextMenu";
-            this._locationContextMenu.Size = new System.Drawing.Size(126, 104);
+            this._locationContextMenu.Size = new System.Drawing.Size(137, 104);
             // 
             // _renameTarckItem
             // 
             this._renameTarckItem.Name = "_renameTarckItem";
-            this._renameTarckItem.Size = new System.Drawing.Size(125, 22);
+            this._renameTarckItem.Size = new System.Drawing.Size(136, 22);
             this._renameTarckItem.Text = "Rename...";
             this._renameTarckItem.Paint += new System.Windows.Forms.PaintEventHandler(this._renameTarckItem_Paint);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(122, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(133, 6);
             // 
             // _upPriority
             // 
             this._upPriority.Name = "_upPriority";
-            this._upPriority.Size = new System.Drawing.Size(125, 22);
+            this._upPriority.Size = new System.Drawing.Size(136, 22);
             this._upPriority.Text = "Up";
             this._upPriority.Click += new System.EventHandler(this._upPriority_Click);
             this._upPriority.Paint += new System.Windows.Forms.PaintEventHandler(this._upPriority_Paint);
@@ -291,7 +302,7 @@
             // _downPriority
             // 
             this._downPriority.Name = "_downPriority";
-            this._downPriority.Size = new System.Drawing.Size(125, 22);
+            this._downPriority.Size = new System.Drawing.Size(136, 22);
             this._downPriority.Text = "Down";
             this._downPriority.Click += new System.EventHandler(this._downPriority_Click);
             this._downPriority.Paint += new System.Windows.Forms.PaintEventHandler(this._downPriority_Paint);
@@ -299,24 +310,52 @@
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(122, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(133, 6);
             // 
             // _deleteTrackItem
             // 
             this._deleteTrackItem.Name = "_deleteTrackItem";
-            this._deleteTrackItem.Size = new System.Drawing.Size(125, 22);
+            this._deleteTrackItem.Size = new System.Drawing.Size(136, 22);
             this._deleteTrackItem.Text = "Delete...";
             this._deleteTrackItem.Click += new System.EventHandler(this._deleteTrackItem_Click);
             this._deleteTrackItem.Paint += new System.Windows.Forms.PaintEventHandler(this._deleteTrackItem_Paint);
             // 
             // _locationToolbar
             // 
+            this._locationToolbar.ContextMenuStrip = this._locationToolbarContextMenu;
             this._locationToolbar.ImageScalingSize = new System.Drawing.Size(32, 32);
             this._locationToolbar.Location = new System.Drawing.Point(3, 3);
             this._locationToolbar.Name = "_locationToolbar";
             this._locationToolbar.Size = new System.Drawing.Size(774, 25);
             this._locationToolbar.TabIndex = 0;
             this._locationToolbar.Text = "toolStrip1";
+            // 
+            // _locationToolbarContextMenu
+            // 
+            this._locationToolbarContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.addToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.removeToolStripMenuItem});
+            this._locationToolbarContextMenu.Name = "_locationToolbarContextMenu";
+            this._locationToolbarContextMenu.Size = new System.Drawing.Size(134, 54);
+            // 
+            // addToolStripMenuItem
+            // 
+            this.addToolStripMenuItem.Name = "addToolStripMenuItem";
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.addToolStripMenuItem.Text = "add...";
+            this.addToolStripMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
+            // 
+            // removeToolStripMenuItem
+            // 
+            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeToolStripMenuItem.Text = "remove...";
             // 
             // MainForm
             // 
@@ -341,6 +380,7 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this._locationContextMenu.ResumeLayout(false);
+            this._locationToolbarContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -371,6 +411,10 @@
         private System.Windows.Forms.ToolStripMenuItem _downPriority;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem _deleteTrackItem;
+        private System.Windows.Forms.ContextMenuStrip _locationToolbarContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem addToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
     }
 }
 
