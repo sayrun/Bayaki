@@ -5,7 +5,6 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using bykIFv1;
 
 namespace SkyTraqPlugin
 {
@@ -34,6 +33,9 @@ namespace SkyTraqPlugin
         #region 内部処理
         public Payload Read()
         {
+            DateTime start = DateTime.Now;
+            TimeSpan ts;
+
             bool findHeader1 = false;
             bool findHeader2 = false;
 
@@ -60,6 +62,10 @@ namespace SkyTraqPlugin
                         findHeader1 = true;
                     }
                 }
+                // データは読み出せたけど、目的のデータが読み出せないので、タイムアウトとして処理します。
+                ts = DateTime.Now - start;
+                if (READ_TIMEOUT < ts.TotalMilliseconds)
+                    throw new TimeoutException();
             }
 
             // payload length
@@ -95,6 +101,7 @@ namespace SkyTraqPlugin
             bool findFooter1 = false;
             bool findFooter2 = false;
 
+            start = DateTime.Now;
             while (true)
             {
                 readData = (byte)(0x00FF & _com.ReadByte());
@@ -116,6 +123,10 @@ namespace SkyTraqPlugin
                         findFooter1 = true;
                     }
                 }
+                // データは読み出せたけど、目的のデータが読み出せないので、タイムアウトとして処理します。
+                ts = DateTime.Now - start;
+                if (READ_TIMEOUT < ts.TotalMilliseconds)
+                    throw new TimeoutException();
             }
 
             return result;
@@ -183,7 +194,7 @@ namespace SkyTraqPlugin
         private byte ReadLogBufferCS()
         {
             byte d;
-            for (int index = 0; index < CHECKSUM_MARKER.Length; )
+            for (int index = 0; index < CHECKSUM_MARKER.Length;)
             {
                 d = (byte)_com.ReadByte();
                 if (d == CHECKSUM_MARKER[index])
@@ -198,7 +209,7 @@ namespace SkyTraqPlugin
 
             byte result = (byte)_com.ReadByte();
 
-            for (int index = 0; index < CHECKSUM_MARKER_FOOTER.Length; )
+            for (int index = 0; index < CHECKSUM_MARKER_FOOTER.Length;)
             {
                 d = (byte)_com.ReadByte();
                 if (d == CHECKSUM_MARKER_FOOTER[index])
@@ -248,7 +259,7 @@ namespace SkyTraqPlugin
         {
             Payload p = new Payload(MessageID.System_Restart, new byte[] { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
             Write(p);
-            if (RESULT.RESULT_ACK == this.waitResult(MessageID.Configure_Serial_Port))
+            if (RESULT.RESULT_ACK == this.waitResult(MessageID.System_Restart))
             {
                 // リセットが成功したのでボーレートも戻す
                 _com.BaudRate = 38400;
@@ -506,7 +517,7 @@ namespace SkyTraqPlugin
             decimal spd = (local.V * 1000);
             spd /= 3600;
 
-            result = new bykIFv1.Point( dt, (decimal)lon, (decimal)lat, (decimal)alt, spd);
+            result = new bykIFv1.Point(dt, (decimal)lon, (decimal)lat, (decimal)alt, spd);
 
             return result;
         }
@@ -655,16 +666,34 @@ namespace SkyTraqPlugin
             return null;
         }
 
-        public void EraceLatLonData()
+        public bool EraceLatLonData()
         {
-            Payload p = new Payload(MessageID.Clear_Data_Logging_Buffer);
-            Write(p);
-
-            if (RESULT.RESULT_ACK != this.waitResult(MessageID.Clear_Data_Logging_Buffer))
+            try
             {
-                throw new Exception("削除できない");
-            }
+                Payload p = new Payload(MessageID.Clear_Data_Logging_Buffer);
+                Write(p);
 
+                if (RESULT.RESULT_ACK != this.waitResult(MessageID.Clear_Data_Logging_Buffer))
+                {
+                    throw new Exception("削除できない");
+                }
+
+                return true;
+            }
+            catch (TimeoutException)
+            {
+                try
+                {
+                    // Restartして終了
+                    sendRestart();
+                }
+                catch (TimeoutException)
+                {
+                    // 処理なし
+                    recovery();
+                }
+                return false;
+            }
         }
 
         public void Dispose()

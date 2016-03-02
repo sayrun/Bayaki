@@ -83,9 +83,9 @@ namespace SkyTraqPlugin
             try
             {
                 SkytraqController skytraq = new SkytraqController(portName);
-                skytraq.EraceLatLonData();
+                bool result = skytraq.EraceLatLonData();
 
-                e.Result = true;
+                e.Result = result;
             }
             catch
             {
