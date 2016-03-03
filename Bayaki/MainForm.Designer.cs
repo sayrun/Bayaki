@@ -337,7 +337,8 @@
             this.toolStripSeparator3,
             this.removeToolStripMenuItem});
             this._locationToolbarContextMenu.Name = "_locationToolbarContextMenu";
-            this._locationToolbarContextMenu.Size = new System.Drawing.Size(134, 54);
+            this._locationToolbarContextMenu.Size = new System.Drawing.Size(153, 76);
+            this._locationToolbarContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationToolbarContextMenu_Opening);
             // 
             // addToolStripMenuItem
             // 

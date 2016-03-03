@@ -20,10 +20,11 @@ namespace Bayaki
         private string _workPath;
         private List<TrackItemSummary> _locations;
         private List<JPEGFileItem> _images;
+        private List<string> _pluginPath;
+
 
         public MainForm()
         {
-
             InitializeComponent();
 
             // とりあえず作業フォルダを固定する（あとで設定できるよにしようとは思う）
@@ -45,11 +46,61 @@ namespace Bayaki
                     File.Delete(locations);
                 }
             }
-            else
+            if( null == _locations)
             {
                 _locations = new List<TrackItemSummary>();
             }
             _images = new List<JPEGFileItem>();
+            _pluginPath = new List<string>();
+
+            // ツールバーにGPS情報取得プラグインを追加する
+            AddToolbar(new GPXLoaderv1());
+            string plugins = System.IO.Path.Combine(_workPath, "BayakiPlugins.dat");
+            if (File.Exists(plugins))
+            {
+                try
+                {
+                    List<string> loadWork = null;
+                    using (var stream = new FileStream(plugins, FileMode.Open))
+                    {
+                        BinaryFormatter bf = new BinaryFormatter();
+                        loadWork = bf.Deserialize(stream) as List<string>;
+                    }
+                    if(null != loadWork)
+                    {
+                        foreach( string filePath in loadWork)
+                        {
+                            LoadPlugin(filePath);
+                        }
+                    }
+                }
+                catch
+                {
+                    // 読み出せないよ？
+                    File.Delete(locations);
+                }
+            }
+        }
+
+        private void SerializePluginList()
+        {
+            // 新しいリストが追加されたので、保存します。
+            string plugins = System.IO.Path.Combine(_workPath, "BayakiPlugins.dat");
+
+            if (0 < _pluginPath.Count)
+            {
+                using (var stream = new FileStream(plugins, FileMode.Create))
+                {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    bf.Serialize(stream, _pluginPath);
+                }
+            }
+            else
+            {
+                // 保存すべきものがない場合削除します
+                File.Delete(plugins);
+            }
+
         }
 
         protected override void OnLoad(EventArgs e)
@@ -64,8 +115,6 @@ namespace Bayaki
             TrackItemSummary.SavePath = _workPath;
 
             _previewMap.DocumentText = Properties.Resources.googlemapsHTML;
-
-            AddToolbar(new GPXLoaderv1());
 
             UpdateLocationList();
         }
@@ -538,30 +587,92 @@ namespace Bayaki
             of.Multiselect = false;
             if (DialogResult.OK == of.ShowDialog(this))
             {
-                bykIFv1.PlugInInterface plugin;
-                Assembly asm = Assembly.LoadFrom(of.FileName);
-                foreach (var t in asm.GetTypes())
+                string filePath = of.FileName;
+
+                LoadPlugin( filePath);
+            }
+        }
+
+        private void LoadPlugin( string filePath)
+        {
+            bykIFv1.PlugInInterface plugin;
+            Assembly asm = Assembly.LoadFrom(filePath);
+            AssemblyTitleAttribute asmttl = asm.GetCustomAttributes(typeof(AssemblyTitleAttribute), true).Single() as AssemblyTitleAttribute;
+
+            bool findPlugin = false;
+            foreach (Type tp in asm.GetTypes())
+            {
+                try
                 {
-                    try
-                    {
-                        if (t.IsInterface) continue;
+                    if (tp.IsInterface) continue;
 
-                        plugin = Activator.CreateInstance(t) as bykIFv1.PlugInInterface;
-                        if (null == plugin) continue;
+                    plugin = Activator.CreateInstance(tp) as bykIFv1.PlugInInterface;
+                    if (null == plugin) continue;
 
-                        ToolStripItem item = new ToolStripButton(plugin.Icon);
-                        item.ToolTipText = plugin.Name;
-                        item.Tag = plugin;
-                        item.Click += Item_Click;
+                    findPlugin = true;
 
-                        _locationToolbar.Items.Add(item);
-                    }
-                    catch
-                    {
-                        continue;
-                    }
+                    AddToolbar(plugin);
+                }
+                catch
+                {
+                    continue;
                 }
             }
+
+            if (findPlugin)
+            {
+                _pluginPath.Add(filePath);
+                SerializePluginList();
+            }
+        }
+
+        private void _locationToolbarContextMenu_Opening(object sender, CancelEventArgs e)
+        {
+            ToolStripMenuItem item = null;
+
+            removeToolStripMenuItem.DropDownItems.Clear();
+            foreach (string filePath in _pluginPath)
+            {
+                Assembly asm = Assembly.LoadFrom(filePath);
+                AssemblyTitleAttribute asmttl = asm.GetCustomAttributes(typeof(AssemblyTitleAttribute), true).Single() as AssemblyTitleAttribute;
+
+                item = new ToolStripMenuItem(asmttl.Title);
+                item.Click += RemovePlugin_Click;
+                item.Tag = filePath;
+
+                removeToolStripMenuItem.DropDownItems.Add(item);
+            }
+            removeToolStripMenuItem.Enabled = (0 < removeToolStripMenuItem.DropDownItems.Count);
+        }
+
+        private void RemovePlugin_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+            if (null == item) return;
+
+            string targetPath = item.Tag as string;
+            if (null == targetPath) return;
+
+            List<ToolStripItem> delTarget = new List<ToolStripItem>();
+
+            bykIFv1.PlugInInterface plugin;
+            foreach (ToolStripItem toolBarItem in _locationToolbar.Items)
+            {
+                plugin = toolBarItem.Tag as bykIFv1.PlugInInterface;
+                if (null == plugin) return;
+
+                Type tp = plugin.GetType();
+                if (tp.Assembly.Location == targetPath)
+                {
+                    delTarget.Add(toolBarItem);
+                }
+            }
+            foreach (ToolStripItem toolBarItem in delTarget)
+            {
+                _locationToolbar.Items.Remove(toolBarItem);
+            }
+            _pluginPath.Remove(targetPath);
+            SerializePluginList();
         }
     }
 }
