@@ -495,6 +495,83 @@ namespace SkyTraqPlugin
             }
         }
 
+        private void ECEF2LLA( double x, double y, double z, out double latitude, out double longitude, out double altitude)
+        {
+            // a = 6,378,137
+            double a = 6378137;
+            // f = 1 / 298.257 223 563
+            double f = 1 / 298.257223563;
+            // b = a - ( a * f)
+            double b = a - (a * f);
+            // p =  √( x^2 + y^2)
+            double p = Math.Pow((a * a) + (b * b), -1);
+            // e = ( (a^2) - (b^2)) / (a^2)
+            double e = ((a * a) - (b * b)) / (a * a);
+            // e' = ( pow(a,2) - pow(b,2)) / pow(b,2)
+            double ed = ((a * a) - (b * b)) / (b * b);
+            // θ = atan (z * a / p * b)
+            double fi = Math.Atan2((z * a), (p * b));
+            // φ = atan{z + e' * b * (sin(θ)^3) / p - e * a * (cos(θ)^3)}
+            latitude = Math.Atan2(z + (e * b * Math.Pow(Math.Sign(fi), 3)), p - (e * a * Math.Pow(Math.Cos(fi), 3)));
+            // λ = atan{ x / y }
+            longitude = Math.Atan2(x, y);
+            // N = a / √( 1 - ( e * sin(φ)^2)
+            double N = a / (Math.Pow( 1 - ( e * Math.Pow( Math.Sin(latitude),2)), -2));
+            // h = ( p / cos(φ)) - N
+            altitude = (p / Math.Cos(fi)) - N;
+        }
+
+        private DateTime[] LeapSeconds = new DateTime[]
+        {
+            new DateTime(2006, 1, 1, 0, 0, 0),
+            new DateTime(2009, 1, 1, 0, 0, 0),
+            new DateTime(2012, 7, 1, 0, 0, 0),
+            new DateTime(2015, 7, 1, 0, 0, 0)
+        };
+
+        private DateTime GPSTIME2diffUTC(long WN, long TOW)
+        {
+            // 1999年8月22日にroll overした分を加算
+            long weekNumber = WN + 1024;
+
+            // 1981/6/30 +1
+            // 1982/6/30 +1
+            // 1983/6/30 +1
+            // 1985/6/30 +1
+            // 1987/12/31 +1
+            // 1989/12/31 +1
+            // 1990/12/31 +1
+            // 1992/6/30 +1
+            // 1993/6/30 +1
+            // 1994/6/30 +1
+            // 1995/12/31 +1
+            // 1997/6/30 +1
+            // 1998/12/31 +1
+            long leapSecond = -13;
+
+            long SEC_OF_WEEK = 7 * 24 * 60 * 60;
+
+            long now = (weekNumber * SEC_OF_WEEK) + TOW;
+
+            DateTime result = new DateTime(1980, 1, 6, 0, 0, 0);
+            result.AddSeconds(now);
+            // 1999年8月22日までの分の閏秒加算（加算だけど減算）
+            result.AddSeconds(leapSecond);
+
+            // 今までの閏秒加算（加算だけど減算）
+            foreach( DateTime dt in LeapSeconds)
+            {
+                if( result > dt)
+                {
+                    result.AddSeconds(-1);
+                    continue;
+                }
+                break;
+            }
+
+            return result;
+        }
+
         private bykIFv1.Point ECEF2LonLat(DataLogFixFull local)
         {
             bykIFv1.Point result = null;
@@ -507,12 +584,9 @@ namespace SkyTraqPlugin
             double lon = 0;
             double alt = 0;
 
-            // ECEF_to_LLA(x, y, z, out lat, out lon, out alt);
+            ECEF2LLA(x, y, z, out lat, out lon, out alt);
 
-            long time = 0;
-            //time = gpstime_to_timet(local.WN, (int)local.TOW) - 315964800;
-            DateTime dt = new DateTime(1980, 1, 6, 0, 0, 0);
-            dt = dt.AddSeconds(time);
+            DateTime dt = GPSTIME2diffUTC(local.WN, local.TOW);
 
             decimal spd = (local.V * 1000);
             spd /= 3600;
