@@ -61,6 +61,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SoftwareVersion.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\bykIFv1\bykIFv1.csproj">

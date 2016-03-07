@@ -21,6 +21,7 @@ namespace SkyTraqPlugin
         private const UInt16 MASK_LOBYTE = 0x00FF;
 
         private const int READ_TIMEOUT = (10 * 1000);
+        private const int READ_TIMEOUT_INTERNAL = (500);
 
         public SkytraqController(string portName)
         {
@@ -28,10 +29,63 @@ namespace SkyTraqPlugin
 
             _com.ReadTimeout = READ_TIMEOUT;
             _com.Open();
+
+            SyncBaudRate();
+        }
+
+        public void Dispose()
+        {
+            this.sendRestart();
+            if (_com.IsOpen)
+            {
+                _com.Close();
+                _com = null;
+            }
         }
 
         #region 内部処理
+        /// <summary>
+        /// ボーレートを合わせる
+        /// </summary>
+        /// <returns></returns>
+        private void SyncBaudRate()
+        {
+            int[] BaudRateList = { 0, 115200, 38400, 230400, 57600, 19200, 9600, 4800 };
+            foreach (int baudRate in BaudRateList)
+            {
+                // 0は今の設定を使う
+                if (0 != baudRate)
+                {
+                    _com.BaudRate = baudRate;
+                    System.Threading.Thread.Sleep(50);
+                }
+                try
+                {
+                    _com.ReadTimeout = READ_TIMEOUT_INTERNAL;
+                    // ソフトバージョンを取得してみる
+                    SoftwareVersion version = GetSoftwareVersion(READ_TIMEOUT_INTERNAL);
+
+                    System.Diagnostics.Debug.Print("Soft Type={0:X2}", version.SoftType);
+                    System.Diagnostics.Debug.Print("Kernel Vresion={0:X8}", version.KernelVersion);
+                    System.Diagnostics.Debug.Print("ODM Vresion={0:X8}", version.ODMVersion);
+                    System.Diagnostics.Debug.Print("Revision={0:X8}", version.Revision);
+
+                    return;
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+            throw new Exception("通信できませんでした");
+        }
+
         public Payload Read()
+        {
+            return Read(READ_TIMEOUT);
+        }
+
+        public Payload Read(int timeout)
         {
             DateTime start = DateTime.Now;
             TimeSpan ts;
@@ -64,7 +118,7 @@ namespace SkyTraqPlugin
                 }
                 // データは読み出せたけど、目的のデータが読み出せないので、タイムアウトとして処理します。
                 ts = DateTime.Now - start;
-                if (READ_TIMEOUT < ts.TotalMilliseconds)
+                if (timeout < ts.TotalMilliseconds)
                     throw new TimeoutException();
             }
 
@@ -76,9 +130,14 @@ namespace SkyTraqPlugin
             // read payload
             System.Threading.Thread.Sleep(10);
             byte[] rawPayload = new byte[payloadLength];
+            start = DateTime.Now;
             for (int readCount = 0; readCount < payloadLength;)
             {
                 readCount += _com.Read(rawPayload, readCount, payloadLength - readCount);
+                // 時間が経過しても読み出しきらない
+                ts = DateTime.Now - start;
+                if (timeout < ts.TotalMilliseconds)
+                    throw new TimeoutException();
             }
 
             Payload result = new Payload(rawPayload, 0, rawPayload.Length);
@@ -125,7 +184,7 @@ namespace SkyTraqPlugin
                 }
                 // データは読み出せたけど、目的のデータが読み出せないので、タイムアウトとして処理します。
                 ts = DateTime.Now - start;
-                if (READ_TIMEOUT < ts.TotalMilliseconds)
+                if (timeout < ts.TotalMilliseconds)
                     throw new TimeoutException();
             }
 
@@ -233,10 +292,15 @@ namespace SkyTraqPlugin
 
         private RESULT waitResult(MessageID id)
         {
+            return waitResult(id, READ_TIMEOUT);
+        }
+
+        private RESULT waitResult(MessageID id, int timeout)
+        {
             Payload p = null;
             while (true)
             {
-                p = Read();
+                p = Read(timeout);
 
                 if (p.ID == MessageID.ACK)
                 {
@@ -278,7 +342,7 @@ namespace SkyTraqPlugin
             this.waitResult(MessageID.Enable_data_read_from_the_log_buffer);
         }
 
-        private void RequestBufferStatus(out UInt16 totalSectors, out UInt16 freeSectors, out bool dataLogEnable)
+        private void GetBufferStatus(out UInt16 totalSectors, out UInt16 freeSectors, out bool dataLogEnable)
         {
             Payload p = new Payload(MessageID.Request_Information_of_the_Log_Buffer_Status);
             Write(p);
@@ -607,7 +671,33 @@ namespace SkyTraqPlugin
             BaudRate_230400 = 6
         };
 
+        private SoftwareVersion GetSoftwareVersion(int timeout)
+        {
+            Payload p = new Payload(MessageID.Query_Software_version);
+            Write(p);
+
+            Payload result;
+            if (RESULT.RESULT_ACK != this.waitResult(MessageID.Query_Software_version, timeout))
+            {
+                throw new Exception("NACK!");
+            }
+
+            result = Read(timeout);
+            if (result.ID != MessageID.Software_version)
+            {
+                throw new Exception("Sequence error");
+            }
+
+            SoftwareVersion resutl = new SoftwareVersion(result.Body);
+
+            return resutl;
+        }
         #endregion
+
+        public SoftwareVersion GetSoftwareVersion()
+        {
+            return GetSoftwareVersion();
+        }
 
         public List<bykIFv1.Point> ReadLatLonData()
         {
@@ -622,7 +712,7 @@ namespace SkyTraqPlugin
                 setBaudRate(BaudRate.BaudRate_115200);
 
                 // セクタ数を見る
-                RequestBufferStatus(out totalSectors, out freeSectors, out dataLogEnable);
+                GetBufferStatus(out totalSectors, out freeSectors, out dataLogEnable);
                 System.Diagnostics.Debug.Print("freeSectors/totalSectors = {0}/{1}", freeSectors, totalSectors);
 
                 // データが無効なら終わる
@@ -770,14 +860,5 @@ namespace SkyTraqPlugin
             }
         }
 
-        public void Dispose()
-        {
-            this.sendRestart();
-            if (_com.IsOpen)
-            {
-                _com.Close();
-                _com = null;
-            }
-        }
     }
 }
