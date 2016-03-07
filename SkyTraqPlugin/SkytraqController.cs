@@ -21,7 +21,7 @@ namespace SkyTraqPlugin
         private const UInt16 MASK_LOBYTE = 0x00FF;
 
         private const int READ_TIMEOUT = (10 * 1000);
-        private const int READ_TIMEOUT_INTERNAL = (500);
+        private const int READ_TIMEOUT_INTERNAL = (300);
 
         public SkytraqController(string portName)
         {
@@ -61,9 +61,10 @@ namespace SkyTraqPlugin
                 }
                 try
                 {
+                    // 読み出しのタイムアウトを短くする
                     _com.ReadTimeout = READ_TIMEOUT_INTERNAL;
                     // ソフトバージョンを取得してみる
-                    SoftwareVersion version = GetSoftwareVersion(READ_TIMEOUT_INTERNAL);
+                    SoftwareVersion version = GetSoftwareVersion();
 
                     System.Diagnostics.Debug.Print("Soft Type={0:X2}", version.SoftType);
                     System.Diagnostics.Debug.Print("Kernel Vresion={0:X8}", version.KernelVersion);
@@ -81,11 +82,6 @@ namespace SkyTraqPlugin
         }
 
         public Payload Read()
-        {
-            return Read(READ_TIMEOUT);
-        }
-
-        public Payload Read(int timeout)
         {
             DateTime start = DateTime.Now;
             TimeSpan ts;
@@ -118,7 +114,7 @@ namespace SkyTraqPlugin
                 }
                 // データは読み出せたけど、目的のデータが読み出せないので、タイムアウトとして処理します。
                 ts = DateTime.Now - start;
-                if (timeout < ts.TotalMilliseconds)
+                if (_com.ReadTimeout < ts.TotalMilliseconds)
                     throw new TimeoutException();
             }
 
@@ -136,7 +132,7 @@ namespace SkyTraqPlugin
                 readCount += _com.Read(rawPayload, readCount, payloadLength - readCount);
                 // 時間が経過しても読み出しきらない
                 ts = DateTime.Now - start;
-                if (timeout < ts.TotalMilliseconds)
+                if (_com.ReadTimeout < ts.TotalMilliseconds)
                     throw new TimeoutException();
             }
 
@@ -184,7 +180,7 @@ namespace SkyTraqPlugin
                 }
                 // データは読み出せたけど、目的のデータが読み出せないので、タイムアウトとして処理します。
                 ts = DateTime.Now - start;
-                if (timeout < ts.TotalMilliseconds)
+                if (_com.ReadTimeout < ts.TotalMilliseconds)
                     throw new TimeoutException();
             }
 
@@ -292,15 +288,10 @@ namespace SkyTraqPlugin
 
         private RESULT waitResult(MessageID id)
         {
-            return waitResult(id, READ_TIMEOUT);
-        }
-
-        private RESULT waitResult(MessageID id, int timeout)
-        {
             Payload p = null;
             while (true)
             {
-                p = Read(timeout);
+                p = Read();
 
                 if (p.ID == MessageID.ACK)
                 {
@@ -671,18 +662,20 @@ namespace SkyTraqPlugin
             BaudRate_230400 = 6
         };
 
-        private SoftwareVersion GetSoftwareVersion(int timeout)
+        #endregion
+
+        public SoftwareVersion GetSoftwareVersion()
         {
             Payload p = new Payload(MessageID.Query_Software_version);
             Write(p);
 
             Payload result;
-            if (RESULT.RESULT_ACK != this.waitResult(MessageID.Query_Software_version, timeout))
+            if (RESULT.RESULT_ACK != this.waitResult(MessageID.Query_Software_version))
             {
                 throw new Exception("NACK!");
             }
 
-            result = Read(timeout);
+            result = Read();
             if (result.ID != MessageID.Software_version)
             {
                 throw new Exception("Sequence error");
@@ -691,12 +684,7 @@ namespace SkyTraqPlugin
             SoftwareVersion resutl = new SoftwareVersion(result.Body);
 
             return resutl;
-        }
-        #endregion
 
-        public SoftwareVersion GetSoftwareVersion()
-        {
-            return GetSoftwareVersion();
         }
 
         public List<bykIFv1.Point> ReadLatLonData()
