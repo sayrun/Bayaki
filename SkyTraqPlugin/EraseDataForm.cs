@@ -12,6 +12,8 @@ namespace SkyTraqPlugin
 {
     public partial class EraseDataForm : Form
     {
+        private const string PORT_AUTO = "Auto";
+
         public EraseDataForm()
         {
             InitializeComponent();
@@ -22,11 +24,13 @@ namespace SkyTraqPlugin
             try
             {
                 _posrts.BeginUpdate();
+                _posrts.Items.Add(PORT_AUTO);
                 foreach (string portName in System.IO.Ports.SerialPort.GetPortNames())
                 {
                     _posrts.Items.Add(portName);
                 }
-                _posrts.SelectedIndex = -1;
+                int index = _posrts.Items.IndexOf(PORT_AUTO);
+                _posrts.SelectedIndex = index;
             }
             finally
             {
@@ -36,7 +40,7 @@ namespace SkyTraqPlugin
 
         private void _posrts_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _OK.Enabled = (0 <= _posrts.SelectedIndex);
+            _erase.Enabled = (0 <= _posrts.SelectedIndex);
         }
 
         public string PortName
@@ -44,6 +48,14 @@ namespace SkyTraqPlugin
             get
             {
                 return _posrts.SelectedItem.ToString();
+            }
+            set
+            {
+                int index = _posrts.Items.IndexOf(value);
+                if( 0 <= index)
+                {
+                    _posrts.SelectedIndex = index;
+                }
             }
         }
 
@@ -56,21 +68,34 @@ namespace SkyTraqPlugin
         {
             set
             {
-                _OK.Enabled = value;
+                _erase.Enabled = value;
                 _cancel.Enabled = value;
                 _posrts.Enabled = value;
             }
         }
 
-        private void _OK_Click(object sender, EventArgs e)
+        private void _erase_Click(object sender, EventArgs e)
         {
-
             UseWaitCursor = true;
             NowProcessing = false;
 
             _progress.Value = 0;
 
             string portName = this.PortName;
+            if (PORT_AUTO == portName)
+            {
+                try
+                {
+                    portName = SkytraqController.AutoSelectPort();
+                    this.PortName = portName;
+                }
+                catch
+                {
+                    _posrts.Items.Remove(portName);
+                    MessageBox.Show("自動でポートを選択できませんでした。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+            }
             _eraseWorker.RunWorkerAsync(portName);
 
             _timer.Start();
@@ -82,10 +107,12 @@ namespace SkyTraqPlugin
 
             try
             {
-                SkytraqController skytraq = new SkytraqController(portName);
-                bool result = skytraq.EraceLatLonData();
+                using (SkytraqController skytraq = new SkytraqController(portName))
+                {
+                    bool result = skytraq.EraceLatLonData();
 
-                e.Result = result;
+                    e.Result = result;
+                }
             }
             catch
             {
@@ -111,7 +138,7 @@ namespace SkyTraqPlugin
             }
             else
             {
-                MessageBox.Show("消去できませんでした。\n再実行してみるとうまくいくかも？", Properties.Resources.Eraser_NAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("消去できませんでした。\n・ポートがあっていますか？\n・電源はONになっていますか？", Properties.Resources.Eraser_NAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
             _progress.Value = 0;

@@ -63,7 +63,7 @@ namespace SkyTraqPlugin
             buffer[offset] = (byte)_id;
             if (null != _body)
             {
-                System.Buffer.BlockCopy(_body, 0, buffer, offset + 1, Math.Min(length, _body.Length));
+                System.Buffer.BlockCopy(_body, 0, buffer, offset + 1, Math.Min(length - 1, _body.Length));
             }
         }
     }

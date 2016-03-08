@@ -12,6 +12,8 @@ namespace SkyTraqPlugin
     {
         // 対象ポート
         private SerialPort _com;
+        // ポートオープン時に取得したバージョン
+        private readonly SoftwareVersion _version;
 
         private const byte START_OF_SEQUENCE_1 = 0xa0;
         private const byte START_OF_SEQUENCE_2 = 0xa1;
@@ -30,12 +32,12 @@ namespace SkyTraqPlugin
             _com.ReadTimeout = READ_TIMEOUT;
             _com.Open();
 
-            SyncBaudRate();
+            // 同期しつつバージョンを取得してみる
+            SyncBaudRate( out _version);
         }
 
         public void Dispose()
         {
-            this.sendRestart();
             if (_com.IsOpen)
             {
                 _com.Close();
@@ -48,7 +50,7 @@ namespace SkyTraqPlugin
         /// ボーレートを合わせる
         /// </summary>
         /// <returns></returns>
-        private void SyncBaudRate()
+        private void SyncBaudRate( out SoftwareVersion version)
         {
             int[] BaudRateList = { 0, 115200, 38400, 230400, 57600, 19200, 9600, 4800 };
             foreach (int baudRate in BaudRateList)
@@ -64,12 +66,14 @@ namespace SkyTraqPlugin
                     // 読み出しのタイムアウトを短くする
                     _com.ReadTimeout = READ_TIMEOUT_INTERNAL;
                     // ソフトバージョンを取得してみる
-                    SoftwareVersion version = GetSoftwareVersion();
+                    version = GetSoftwareVersion();
+                    // タイムアウト値をもどします。
+                    _com.ReadTimeout = READ_TIMEOUT;
 
-                    System.Diagnostics.Debug.Print("Soft Type={0:X2}", version.SoftType);
-                    System.Diagnostics.Debug.Print("Kernel Vresion={0:X8}", version.KernelVersion);
-                    System.Diagnostics.Debug.Print("ODM Vresion={0:X8}", version.ODMVersion);
-                    System.Diagnostics.Debug.Print("Revision={0:X8}", version.Revision);
+                    System.Diagnostics.Debug.Print("Soft Type=0x{0:X2}", version.SoftType);
+                    System.Diagnostics.Debug.Print("Kernel Vresion=0x{0:X8}", version.KernelVersion);
+                    System.Diagnostics.Debug.Print("ODM Vresion=0x{0:X8}", version.ODMVersion);
+                    System.Diagnostics.Debug.Print("Revision=0x{0:X8}", version.Revision);
 
                     return;
                 }
@@ -78,7 +82,7 @@ namespace SkyTraqPlugin
                     continue;
                 }
             }
-            throw new Exception("通信できませんでした");
+            throw new InvalidOperationException("応答を受信できませんでした");
         }
 
         public Payload Read()
@@ -177,6 +181,10 @@ namespace SkyTraqPlugin
                         findFooter2 = false;
                         findFooter1 = true;
                     }
+                    else
+                    {
+                        throw new Exception("sequnce error.");
+                    }
                 }
                 // データは読み出せたけど、目的のデータが読み出せないので、タイムアウトとして処理します。
                 ts = DateTime.Now - start;
@@ -233,7 +241,8 @@ namespace SkyTraqPlugin
             return result;
         }
 
-        private static int SECTOR_SIZE = 4096;
+        private const int SECTOR_SIZE = 4096;
+        private const int SECTOR_COUNT = 1; 
 
         private void ReadLogBuffer(byte[] buffer, int offset, int sectorsSize)
         {
@@ -662,11 +671,58 @@ namespace SkyTraqPlugin
             BaudRate_230400 = 6
         };
 
+        private enum READ_PHASE
+        {
+            READ_PHASE_UNSTART,
+            READ_PHASE_INIT,
+            READ_PHASE_READ,
+            READ_PHASE_CONVERT,
+            READ_PHASE_RESTERT,
+            READ_PHASE_MAX
+        };
+
         #endregion
+
+        public delegate void ReadLatLogDataProgress(int phaseValue, int phaseMax, int progressValue, int progressMax);
+
+        public static string AutoSelectPort()
+        {
+            SkytraqController port = null;
+            foreach (string portName in System.IO.Ports.SerialPort.GetPortNames())
+            {
+                try
+                {
+                    port = new SkytraqController(portName);
+
+                    return portName;
+                }
+                catch
+                {
+                    continue;
+                }
+                finally
+                {
+                    if (null != port)
+                    {
+                        port.Dispose();
+                        port = null;
+                    }
+                }
+            }
+            throw new InvalidOperationException("利用できるComPortがない");
+        }
+
+        public SoftwareVersion SoftwareVersion
+        {
+            get
+            {
+                return _version;
+            }
+        }
 
         public SoftwareVersion GetSoftwareVersion()
         {
-            Payload p = new Payload(MessageID.Query_Software_version);
+            Payload p = new Payload(MessageID.Query_Software_version, new byte[] { 0x01 });
             Write(p);
 
             Payload result;
@@ -687,7 +743,20 @@ namespace SkyTraqPlugin
 
         }
 
-        public List<bykIFv1.Point> ReadLatLonData()
+        public BufferStatus GetBufferStatus()
+        {
+            UInt16 totalSectors;
+            UInt16 freeSectors;
+            bool dataLogEnable;
+
+            GetBufferStatus(out totalSectors, out freeSectors, out dataLogEnable);
+
+            System.Diagnostics.Debug.Print("total={0}/free={1}/log enable={2}", totalSectors, freeSectors, dataLogEnable);
+
+            return new BufferStatus(totalSectors, freeSectors, dataLogEnable);
+        }
+
+        public List<bykIFv1.Point> ReadLatLonData(ReadLatLogDataProgress delgateProgress)
         {
             try
             {
@@ -696,12 +765,15 @@ namespace SkyTraqPlugin
                 UInt16 totalSectors;
                 UInt16 freeSectors;
                 bool dataLogEnable;
+                delgateProgress((int)READ_PHASE.READ_PHASE_INIT, (int)READ_PHASE.READ_PHASE_MAX, 0, 100);
                 // ボーレートの設定をする
                 setBaudRate(BaudRate.BaudRate_115200);
+                delgateProgress((int)READ_PHASE.READ_PHASE_INIT, (int)READ_PHASE.READ_PHASE_MAX, 50, 100);
 
                 // セクタ数を見る
                 GetBufferStatus(out totalSectors, out freeSectors, out dataLogEnable);
                 System.Diagnostics.Debug.Print("freeSectors/totalSectors = {0}/{1}", freeSectors, totalSectors);
+                delgateProgress((int)READ_PHASE.READ_PHASE_INIT, (int)READ_PHASE.READ_PHASE_MAX, 100, 100);
 
                 // データが無効なら終わる
                 //if (!dataLogEnable) return null;
@@ -710,28 +782,36 @@ namespace SkyTraqPlugin
                 sectors -= freeSectors;
                 if (0 < sectors)
                 {
+                    delgateProgress((int)READ_PHASE.READ_PHASE_READ, (int)READ_PHASE.READ_PHASE_MAX, 0, sectors);
+
+                    // データを読み込みます
                     byte[] readLog = new byte[sectors * SECTOR_SIZE];
                     int retryCount = 0;
                     int readSectors = 0;
                     for (int index = 0; index < sectors;)
                     {
-                        readSectors = (2 <= (sectors - index)) ? 2 : 1;
+                        readSectors = (SECTOR_COUNT <= (sectors - index)) ? SECTOR_COUNT : 1;
 
+                        System.Diagnostics.Debug.Print("step-1");
                         // 読み出しを指示
                         sendReadBuffer(index, readSectors);
 
+                        System.Diagnostics.Debug.Print("step-2");
                         // データを取得する
                         ReadLogBuffer(readLog, index * SECTOR_SIZE, readSectors * SECTOR_SIZE);
 
+#if false
                         string s = string.Format(@"C:\Users\Tomo\Documents\GEOTagInjector\SkyTraqSerial\hoge_{0}.bin", index);
                         using (System.IO.BinaryWriter bw = new System.IO.BinaryWriter(File.OpenWrite(s)))
                         {
                             bw.Write(readLog, index * SECTOR_SIZE, readSectors * SECTOR_SIZE);
                         }
-
+#endif
+                        System.Diagnostics.Debug.Print("step-3");
                         // CS取得
                         byte resultCS = ReadLogBufferCS();
 
+                        System.Diagnostics.Debug.Print("step-4");
                         byte calcCS = 0;
                         using (MemoryStream ms = new MemoryStream(readLog, index * SECTOR_SIZE, readSectors * SECTOR_SIZE))
                         {
@@ -751,8 +831,10 @@ namespace SkyTraqPlugin
                             }
                         }
 
+                        System.Diagnostics.Debug.Print("step-5");
                         if (calcCS != resultCS)
                         {
+                            System.Diagnostics.Debug.Print("step-6-1");
                             if (3 <= retryCount)
                             {
                                 throw new Exception("データ取得のリトライが失敗した");
@@ -761,16 +843,24 @@ namespace SkyTraqPlugin
                         }
                         else
                         {
+                            System.Diagnostics.Debug.Print("step-6-2");
+                            delgateProgress((int)READ_PHASE.READ_PHASE_READ, (int)READ_PHASE.READ_PHASE_MAX, index, sectors);
+
                             retryCount = 0;
                             // 次を読み込みます。
                             index += readSectors;
                         }
+                        System.Diagnostics.Debug.Print("step-7");
                         System.Threading.Thread.Sleep(100);
                     }
 
+
+                    // 読み出したデータを変換します
                     items = new List<bykIFv1.Point>();
                     using (BinaryReader br = new BinaryReader(new MemoryStream(readLog)))
                     {
+                        delgateProgress((int)READ_PHASE.READ_PHASE_CONVERT, (int)READ_PHASE.READ_PHASE_MAX, 0, (int)br.BaseStream.Length);
+
                         DataLogFixFull local = null;
                         while (true)
                         {
@@ -783,19 +873,24 @@ namespace SkyTraqPlugin
                                     // longitude/latitudeに変換する
                                     items.Add(ECEF2LonLat(local));
                                 }
+                                delgateProgress((int)READ_PHASE.READ_PHASE_CONVERT, (int)READ_PHASE.READ_PHASE_MAX, (int)br.BaseStream.Position, (int)br.BaseStream.Length);
+
                             }
                             catch (System.IO.EndOfStreamException)
                             {
                                 break;
                             }
                         }
-
+                        delgateProgress((int)READ_PHASE.READ_PHASE_CONVERT, (int)READ_PHASE.READ_PHASE_MAX, (int)br.BaseStream.Length, (int)br.BaseStream.Length);
                     }
                 }
 
+                delgateProgress((int)READ_PHASE.READ_PHASE_RESTERT, (int)READ_PHASE.READ_PHASE_MAX, 0, 100);
                 // Restartして終了
                 sendRestart();
+                delgateProgress((int)READ_PHASE.READ_PHASE_RESTERT, (int)READ_PHASE.READ_PHASE_MAX, 100, 100);
 
+                delgateProgress((int)READ_PHASE.READ_PHASE_MAX, (int)READ_PHASE.READ_PHASE_MAX, 100, 100);
                 // longitude/latitudeの配列を返す
                 return items;
 
@@ -822,6 +917,9 @@ namespace SkyTraqPlugin
         {
             try
             {
+                // ボーレートの設定をする
+                setBaudRate(BaudRate.BaudRate_38400);
+                
                 Payload p = new Payload(MessageID.Clear_Data_Logging_Buffer);
                 Write(p);
 

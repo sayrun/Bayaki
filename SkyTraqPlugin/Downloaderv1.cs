@@ -34,7 +34,11 @@ namespace SkyTraqPlugin
 
         public TrackItem[] GetTrackItems(IWin32Window owner)
         {
-            throw new NotImplementedException("まだ実装していないです");
+            DownloadDataForm dl = new DownloadDataForm();
+
+            dl.ShowDialog(owner);
+
+            return new TrackItem[] { };
         }
     }
 }
