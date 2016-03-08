@@ -359,15 +359,15 @@ namespace SkyTraqPlugin
                 throw new Exception("Sequence error");
             }
 
-            totalSectors = (UInt16)result.Body[8];
+            totalSectors = (UInt16)result.Body[7];
             totalSectors <<= 8;
-            totalSectors |= (UInt16)result.Body[7];
+            totalSectors |= (UInt16)result.Body[6];
 
-            freeSectors = (UInt16)result.Body[6];
+            freeSectors = (UInt16)result.Body[5];
             freeSectors <<= 8;
-            freeSectors |= (UInt16)result.Body[5];
+            freeSectors |= (UInt16)result.Body[4];
 
-            dataLogEnable = (0x01 == result.Body[33]);
+            dataLogEnable = (0x01 == result.Body[32]);
         }
 
         private DataLogFixFull ReadLocation(BinaryReader br, DataLogFixFull current)
