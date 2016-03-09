@@ -39,8 +39,8 @@
             this._ODMVersion = new System.Windows.Forms.TextBox();
             this._Revision = new System.Windows.Forms.TextBox();
             this._progress = new System.Windows.Forms.ProgressBar();
-            this.progressBar2 = new System.Windows.Forms.ProgressBar();
             this._downloadWorker = new System.ComponentModel.BackgroundWorker();
+            this._phase = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // _bufferStatus
@@ -138,21 +138,24 @@
             // 
             // _progress
             // 
-            this._progress.Location = new System.Drawing.Point(74, 129);
+            this._progress.Location = new System.Drawing.Point(74, 158);
             this._progress.Name = "_progress";
             this._progress.Size = new System.Drawing.Size(352, 23);
             this._progress.TabIndex = 8;
             // 
-            // progressBar2
-            // 
-            this.progressBar2.Location = new System.Drawing.Point(74, 158);
-            this.progressBar2.Name = "progressBar2";
-            this.progressBar2.Size = new System.Drawing.Size(352, 23);
-            this.progressBar2.TabIndex = 8;
-            // 
             // _downloadWorker
             // 
             this._downloadWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this._downloadWorker_DoWork);
+            this._downloadWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this._downloadWorker_RunWorkerCompleted);
+            // 
+            // _phase
+            // 
+            this._phase.Location = new System.Drawing.Point(74, 133);
+            this._phase.Name = "_phase";
+            this._phase.ReadOnly = true;
+            this._phase.Size = new System.Drawing.Size(100, 19);
+            this._phase.TabIndex = 10;
+            this._phase.Text = "phase";
             // 
             // DownloadDataForm
             // 
@@ -162,9 +165,9 @@
             this.ControlBox = false;
             this.Controls.Add(this._Revision);
             this.Controls.Add(this._ODMVersion);
+            this.Controls.Add(this._phase);
             this.Controls.Add(this._kernelVersion);
             this.Controls.Add(this._connect);
-            this.Controls.Add(this.progressBar2);
             this.Controls.Add(this._progress);
             this.Controls.Add(this._bufferStatus);
             this.Controls.Add(this._cancel);
@@ -195,7 +198,7 @@
         private System.Windows.Forms.TextBox _ODMVersion;
         private System.Windows.Forms.TextBox _Revision;
         private System.Windows.Forms.ProgressBar _progress;
-        private System.Windows.Forms.ProgressBar progressBar2;
         private System.ComponentModel.BackgroundWorker _downloadWorker;
+        private System.Windows.Forms.TextBox _phase;
     }
 }

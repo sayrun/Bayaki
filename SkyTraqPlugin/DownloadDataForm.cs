@@ -15,10 +15,14 @@ namespace SkyTraqPlugin
         private const string PORT_AUTO = "Auto";
         private SkytraqController _port;
 
+        private bykIFv1.TrackItem _item;
+
 
         public DownloadDataForm()
         {
             InitializeComponent();
+
+            _item = null;
         }
 
         public string PortName
@@ -37,6 +41,13 @@ namespace SkyTraqPlugin
             }
         }
 
+        public bykIFv1.TrackItem[] Items
+        {
+            get
+            {
+                return new bykIFv1.TrackItem [] { _item } ;
+            }
+        }
 
         private void _connect_Click(object sender, EventArgs e)
         {
@@ -102,26 +113,21 @@ namespace SkyTraqPlugin
 
         }
 
-        delegate void  LocalReadLatLogDataProgress(int phaseValue, int phaseMax, int progressValue, int progressMax);
+        delegate void  LocalReadLatLogDataProgress(ReadProgress progress);
 
-        private void MyReadLatLogDataProgress(int phaseValue, int phaseMax, int progressValue, int progressMax)
+        private void ReadLatLogDataProgress(ReadProgress progress)
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new LocalReadLatLogDataProgress(MyReadLatLogDataProgress), new object[] { phaseValue, phaseMax, progressValue, progressMax });
+                this.Invoke(new LocalReadLatLogDataProgress(ReadLatLogDataProgress), new object[] { progress });
                 return;
             }
-            _progress.Maximum = phaseMax;
-            _progress.Value = phaseValue;
-            progressBar2.Maximum = progressMax;
-            progressBar2.Value = progressValue;
-        }
 
-        private void ReadLatLogDataProgress(int phaseValue, int phaseMax, int progressValue, int progressMax)
-        {
-            MyReadLatLogDataProgress(phaseValue, phaseMax, progressValue, progressMax);
+            System.Diagnostics.Debug.Print("{0} - {1}/{2}", progress.Phase, progress.Value, progress.Max);
 
-            System.Diagnostics.Debug.Print("{0}/{1}, {2}/{3}", phaseValue, phaseMax, progressValue, progressMax);
+            _phase.Text = progress.PhaseName;
+            _progress.Maximum = progress.Max;
+            _progress.Value = progress.Value;
         }
 
         private void _download_Click(object sender, EventArgs e)
@@ -145,7 +151,24 @@ namespace SkyTraqPlugin
         {
             List<bykIFv1.Point> points = _port.ReadLatLonData(new SkytraqController.ReadLatLogDataProgress(this.ReadLatLogDataProgress));
 
-            e.Result = points;
+            bykIFv1.TrackItem item = new bykIFv1.TrackItem("name", DateTime.Now);
+            item.Items = points;
+
+            e.Result = item;
+        }
+
+        private void _downloadWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (null == e.Error)
+            {
+                _item = e.Result as bykIFv1.TrackItem;
+
+                DialogResult = DialogResult.OK;
+            }
+            else
+            {
+                MessageBox.Show(e.Error.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
     }
 }

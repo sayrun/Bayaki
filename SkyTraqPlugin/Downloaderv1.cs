@@ -36,7 +36,10 @@ namespace SkyTraqPlugin
         {
             DownloadDataForm dl = new DownloadDataForm();
 
-            dl.ShowDialog(owner);
+            if( DialogResult.OK == dl.ShowDialog(owner))
+            {
+                return dl.Items;
+            }
 
             return new TrackItem[] { };
         }

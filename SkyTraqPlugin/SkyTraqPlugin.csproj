@@ -59,6 +59,7 @@
     <Compile Include="EraseDataForm.Designer.cs">
       <DependentUpon>EraseDataForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ReadProgress.cs" />
     <Compile Include="SkytraqController.cs" />
     <Compile Include="MessageID.cs" />
     <Compile Include="Payload.cs" />

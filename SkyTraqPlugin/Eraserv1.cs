@@ -34,7 +34,6 @@ namespace SkyTraqPlugin
         public TrackItem[] GetTrackItems(IWin32Window owner)
         {
             EraseDataForm eraseForm = new EraseDataForm();
-
             eraseForm.ShowDialog(owner);
 
             return new TrackItem[] { };

@@ -396,8 +396,8 @@ namespace SkyTraqPlugin
 
                         byte b = (byte)(0x00FF & br.ReadByte());
                         data.TOW = (byte)(0x000f & (b >> 4));
-                        data.WN = (UInt16)(0x0030 & b);
-                        data.WN <<= 4;
+                        data.WN = (UInt16)(0x0003 & b);
+                        data.WN <<= 8;
                         data.WN |= (UInt16)(0x00FF & br.ReadByte());
                         UInt32 un = (UInt32)(0x00FF & br.ReadByte());
                         un <<= 8;
@@ -559,30 +559,34 @@ namespace SkyTraqPlugin
             }
         }
 
-        private void ECEF2LLA( double x, double y, double z, out double latitude, out double longitude, out double altitude)
+        private void ECEF2LLA(double x, double y, double z, out double latitude, out double longitude, out double altitude)
         {
+            const double PI = 3.1415926535898;
             // a = 6,378,137
-            double a = 6378137;
+            const double a = 6378137;
             // f = 1 / 298.257 223 563
-            double f = 1 / 298.257223563;
+            const double f = 1 / 298.257223563;
             // b = a - ( a * f)
-            double b = a - (a * f);
+            const double b = a - (a * f);
             // p =  √( x^2 + y^2)
-            double p = Math.Pow((a * a) + (b * b), -1);
-            // e = ( (a^2) - (b^2)) / (a^2)
+            double p = Math.Sqrt((x * x) + (y * y));
+            // e^2 = ( (a^2) - (b^2)) / (a^2)
             double e = ((a * a) - (b * b)) / (a * a);
-            // e' = ( pow(a,2) - pow(b,2)) / pow(b,2)
+            // e'^2 = ( (a^2) - (b^2)) / (b^2)
             double ed = ((a * a) - (b * b)) / (b * b);
             // θ = atan (z * a / p * b)
             double fi = Math.Atan2((z * a), (p * b));
-            // φ = atan{z + e' * b * (sin(θ)^3) / p - e * a * (cos(θ)^3)}
-            latitude = Math.Atan2(z + (e * b * Math.Pow(Math.Sign(fi), 3)), p - (e * a * Math.Pow(Math.Cos(fi), 3)));
-            // λ = atan{ x / y }
-            longitude = Math.Atan2(x, y);
+            // φ = atan{z + e'^2 * b * (sin(θ)^3) / p - e^2 * a * (cos(θ)^3)}
+            latitude = Math.Atan2(z + (ed * b * Math.Pow(Math.Sin(fi), 3)), p - (e * a * Math.Pow(Math.Cos(fi), 3)));
+            // λ = atan{ y / x }
+            longitude = Math.Atan2(y, x);
             // N = a / √( 1 - ( e * sin(φ)^2)
-            double N = a / (Math.Pow( 1 - ( e * Math.Pow( Math.Sin(latitude),2)), -2));
+            double N = a / (Math.Sqrt(1 - (e * Math.Pow(Math.Sin(latitude), 2))));
             // h = ( p / cos(φ)) - N
-            altitude = (p / Math.Cos(fi)) - N;
+            altitude = (p / Math.Cos(latitude)) - N;
+
+            latitude = (latitude * 180) / PI;
+            longitude = (longitude * 180) / PI;
         }
 
         private DateTime[] LeapSeconds = new DateTime[]
@@ -617,17 +621,17 @@ namespace SkyTraqPlugin
 
             long now = (weekNumber * SEC_OF_WEEK) + TOW;
 
-            DateTime result = new DateTime(1980, 1, 6, 0, 0, 0);
-            result.AddSeconds(now);
+            DateTime result = new DateTime(1980, 1, 6, 0, 0, 0, DateTimeKind.Utc);
+            result = result.AddSeconds(now);
             // 1999年8月22日までの分の閏秒加算（加算だけど減算）
-            result.AddSeconds(leapSecond);
+            result = result.AddSeconds(leapSecond);
 
             // 今までの閏秒加算（加算だけど減算）
             foreach( DateTime dt in LeapSeconds)
             {
                 if( result > dt)
                 {
-                    result.AddSeconds(-1);
+                    result = result.AddSeconds(-1);
                     continue;
                 }
                 break;
@@ -671,19 +675,9 @@ namespace SkyTraqPlugin
             BaudRate_230400 = 6
         };
 
-        private enum READ_PHASE
-        {
-            READ_PHASE_UNSTART,
-            READ_PHASE_INIT,
-            READ_PHASE_READ,
-            READ_PHASE_CONVERT,
-            READ_PHASE_RESTERT,
-            READ_PHASE_MAX
-        };
-
         #endregion
 
-        public delegate void ReadLatLogDataProgress(int phaseValue, int phaseMax, int progressValue, int progressMax);
+        public delegate void ReadLatLogDataProgress(ReadProgress progress);
 
         public static string AutoSelectPort()
         {
@@ -758,6 +752,9 @@ namespace SkyTraqPlugin
 
         public List<bykIFv1.Point> ReadLatLonData(ReadLatLogDataProgress delgateProgress)
         {
+            // 処理が開始されていないことを最初に通知します。
+            delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.UNSTART, 0, 0));
+
             try
             {
                 List<bykIFv1.Point> items = null;
@@ -765,15 +762,18 @@ namespace SkyTraqPlugin
                 UInt16 totalSectors;
                 UInt16 freeSectors;
                 bool dataLogEnable;
-                delgateProgress((int)READ_PHASE.READ_PHASE_INIT, (int)READ_PHASE.READ_PHASE_MAX, 0, 100);
+                // 初期化の開始を通知します。
+                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.INIT, 0, 2));
                 // ボーレートの設定をする
                 setBaudRate(BaudRate.BaudRate_115200);
-                delgateProgress((int)READ_PHASE.READ_PHASE_INIT, (int)READ_PHASE.READ_PHASE_MAX, 50, 100);
+                // 初期化の進捗を通知します。
+                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.INIT, 1, 2));
 
                 // セクタ数を見る
                 GetBufferStatus(out totalSectors, out freeSectors, out dataLogEnable);
                 System.Diagnostics.Debug.Print("freeSectors/totalSectors = {0}/{1}", freeSectors, totalSectors);
-                delgateProgress((int)READ_PHASE.READ_PHASE_INIT, (int)READ_PHASE.READ_PHASE_MAX, 100, 100);
+                // 初期化の進捗を通知します。
+                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.INIT, 2, 2));
 
                 // データが無効なら終わる
                 //if (!dataLogEnable) return null;
@@ -782,7 +782,8 @@ namespace SkyTraqPlugin
                 sectors -= freeSectors;
                 if (0 < sectors)
                 {
-                    delgateProgress((int)READ_PHASE.READ_PHASE_READ, (int)READ_PHASE.READ_PHASE_MAX, 0, sectors);
+                    // 読み出し開始を通知します
+                    delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.READ, 0, sectors));
 
                     // データを読み込みます
                     byte[] readLog = new byte[sectors * SECTOR_SIZE];
@@ -844,7 +845,8 @@ namespace SkyTraqPlugin
                         else
                         {
                             System.Diagnostics.Debug.Print("step-6-2");
-                            delgateProgress((int)READ_PHASE.READ_PHASE_READ, (int)READ_PHASE.READ_PHASE_MAX, index, sectors);
+                            // 読み出し状況を通知します
+                            delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.READ, index, sectors));
 
                             retryCount = 0;
                             // 次を読み込みます。
@@ -859,7 +861,8 @@ namespace SkyTraqPlugin
                     items = new List<bykIFv1.Point>();
                     using (BinaryReader br = new BinaryReader(new MemoryStream(readLog)))
                     {
-                        delgateProgress((int)READ_PHASE.READ_PHASE_CONVERT, (int)READ_PHASE.READ_PHASE_MAX, 0, (int)br.BaseStream.Length);
+                        // 変換開始を通知します
+                        delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.CONVERT, 0, (int)br.BaseStream.Length));
 
                         DataLogFixFull local = null;
                         while (true)
@@ -870,10 +873,17 @@ namespace SkyTraqPlugin
                                 local = ReadLocation(br, local);
                                 if (null != local)
                                 {
+                                    string s = @"C:\Users\Tomo\Documents\GEOTagInjector\SkyTraqSerial\XYZ_WN_TOW.txt";
+                                    using (System.IO.TextWriter tw = new System.IO.StreamWriter(s, true))
+                                    {
+                                        tw.WriteLine(string.Format("{0}\t{1}\t{2}\t{3}\t{4}", local.X, local.Y, local.Z, local.WN, local.TOW));
+                                    }
+
                                     // longitude/latitudeに変換する
                                     items.Add(ECEF2LonLat(local));
                                 }
-                                delgateProgress((int)READ_PHASE.READ_PHASE_CONVERT, (int)READ_PHASE.READ_PHASE_MAX, (int)br.BaseStream.Position, (int)br.BaseStream.Length);
+                                // 変換状況を通知します
+                                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.CONVERT, (int)br.BaseStream.Position, (int)br.BaseStream.Length));
 
                             }
                             catch (System.IO.EndOfStreamException)
@@ -881,22 +891,27 @@ namespace SkyTraqPlugin
                                 break;
                             }
                         }
-                        delgateProgress((int)READ_PHASE.READ_PHASE_CONVERT, (int)READ_PHASE.READ_PHASE_MAX, (int)br.BaseStream.Length, (int)br.BaseStream.Length);
+                        // 変換終了を通知します
+                        delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.CONVERT, (int)br.BaseStream.Length, (int)br.BaseStream.Length));
                     }
                 }
 
-                delgateProgress((int)READ_PHASE.READ_PHASE_RESTERT, (int)READ_PHASE.READ_PHASE_MAX, 0, 100);
+                // リセット開始を通知します
+                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.RESTERT, 0, 1));
                 // Restartして終了
                 sendRestart();
-                delgateProgress((int)READ_PHASE.READ_PHASE_RESTERT, (int)READ_PHASE.READ_PHASE_MAX, 100, 100);
+                // リセット終了を通知します
+                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.RESTERT, 1, 1));
 
-                delgateProgress((int)READ_PHASE.READ_PHASE_MAX, (int)READ_PHASE.READ_PHASE_MAX, 100, 100);
                 // longitude/latitudeの配列を返す
                 return items;
 
             }
             catch (TimeoutException)
             {
+                // リセット開始を通知します
+                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.RESTERT, 0, 1));
+
                 try
                 {
                     // Restartして終了
@@ -907,6 +922,9 @@ namespace SkyTraqPlugin
                     // 処理なし
                     recovery();
                 }
+
+                // リセット終了を通知します
+                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.RESTERT, 1, 1));
             }
 
             // 値は返せない
@@ -919,7 +937,7 @@ namespace SkyTraqPlugin
             {
                 // ボーレートの設定をする
                 setBaudRate(BaudRate.BaudRate_38400);
-                
+
                 Payload p = new Payload(MessageID.Clear_Data_Logging_Buffer);
                 Write(p);
 
@@ -945,6 +963,5 @@ namespace SkyTraqPlugin
                 return false;
             }
         }
-
     }
 }

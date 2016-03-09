@@ -118,6 +118,24 @@ namespace Bayaki
             return (From <= targetDate && To >= targetDate);
         }
 
+        public bykIFv1.TrackItem TrackItem
+        {
+            get
+            {
+                if (null == _item)
+                {
+                    string locations = System.IO.Path.Combine(_savePath, _saveFileName);
+                    using (var stream = new FileStream(locations, FileMode.Open))
+                    {
+                        BinaryFormatter bf = new BinaryFormatter();
+
+                        _item = bf.Deserialize(stream) as bykIFv1.TrackItem;
+                    }
+                }
+                return _item;
+            }
+        }
+
         public bykIFv1.Point GetPoint(DateTime targetDate)
         {
             // 含まれない場合NULLを返すよ

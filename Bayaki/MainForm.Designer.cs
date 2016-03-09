@@ -48,6 +48,10 @@
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this._locationContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this._renameTarckItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._exportTrackItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._exportGPX = new System.Windows.Forms.ToolStripMenuItem();
+            this._exportCSV = new System.Windows.Forms.ToolStripMenuItem();
+            this._exportKML = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this._upPriority = new System.Windows.Forms.ToolStripMenuItem();
             this._downPriority = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,6 +62,7 @@
             this.addToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._exportFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -113,7 +118,7 @@
             this._dropCover.Name = "_dropCover";
             this._dropCover.Size = new System.Drawing.Size(788, 299);
             this._dropCover.TabIndex = 2;
-            this._dropCover.Text = "drop target files";
+            this._dropCover.Text = "JPEGファイルをここにドロップしてください";
             this._dropCover.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this._dropCover.DragDrop += new System.Windows.Forms.DragEventHandler(this._dropCover_DragDrop);
             this._dropCover.DragEnter += new System.Windows.Forms.DragEventHandler(this._dropCover_DragEnter);
@@ -271,13 +276,14 @@
             // 
             this._locationContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._renameTarckItem,
+            this._exportTrackItem,
             this.toolStripSeparator1,
             this._upPriority,
             this._downPriority,
             this.toolStripSeparator2,
             this._deleteTrackItem});
             this._locationContextMenu.Name = "_locationContextMenu";
-            this._locationContextMenu.Size = new System.Drawing.Size(137, 104);
+            this._locationContextMenu.Size = new System.Drawing.Size(137, 126);
             // 
             // _renameTarckItem
             // 
@@ -285,6 +291,39 @@
             this._renameTarckItem.Size = new System.Drawing.Size(136, 22);
             this._renameTarckItem.Text = "Rename...";
             this._renameTarckItem.Paint += new System.Windows.Forms.PaintEventHandler(this._renameTarckItem_Paint);
+            // 
+            // _exportTrackItem
+            // 
+            this._exportTrackItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._exportGPX,
+            this._exportCSV,
+            this._exportKML});
+            this._exportTrackItem.Name = "_exportTrackItem";
+            this._exportTrackItem.Size = new System.Drawing.Size(136, 22);
+            this._exportTrackItem.Text = "Export...";
+            // 
+            // _exportGPX
+            // 
+            this._exportGPX.Name = "_exportGPX";
+            this._exportGPX.Size = new System.Drawing.Size(152, 22);
+            this._exportGPX.Text = "GPX";
+            this._exportGPX.Click += new System.EventHandler(this._export_Click);
+            // 
+            // _exportCSV
+            // 
+            this._exportCSV.Enabled = false;
+            this._exportCSV.Name = "_exportCSV";
+            this._exportCSV.Size = new System.Drawing.Size(152, 22);
+            this._exportCSV.Text = "CSV";
+            this._exportCSV.Click += new System.EventHandler(this._export_Click);
+            // 
+            // _exportKML
+            // 
+            this._exportKML.Enabled = false;
+            this._exportKML.Name = "_exportKML";
+            this._exportKML.Size = new System.Drawing.Size(152, 22);
+            this._exportKML.Text = "KML";
+            this._exportKML.Click += new System.EventHandler(this._export_Click);
             // 
             // toolStripSeparator1
             // 
@@ -337,25 +376,25 @@
             this.toolStripSeparator3,
             this.removeToolStripMenuItem});
             this._locationToolbarContextMenu.Name = "_locationToolbarContextMenu";
-            this._locationToolbarContextMenu.Size = new System.Drawing.Size(153, 76);
+            this._locationToolbarContextMenu.Size = new System.Drawing.Size(134, 54);
             this._locationToolbarContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationToolbarContextMenu_Opening);
             // 
             // addToolStripMenuItem
             // 
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.addToolStripMenuItem.Text = "add...";
             this.addToolStripMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(130, 6);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.removeToolStripMenuItem.Text = "remove...";
             // 
             // MainForm
@@ -416,6 +455,11 @@
         private System.Windows.Forms.ToolStripMenuItem addToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem _exportTrackItem;
+        private System.Windows.Forms.ToolStripMenuItem _exportGPX;
+        private System.Windows.Forms.ToolStripMenuItem _exportCSV;
+        private System.Windows.Forms.ToolStripMenuItem _exportKML;
+        private System.Windows.Forms.SaveFileDialog _exportFileDialog;
     }
 }
 

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using System.Reflection;
+using System.Xml;
 
 namespace Bayaki
 {
@@ -22,10 +23,22 @@ namespace Bayaki
         private List<JPEGFileItem> _images;
         private List<string> _pluginPath;
 
+        private enum EXPORT_FORMAT
+        {
+            INVALID,
+            GPX,
+            CSV,
+            KML
+        };
 
         public MainForm()
         {
             InitializeComponent();
+
+            // メニュー処理簡略
+            _exportGPX.Tag = EXPORT_FORMAT.GPX;
+            _exportCSV.Tag = EXPORT_FORMAT.CSV;
+            _exportKML.Tag = EXPORT_FORMAT.KML;
 
             // とりあえず作業フォルダを固定する（あとで設定できるよにしようとは思う）
             _workPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -673,6 +686,108 @@ namespace Bayaki
             }
             _pluginPath.Remove(targetPath);
             SerializePluginList();
+        }
+
+        delegate void ExportMethod(string filePath, bykIFv1.TrackItem trackItem);
+
+        private void ExportGPX( string filePath, bykIFv1.TrackItem trackItem)
+        {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.IndentChars = "\t";
+            settings.Encoding = Encoding.UTF8;
+            using (XmlWriter xw = XmlWriter.Create(filePath, settings))
+            {
+                xw.WriteStartElement("gps");
+                {
+                    xw.WriteAttributeString("version", "1.0");
+                    xw.WriteAttributeString("creator", "TTTT");
+
+                    xw.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
+                    xw.WriteAttributeString("schemaLocation", "http://www.w3.org/2001/XMLSchema-instance", "http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd");
+
+                    // 作成時間
+                    xw.WriteElementString("time", trackItem.CreateTime.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+
+                    xw.WriteStartElement("bounds");
+                    {
+                        decimal minlat = trackItem.Items[0].Latitude;
+                        decimal maxlat = trackItem.Items[0].Latitude;
+                        decimal minlon = trackItem.Items[0].Longitude;
+                        decimal maxlon = trackItem.Items[0].Longitude;
+                        foreach (bykIFv1.Point point in trackItem.Items)
+                        {
+                            if (point.Latitude < minlat) minlat = point.Latitude;
+                            if (point.Latitude < maxlat) maxlat = point.Latitude;
+                            if (point.Longitude < minlon) minlon = point.Longitude;
+                            if (point.Longitude > maxlon) maxlon = point.Longitude;
+                        }
+                        xw.WriteAttributeString("minlat", minlat.ToString());
+                        xw.WriteAttributeString("minlon", minlon.ToString());
+                        xw.WriteAttributeString("maxlat", maxlat.ToString());
+                        xw.WriteAttributeString("maxlon", maxlon.ToString());
+                    }
+                    xw.WriteEndElement();
+
+
+                    xw.WriteStartElement("trk");
+                    {
+                        xw.WriteStartElement("trkseg");
+                        {
+                            int index = 0;
+                            foreach (bykIFv1.Point point in trackItem.Items)
+                            {
+                                xw.WriteStartElement("trkpt");
+                                {
+                                    xw.WriteAttributeString("lat", point.Latitude.ToString());
+                                    xw.WriteAttributeString("lon", point.Longitude.ToString());
+
+                                    xw.WriteElementString("ele", point.Elevation.ToString());
+                                    xw.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                                    xw.WriteElementString("speed", point.Speed.ToString());
+                                    xw.WriteElementString("name", string.Format("PT{0:D4}", ++index));
+                                }
+                                xw.WriteEndElement();
+                            }
+                        }
+                        xw.WriteEndElement();
+                    }
+                    xw.WriteEndElement();
+                }
+                xw.WriteEndElement();
+            }
+        }
+
+        private void _export_Click(object sender, EventArgs e)
+        {
+            if( 1 != _locationSources.SelectedItems.Count)return;
+            ListViewItem item = _locationSources.SelectedItems[0];
+            TrackItemSummary trackItemSummary = item.Tag as TrackItemSummary;
+            if (null == trackItemSummary) return;
+
+            ToolStripMenuItem menu = sender as ToolStripMenuItem;
+            if (null == menu) return;
+
+            ExportMethod exportMethod = null;
+            EXPORT_FORMAT format = (EXPORT_FORMAT)menu.Tag;
+            switch(format)
+            {
+                case EXPORT_FORMAT.GPX:
+                    _exportFileDialog.DefaultExt = ".gpx";
+                    _exportFileDialog.Filter = "GPX Files|*.gpx|ALL Files|*.*";
+                    _exportFileDialog.FileName = trackItemSummary.Name;
+                    exportMethod = new ExportMethod(ExportGPX);
+                    break;
+                default:
+                    return;
+            }
+
+            if( DialogResult.OK == _exportFileDialog.ShowDialog(this))
+            {
+                bykIFv1.TrackItem trackItem = trackItemSummary.TrackItem;
+                if (null != exportMethod)
+                    exportMethod(_exportFileDialog.FileName, trackItem);
+            }
         }
     }
 }
