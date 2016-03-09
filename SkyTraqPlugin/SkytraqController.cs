@@ -392,6 +392,7 @@ namespace SkyTraqPlugin
                 case 0x4000:
                     {
                         DataLogFixFull data = new DataLogFixFull();
+                        data.type = ((pos1 & 0xE000) == 0x4000) ? DataLogFixFull.TYPE.FULL : DataLogFixFull.TYPE.FULL_POI;
                         data.V = velocity;
 
                         byte b = (byte)(0x00FF & br.ReadByte());
@@ -499,6 +500,7 @@ namespace SkyTraqPlugin
 
                         DataLogFixFull result = new DataLogFixFull();
 
+                        result.type = DataLogFixFull.TYPE.COMPACT;
                         result.V = velocity;
 
                         result.WN = current.WN;
@@ -659,7 +661,7 @@ namespace SkyTraqPlugin
             decimal spd = (local.V * 1000);
             spd /= 3600;
 
-            result = new bykIFv1.Point(dt, (decimal)lon, (decimal)lat, (decimal)alt, spd);
+            result = new bykIFv1.Point(dt, (decimal)lat, (decimal)lon, (decimal)alt, spd, (DataLogFixFull.TYPE.FULL_POI == local.type));
 
             return result;
         }
@@ -865,18 +867,24 @@ namespace SkyTraqPlugin
                         delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.CONVERT, 0, (int)br.BaseStream.Length));
 
                         DataLogFixFull local = null;
+                        DataLogFixFull latest = null;
                         while (true)
                         {
                             try
                             {
                                 // ECEFに変換する
-                                local = ReadLocation(br, local);
+                                local = ReadLocation(br, latest);
                                 if (null != local)
                                 {
                                     string s = @"C:\Users\Tomo\Documents\GEOTagInjector\SkyTraqSerial\XYZ_WN_TOW.txt";
                                     using (System.IO.TextWriter tw = new System.IO.StreamWriter(s, true))
                                     {
                                         tw.WriteLine(string.Format("{0}\t{1}\t{2}\t{3}\t{4}", local.X, local.Y, local.Z, local.WN, local.TOW));
+                                    }
+
+                                    if(DataLogFixFull.TYPE.FULL == local.type || DataLogFixFull.TYPE.FULL_POI == local.type)
+                                    {
+                                        latest = local;
                                     }
 
                                     // longitude/latitudeに変換する

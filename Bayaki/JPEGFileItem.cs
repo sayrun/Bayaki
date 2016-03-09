@@ -238,7 +238,7 @@ namespace Bayaki
                     lat *= -1;
                 }
 
-                _currentLocation = new bykIFv1.Point(dt, lat, lon, 0, 0);
+                _currentLocation = new bykIFv1.Point(dt, lat, lon, 0, 0, true);
             }
             else
             {

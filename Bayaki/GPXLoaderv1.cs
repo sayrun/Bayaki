@@ -74,6 +74,7 @@ namespace Bayaki
 
             using (System.Xml.XmlReader xr = System.Xml.XmlReader.Create(new System.IO.StreamReader(filePath)))
             {
+                List<DateTime> wayPoints = new List<DateTime>();
                 while (xr.Read())
                 {
                     switch (xr.NodeType)
@@ -94,6 +95,60 @@ namespace Bayaki
                                 if (0 < name.Length)
                                 {
                                     result.Name = name;
+                                }
+                            }
+                            if (0 == string.Compare(xr.Name, "wpt", true))
+                            {
+                                if (!xr.IsEmptyElement)
+                                {
+                                    string lon = xr.GetAttribute("lon");
+                                    string lat = xr.GetAttribute("lat");
+
+                                    string sEle = string.Empty;
+                                    string sTime = string.Empty;
+                                    string sSpeed = string.Empty;
+
+                                    while (xr.Read())
+                                    {
+                                        switch (xr.NodeType)
+                                        {
+                                            case System.Xml.XmlNodeType.Element:
+                                                if (0 == string.Compare(xr.Name, "ele", true))
+                                                {
+                                                    sEle = xr.ReadString();
+                                                }
+                                                else if (0 == string.Compare(xr.Name, "time", true))
+                                                {
+                                                    sTime = xr.ReadString();
+                                                }
+                                                else if (0 == string.Compare(xr.Name, "speed", true))
+                                                {
+                                                    sSpeed = xr.ReadString();
+                                                }
+                                                else
+                                                {
+                                                    if (!xr.IsEmptyElement)
+                                                    {
+                                                        while (xr.Read())
+                                                            if (xr.NodeType == System.Xml.XmlNodeType.EndElement) break;
+                                                    }
+                                                }
+                                                continue;
+
+                                            case System.Xml.XmlNodeType.EndElement:
+                                                break;
+
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    }
+
+                                    DateTime dt;
+                                    if (DateTime.TryParse(sTime, out dt))
+                                    {
+                                        wayPoints.Add(dt);
+                                    }
                                 }
                             }
                             if (0 == string.Compare(xr.Name, "trkpt", true))
@@ -146,7 +201,9 @@ namespace Bayaki
                                     DateTime dt;
                                     if (DateTime.TryParse(sTime, out dt))
                                     {
-                                        bykIFv1.Point item = new bykIFv1.Point(dt.ToUniversalTime(), decimal.Parse( lat), decimal.Parse(lon), decimal.Parse(sEle), decimal.Parse(sSpeed));
+                                        bool wayPoint = (0 <= wayPoints.IndexOf(dt));
+
+                                        bykIFv1.Point item = new bykIFv1.Point(dt.ToUniversalTime(), decimal.Parse(lat), decimal.Parse(lon), decimal.Parse(sEle), decimal.Parse(sSpeed), wayPoint);
                                         result.Items.Add(item);
                                     }
                                 }

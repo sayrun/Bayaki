@@ -698,10 +698,10 @@ namespace Bayaki
             settings.Encoding = Encoding.UTF8;
             using (XmlWriter xw = XmlWriter.Create(filePath, settings))
             {
-                xw.WriteStartElement("gps");
+                xw.WriteStartElement("gpx");
                 {
                     xw.WriteAttributeString("version", "1.0");
-                    xw.WriteAttributeString("creator", "TTTT");
+                    xw.WriteAttributeString("creator", "Bayaki");
 
                     xw.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
                     xw.WriteAttributeString("schemaLocation", "http://www.w3.org/2001/XMLSchema-instance", "http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd");
@@ -729,12 +729,32 @@ namespace Bayaki
                     }
                     xw.WriteEndElement();
 
+                    // waypointを出力します
+                    int index = 0;
+                    foreach (bykIFv1.Point point in trackItem.Items)
+                    {
+                        ++index;
+                        if ( point.Interest)
+                        {
+                            xw.WriteStartElement("wpt");
+                            {
+                                xw.WriteAttributeString("lat", point.Latitude.ToString());
+                                xw.WriteAttributeString("lon", point.Longitude.ToString());
+
+                                xw.WriteElementString("ele", point.Elevation.ToString());
+                                xw.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                                xw.WriteElementString("speed", point.Speed.ToString());
+                                xw.WriteElementString("name", string.Format("PT{0:D4}", index));
+                            }
+                            xw.WriteEndElement();
+                        }
+                    }
 
                     xw.WriteStartElement("trk");
                     {
                         xw.WriteStartElement("trkseg");
                         {
-                            int index = 0;
+                            index = 0;
                             foreach (bykIFv1.Point point in trackItem.Items)
                             {
                                 xw.WriteStartElement("trkpt");

@@ -8,7 +8,14 @@ namespace SkyTraqPlugin
 {
     internal class DataLogFixFull
     {
-        public const UInt16 DATA_SIZE = 18;
+        public TYPE type;
+
+        public enum TYPE
+        {
+            FULL_POI,   // point of interest
+            FULL,
+            COMPACT
+        };
 
         public UInt16 V;   // user velocity
         public UInt16 WN;  // GPS Week Number
@@ -16,5 +23,6 @@ namespace SkyTraqPlugin
         public Int32 X;   // X position in ECEF Coordinate
         public Int32 Y;   // X position in ECEF Coordinate
         public Int32 Z;   // X position in ECEF Coordinate
+
     }
 }

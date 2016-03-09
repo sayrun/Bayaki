@@ -51,45 +51,52 @@ namespace SkyTraqPlugin
 
         private void _connect_Click(object sender, EventArgs e)
         {
-            string portName = this.PortName;
-            if (PORT_AUTO == portName)
+            try
             {
-                try
+                string portName = this.PortName;
+                if (PORT_AUTO == portName)
                 {
-                    portName = SkytraqController.AutoSelectPort();
-                    this.PortName = portName;
+                    try
+                    {
+                        portName = SkytraqController.AutoSelectPort();
+                        this.PortName = portName;
+                    }
+                    catch
+                    {
+                        _posrts.Items.Remove(portName);
+                        MessageBox.Show("自動でポートを選択できませんでした。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        return;
+                    }
                 }
-                catch
+                _port = new SkytraqController(portName);
+
+                // Version情報
+                SoftwareVersion sv = _port.SoftwareVersion;
+                _kernelVersion.Text = string.Format("{0:D2}.{1:D2}.{2:D2}", ((sv.KernelVersion >> 16) & 0x00ff), ((sv.KernelVersion >> 8) & 0x00ff), (sv.KernelVersion & 0x00ff));
+                _ODMVersion.Text = string.Format("{0:D2}.{1:D2}.{2:D2}", ((sv.ODMVersion >> 16) & 0x00ff), ((sv.ODMVersion >> 8) & 0x00ff), (sv.ODMVersion & 0x00ff));
+                _Revision.Text = string.Format("{0:D2}/{1:D2}/{2:D2}", ((sv.Revision >> 16) & 0x00ff), ((sv.Revision >> 8) & 0x00ff), (sv.Revision & 0x00ff));
+
+                // バッファーサイズ
+                BufferStatus bs = _port.GetBufferStatus();
+                UInt16 usedSectors = bs.TotalSectors;
+                usedSectors -= bs.FreeSectors;
+                _bufferStatus.Maximum = bs.TotalSectors;
+                _bufferStatus.Value = usedSectors;
+
+                // ボタンを制御
+                _connect.Enabled = false;
+                _download.Enabled = true;
+                _posrts.Enabled = false;
+
+                if (bs.TotalSectors == bs.FreeSectors)
                 {
-                    _posrts.Items.Remove(portName);
-                    MessageBox.Show("自動でポートを選択できませんでした。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    return;
+                    _download.Enabled = false;
+                    MessageBox.Show("ダウンロードするべきデータがありません。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
-            _port = new SkytraqController(portName);
-
-            // Version情報
-            SoftwareVersion sv = _port.SoftwareVersion;
-            _kernelVersion.Text = string.Format("{0:D2}.{1:D2}.{2:D2}", ((sv.KernelVersion >> 16) & 0x00ff), ((sv.KernelVersion >> 8) & 0x00ff), (sv.KernelVersion & 0x00ff));
-            _ODMVersion.Text = string.Format("{0:D2}.{1:D2}.{2:D2}", ((sv.ODMVersion >> 16) & 0x00ff), ((sv.ODMVersion >> 8) & 0x00ff), (sv.ODMVersion & 0x00ff));
-            _Revision.Text = string.Format("{0:D2}/{1:D2}/{2:D2}", ( ( sv.Revision >> 16) & 0x00ff), ((sv.Revision >> 8) & 0x00ff), (sv.Revision & 0x00ff));
-
-            // バッファーサイズ
-            BufferStatus bs = _port.GetBufferStatus();
-            UInt16 usedSectors = bs.TotalSectors;
-            usedSectors -= bs.FreeSectors;
-            _bufferStatus.Maximum = bs.TotalSectors;
-            _bufferStatus.Value = usedSectors;
-
-            // ボタンを制御
-            _connect.Enabled = false;
-            _download.Enabled = true;
-            _posrts.Enabled = false;
-
-            if(bs.TotalSectors == bs.FreeSectors)
+            catch(Exception ex)
             {
-                _download.Enabled = false;
-                MessageBox.Show("ダウンロードするべきデータがありません。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Skytraqの接続に失敗しました\n\n" + ex.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
