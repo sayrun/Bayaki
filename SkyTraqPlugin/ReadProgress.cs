@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace SkyTraqPlugin
 {
-    public class ReadProgress
+    internal delegate void ReadProgressEventHandler(ReadProgressEvent progress);
+
+    internal class ReadProgressEvent
     {
         public enum READ_PHASE
         {
@@ -21,7 +23,7 @@ namespace SkyTraqPlugin
         public readonly int Value;
         public readonly int Max;
 
-        public ReadProgress(READ_PHASE phase, int value, int max)
+        public ReadProgressEvent(READ_PHASE phase, int value, int max)
         {
             Phase = phase;
             Value = value;

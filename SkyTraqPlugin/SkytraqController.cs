@@ -25,6 +25,12 @@ namespace SkyTraqPlugin
         private const int READ_TIMEOUT = (10 * 1000);
         private const int READ_TIMEOUT_INTERNAL = (300);
 
+        public event ReadProgressEventHandler OnRead;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="portName">対象のポート名</param>
         public SkytraqController(string portName)
         {
             _com = new SerialPort(portName, 38400, Parity.None, 8, StopBits.One);
@@ -38,6 +44,7 @@ namespace SkyTraqPlugin
 
         public void Dispose()
         {
+            // 最後はCloseしておく
             if (_com.IsOpen)
             {
                 _com.Close();
@@ -679,8 +686,11 @@ namespace SkyTraqPlugin
 
         #endregion
 
-        public delegate void ReadLatLogDataProgress(ReadProgress progress);
-
+        /// <summary>
+        /// 自動のポート選択
+        /// COMポートの一覧から順次ポートを開いて、Version情報を取得してみる
+        /// </summary>
+        /// <returns>ポート名称</returns>
         public static string AutoSelectPort()
         {
             SkytraqController port = null;
@@ -708,6 +718,10 @@ namespace SkyTraqPlugin
             throw new InvalidOperationException("利用できるComPortがない");
         }
 
+        /// <summary>
+        /// ソフトバージョン
+        /// コンストラクタでの初期化時に取得したものを返す。
+        /// </summary>
         public SoftwareVersion SoftwareVersion
         {
             get
@@ -716,6 +730,11 @@ namespace SkyTraqPlugin
             }
         }
 
+        /// <summary>
+        /// ソフトバージョン取得
+        /// 取得のためにコマンドを再発行する
+        /// </summary>
+        /// <returns></returns>
         public SoftwareVersion GetSoftwareVersion()
         {
             Payload p = new Payload(MessageID.Query_Software_version, new byte[] { 0x01 });
@@ -739,6 +758,10 @@ namespace SkyTraqPlugin
 
         }
 
+        /// <summary>
+        /// Logバッファの状況取得
+        /// </summary>
+        /// <returns></returns>
         public BufferStatus GetBufferStatus()
         {
             UInt16 totalSectors;
@@ -752,10 +775,16 @@ namespace SkyTraqPlugin
             return new BufferStatus(totalSectors, freeSectors, dataLogEnable);
         }
 
-        public List<bykIFv1.Point> ReadLatLonData(ReadLatLogDataProgress delgateProgress)
+        /// <summary>
+        /// Logデータ読み出し
+        /// 読み出した後は、Lat/Lon/Altに変換して一覧に返す
+        /// </summary>
+        /// <param name="delgateProgress">進捗通知用のDelegate</param>
+        /// <returns></returns>
+        public List<bykIFv1.Point> ReadLatLonData()
         {
             // 処理が開始されていないことを最初に通知します。
-            delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.UNSTART, 0, 0));
+            OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.UNSTART, 0, 0));
 
             try
             {
@@ -765,17 +794,17 @@ namespace SkyTraqPlugin
                 UInt16 freeSectors;
                 bool dataLogEnable;
                 // 初期化の開始を通知します。
-                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.INIT, 0, 2));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.INIT, 0, 2));
                 // ボーレートの設定をする
                 setBaudRate(BaudRate.BaudRate_115200);
                 // 初期化の進捗を通知します。
-                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.INIT, 1, 2));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.INIT, 1, 2));
 
                 // セクタ数を見る
                 GetBufferStatus(out totalSectors, out freeSectors, out dataLogEnable);
                 System.Diagnostics.Debug.Print("freeSectors/totalSectors = {0}/{1}", freeSectors, totalSectors);
                 // 初期化の進捗を通知します。
-                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.INIT, 2, 2));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.INIT, 2, 2));
 
                 // データが無効なら終わる
                 //if (!dataLogEnable) return null;
@@ -785,7 +814,7 @@ namespace SkyTraqPlugin
                 if (0 < sectors)
                 {
                     // 読み出し開始を通知します
-                    delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.READ, 0, sectors));
+                    OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.READ, 0, sectors));
 
                     // データを読み込みます
                     byte[] readLog = new byte[sectors * SECTOR_SIZE];
@@ -848,7 +877,7 @@ namespace SkyTraqPlugin
                         {
                             System.Diagnostics.Debug.Print("step-6-2");
                             // 読み出し状況を通知します
-                            delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.READ, index, sectors));
+                            OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.READ, index, sectors));
 
                             retryCount = 0;
                             // 次を読み込みます。
@@ -864,7 +893,7 @@ namespace SkyTraqPlugin
                     using (BinaryReader br = new BinaryReader(new MemoryStream(readLog)))
                     {
                         // 変換開始を通知します
-                        delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.CONVERT, 0, (int)br.BaseStream.Length));
+                        OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, 0, (int)br.BaseStream.Length));
 
                         DataLogFixFull local = null;
                         DataLogFixFull latest = null;
@@ -876,11 +905,12 @@ namespace SkyTraqPlugin
                                 local = ReadLocation(br, latest);
                                 if (null != local)
                                 {
+                                    /*
                                     string s = @"C:\Users\Tomo\Documents\GEOTagInjector\SkyTraqSerial\XYZ_WN_TOW.txt";
                                     using (System.IO.TextWriter tw = new System.IO.StreamWriter(s, true))
                                     {
                                         tw.WriteLine(string.Format("{0}\t{1}\t{2}\t{3}\t{4}", local.X, local.Y, local.Z, local.WN, local.TOW));
-                                    }
+                                    }*/
 
                                     if(DataLogFixFull.TYPE.FULL == local.type || DataLogFixFull.TYPE.FULL_POI == local.type)
                                     {
@@ -891,7 +921,7 @@ namespace SkyTraqPlugin
                                     items.Add(ECEF2LonLat(local));
                                 }
                                 // 変換状況を通知します
-                                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.CONVERT, (int)br.BaseStream.Position, (int)br.BaseStream.Length));
+                                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, (int)br.BaseStream.Position, (int)br.BaseStream.Length));
 
                             }
                             catch (System.IO.EndOfStreamException)
@@ -900,16 +930,16 @@ namespace SkyTraqPlugin
                             }
                         }
                         // 変換終了を通知します
-                        delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.CONVERT, (int)br.BaseStream.Length, (int)br.BaseStream.Length));
+                        OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, (int)br.BaseStream.Length, (int)br.BaseStream.Length));
                     }
                 }
 
                 // リセット開始を通知します
-                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.RESTERT, 0, 1));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTERT, 0, 1));
                 // Restartして終了
                 sendRestart();
                 // リセット終了を通知します
-                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.RESTERT, 1, 1));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTERT, 1, 1));
 
                 // longitude/latitudeの配列を返す
                 return items;
@@ -918,7 +948,7 @@ namespace SkyTraqPlugin
             catch (TimeoutException)
             {
                 // リセット開始を通知します
-                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.RESTERT, 0, 1));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTERT, 0, 1));
 
                 try
                 {
@@ -932,7 +962,7 @@ namespace SkyTraqPlugin
                 }
 
                 // リセット終了を通知します
-                delgateProgress(new ReadProgress(ReadProgress.READ_PHASE.RESTERT, 1, 1));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTERT, 1, 1));
             }
 
             // 値は返せない

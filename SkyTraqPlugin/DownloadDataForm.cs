@@ -69,6 +69,7 @@ namespace SkyTraqPlugin
                     }
                 }
                 _port = new SkytraqController(portName);
+                _port.OnRead += _port_OnRead;
 
                 // Version情報
                 SoftwareVersion sv = _port.SoftwareVersion;
@@ -100,6 +101,21 @@ namespace SkyTraqPlugin
             }
         }
 
+        private void _port_OnRead(ReadProgressEvent progress)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new ReadProgressEventHandler(_port_OnRead), new object[] { progress });
+                return;
+            }
+
+            System.Diagnostics.Debug.Print("{0} - {1}/{2}", progress.Phase, progress.Value, progress.Max);
+
+            _phase.Text = progress.PhaseName;
+            _progress.Maximum = progress.Max;
+            _progress.Value = progress.Value;
+        }
+
         private void DownloadDataForm_Load(object sender, EventArgs e)
         {
             try
@@ -120,9 +136,8 @@ namespace SkyTraqPlugin
 
         }
 
-        delegate void  LocalReadLatLogDataProgress(ReadProgress progress);
-
-        private void ReadLatLogDataProgress(ReadProgress progress)
+        /*
+        private void ReadLatLogDataProgress(ReadProgressEvent progress)
         {
             if (this.InvokeRequired)
             {
@@ -135,10 +150,13 @@ namespace SkyTraqPlugin
             _phase.Text = progress.PhaseName;
             _progress.Maximum = progress.Max;
             _progress.Value = progress.Value;
-        }
+        }*/
 
         private void _download_Click(object sender, EventArgs e)
         {
+            _download.Enabled = false;
+            _cancel.Enabled = false;
+
             _downloadWorker.RunWorkerAsync(_port);
 
             return;
@@ -156,9 +174,9 @@ namespace SkyTraqPlugin
 
         private void _downloadWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            List<bykIFv1.Point> points = _port.ReadLatLonData(new SkytraqController.ReadLatLogDataProgress(this.ReadLatLogDataProgress));
+            List<bykIFv1.Point> points = _port.ReadLatLonData();
 
-            bykIFv1.TrackItem item = new bykIFv1.TrackItem("name", DateTime.Now);
+            bykIFv1.TrackItem item = new bykIFv1.TrackItem("Skytraq Download Data", DateTime.Now);
             item.Items = points;
 
             e.Result = item;
@@ -174,6 +192,8 @@ namespace SkyTraqPlugin
             }
             else
             {
+                _cancel.Enabled = true;
+                _download.Enabled = true;
                 MessageBox.Show(e.Error.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }

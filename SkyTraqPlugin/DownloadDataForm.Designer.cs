@@ -57,7 +57,7 @@
             this._cancel.Name = "_cancel";
             this._cancel.Size = new System.Drawing.Size(75, 23);
             this._cancel.TabIndex = 6;
-            this._cancel.Text = "cancel";
+            this._cancel.Text = "close";
             this._cancel.UseVisualStyleBackColor = true;
             this._cancel.Click += new System.EventHandler(this._cancel_Click);
             // 

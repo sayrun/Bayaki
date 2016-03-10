@@ -809,5 +809,43 @@ namespace Bayaki
                     exportMethod(_exportFileDialog.FileName, trackItem);
             }
         }
+
+        private void _renameTarckItem_Click(object sender, EventArgs e)
+        {
+            ListViewItem item = _locationSources.SelectedItems[0];
+            item.BeginEdit();
+        }
+
+        private void _locationSources_AfterLabelEdit(object sender, LabelEditEventArgs e)
+        {
+            ListView lv = sender as ListView;
+            if( null == lv)
+            {
+                e.CancelEdit = true;
+                return;
+            }
+
+            if (e.Label != null)
+            {
+                if( 0 == e.Label.Length)
+                {
+                    e.CancelEdit = true;
+                    return;
+                }
+
+                int index = e.Item;
+
+                ListViewItem item = lv.Items[index];
+                TrackItemSummary trackItem = item.Tag as TrackItemSummary;
+                if( null == trackItem)
+                {
+                    e.CancelEdit = true;
+                    return;
+                }
+                trackItem.Name = e.Label;
+                SerializeLocationList();
+
+            }
+        }
     }
 }

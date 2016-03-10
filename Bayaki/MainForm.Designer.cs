@@ -243,6 +243,7 @@
             this._locationSources.Dock = System.Windows.Forms.DockStyle.Fill;
             this._locationSources.FullRowSelect = true;
             this._locationSources.HideSelection = false;
+            this._locationSources.LabelEdit = true;
             this._locationSources.Location = new System.Drawing.Point(3, 28);
             this._locationSources.MultiSelect = false;
             this._locationSources.Name = "_locationSources";
@@ -251,26 +252,31 @@
             this._locationSources.TabIndex = 1;
             this._locationSources.UseCompatibleStateImageBehavior = false;
             this._locationSources.View = System.Windows.Forms.View.Details;
+            this._locationSources.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this._locationSources_AfterLabelEdit);
             // 
             // columnHeader1
             // 
-            this.columnHeader1.Text = "from";
-            this.columnHeader1.Width = 178;
+            this.columnHeader1.DisplayIndex = 3;
+            this.columnHeader1.Text = "name";
+            this.columnHeader1.Width = 306;
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "to";
-            this.columnHeader2.Width = 181;
+            this.columnHeader2.DisplayIndex = 0;
+            this.columnHeader2.Text = "from";
+            this.columnHeader2.Width = 136;
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "points";
-            this.columnHeader3.Width = 92;
+            this.columnHeader3.DisplayIndex = 1;
+            this.columnHeader3.Text = "to";
+            this.columnHeader3.Width = 159;
             // 
             // columnHeader4
             // 
-            this.columnHeader4.Text = "name";
-            this.columnHeader4.Width = 297;
+            this.columnHeader4.DisplayIndex = 2;
+            this.columnHeader4.Text = "points";
+            this.columnHeader4.Width = 151;
             // 
             // _locationContextMenu
             // 
@@ -283,13 +289,14 @@
             this.toolStripSeparator2,
             this._deleteTrackItem});
             this._locationContextMenu.Name = "_locationContextMenu";
-            this._locationContextMenu.Size = new System.Drawing.Size(137, 126);
+            this._locationContextMenu.Size = new System.Drawing.Size(126, 126);
             // 
             // _renameTarckItem
             // 
             this._renameTarckItem.Name = "_renameTarckItem";
-            this._renameTarckItem.Size = new System.Drawing.Size(136, 22);
+            this._renameTarckItem.Size = new System.Drawing.Size(152, 22);
             this._renameTarckItem.Text = "Rename...";
+            this._renameTarckItem.Click += new System.EventHandler(this._renameTarckItem_Click);
             this._renameTarckItem.Paint += new System.Windows.Forms.PaintEventHandler(this._renameTarckItem_Paint);
             // 
             // _exportTrackItem
@@ -299,13 +306,13 @@
             this._exportCSV,
             this._exportKML});
             this._exportTrackItem.Name = "_exportTrackItem";
-            this._exportTrackItem.Size = new System.Drawing.Size(136, 22);
+            this._exportTrackItem.Size = new System.Drawing.Size(152, 22);
             this._exportTrackItem.Text = "Export...";
             // 
             // _exportGPX
             // 
             this._exportGPX.Name = "_exportGPX";
-            this._exportGPX.Size = new System.Drawing.Size(152, 22);
+            this._exportGPX.Size = new System.Drawing.Size(98, 22);
             this._exportGPX.Text = "GPX";
             this._exportGPX.Click += new System.EventHandler(this._export_Click);
             // 
@@ -313,7 +320,7 @@
             // 
             this._exportCSV.Enabled = false;
             this._exportCSV.Name = "_exportCSV";
-            this._exportCSV.Size = new System.Drawing.Size(152, 22);
+            this._exportCSV.Size = new System.Drawing.Size(98, 22);
             this._exportCSV.Text = "CSV";
             this._exportCSV.Click += new System.EventHandler(this._export_Click);
             // 
@@ -321,19 +328,19 @@
             // 
             this._exportKML.Enabled = false;
             this._exportKML.Name = "_exportKML";
-            this._exportKML.Size = new System.Drawing.Size(152, 22);
+            this._exportKML.Size = new System.Drawing.Size(98, 22);
             this._exportKML.Text = "KML";
             this._exportKML.Click += new System.EventHandler(this._export_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(133, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
             // 
             // _upPriority
             // 
             this._upPriority.Name = "_upPriority";
-            this._upPriority.Size = new System.Drawing.Size(136, 22);
+            this._upPriority.Size = new System.Drawing.Size(152, 22);
             this._upPriority.Text = "Up";
             this._upPriority.Click += new System.EventHandler(this._upPriority_Click);
             this._upPriority.Paint += new System.Windows.Forms.PaintEventHandler(this._upPriority_Paint);
@@ -341,7 +348,7 @@
             // _downPriority
             // 
             this._downPriority.Name = "_downPriority";
-            this._downPriority.Size = new System.Drawing.Size(136, 22);
+            this._downPriority.Size = new System.Drawing.Size(152, 22);
             this._downPriority.Text = "Down";
             this._downPriority.Click += new System.EventHandler(this._downPriority_Click);
             this._downPriority.Paint += new System.Windows.Forms.PaintEventHandler(this._downPriority_Paint);
@@ -349,12 +356,12 @@
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(133, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
             // 
             // _deleteTrackItem
             // 
             this._deleteTrackItem.Name = "_deleteTrackItem";
-            this._deleteTrackItem.Size = new System.Drawing.Size(136, 22);
+            this._deleteTrackItem.Size = new System.Drawing.Size(152, 22);
             this._deleteTrackItem.Text = "Delete...";
             this._deleteTrackItem.Click += new System.EventHandler(this._deleteTrackItem_Click);
             this._deleteTrackItem.Paint += new System.Windows.Forms.PaintEventHandler(this._deleteTrackItem_Paint);
@@ -376,25 +383,25 @@
             this.toolStripSeparator3,
             this.removeToolStripMenuItem});
             this._locationToolbarContextMenu.Name = "_locationToolbarContextMenu";
-            this._locationToolbarContextMenu.Size = new System.Drawing.Size(134, 54);
+            this._locationToolbarContextMenu.Size = new System.Drawing.Size(123, 54);
             this._locationToolbarContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationToolbarContextMenu_Opening);
             // 
             // addToolStripMenuItem
             // 
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.addToolStripMenuItem.Text = "add...";
             this.addToolStripMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(130, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(119, 6);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.removeToolStripMenuItem.Text = "remove...";
             // 
             // MainForm

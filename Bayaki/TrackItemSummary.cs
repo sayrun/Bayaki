@@ -173,10 +173,10 @@ namespace Bayaki
 
         public ListViewItem GetListViewItem()
         {
-            ListViewItem viewItem = new ListViewItem(From.ToString("yyyy/MM/dd HH:mm:ss"));
+            ListViewItem viewItem = new ListViewItem(Name);
+            viewItem.SubItems.Add(From.ToString("yyyy/MM/dd HH:mm:ss"));
             viewItem.SubItems.Add(To.ToString("yyyy/MM/dd HH:mm:ss"));
             viewItem.SubItems.Add(PointCount.ToString());
-            viewItem.SubItems.Add(Name);
             if ( null != Description && 0 <= Description.Length)
             {
                 viewItem.ToolTipText = Description;
