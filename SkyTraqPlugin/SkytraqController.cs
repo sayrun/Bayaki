@@ -471,7 +471,7 @@ namespace SkyTraqPlugin
                         Int16 diffX = (Int16)(0x00FF & br.ReadByte());
                         diffX <<= 2;
                         UInt16 un = (UInt16)(0x00FF & br.ReadByte());
-                        diffX = (Int16)(0x0003 & (un >> 6));
+                        diffX |= (Int16)(0x0003 & (un >> 6));
 
                         if (0 != (diffX & 0x0200))
                         {
