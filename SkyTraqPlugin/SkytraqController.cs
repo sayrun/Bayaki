@@ -379,9 +379,9 @@ namespace SkyTraqPlugin
 
         private DataLogFixFull ReadLocation(BinaryReader br, DataLogFixFull current)
         {
-            UInt16 pos1 = (byte)(0x00FF & br.ReadByte());
+            UInt16 pos1 = (UInt16)(0x00FF & br.ReadByte());
             pos1 <<= 8;
-            pos1 |= (byte)(0x00FF & br.ReadByte());
+            pos1 |= (UInt16)(0x00FF & br.ReadByte());
 
             UInt16 velocity = pos1;
             velocity &= (UInt16)0x03ff;
@@ -402,61 +402,31 @@ namespace SkyTraqPlugin
                         data.type = ((pos1 & 0xE000) == 0x4000) ? DataLogFixFull.TYPE.FULL : DataLogFixFull.TYPE.FULL_POI;
                         data.V = velocity;
 
-                        byte b = (byte)(0x00FF & br.ReadByte());
-                        data.TOW = (byte)(0x000f & (b >> 4));
-                        data.WN = (UInt16)(0x0003 & b);
-                        data.WN <<= 8;
-                        data.WN |= (UInt16)(0x00FF & br.ReadByte());
-                        UInt32 un = (UInt32)(0x00FF & br.ReadByte());
-                        un <<= 8;
-                        un |= (UInt32)(0x00FF & br.ReadByte());
-                        un <<= 4;
-                        data.TOW |= un;
-
+                        UInt16[] unWork = new UInt16[8];
+                        for (int index = 0; index < unWork.Length; ++index)
                         {
-                            data.X = (Int32)(0x00FF & br.ReadByte());
-                            data.X <<= 8;
-                            data.X |= (Int32)(0x00FF & br.ReadByte());
-
-                            un = (UInt32)(0x00FF & br.ReadByte());
-                            un <<= 8;
-                            un |= (UInt32)(0x00FF & br.ReadByte());
-
-                            un <<= 16;
-                            un &= 0xffff0000;
-                            data.X |= (Int32)un;
+                            unWork[index] = (UInt16)(0x00FF & br.ReadByte());
+                            unWork[index] <<= 8;
+                            unWork[index] |= (UInt16)(0x00FF & br.ReadByte());
                         }
 
+                        data.WN = (UInt16)( 0x03ff & unWork[0]);
+                        data.TOW = unWork[1];
+                        data.TOW <<= 4;
+                        data.TOW |= (UInt32)( 0x000f & (unWork[0] >> 12));
 
-                        {
-                            data.Y = (Int32)(0x00FF & br.ReadByte());
-                            data.Y <<= 8;
-                            data.Y |= (Int32)(0x00FF & br.ReadByte());
+                        data.X = unWork[3];
+                        data.X <<= 16;
+                        data.X |= unWork[2];
 
-                            un = (UInt32)(0x00FF & br.ReadByte());
-                            un <<= 8;
-                            un |= (UInt32)(0x00FF & br.ReadByte());
+                        data.Y = unWork[5];
+                        data.Y <<= 16;
+                        data.Y |= unWork[4];
 
-                            un <<= 16;
-                            un &= 0xffff0000;
-                            data.Y |= (Int32)un;
+                        data.Z = unWork[7];
+                        data.Z <<= 16;
+                        data.Z |= unWork[6];
 
-                        }
-
-                        {
-                            data.Z = (Int32)(0x00FF & br.ReadByte());
-                            data.Z <<= 8;
-                            data.Z |= (Int32)(0x00FF & br.ReadByte());
-
-                            un = (UInt32)(0x00FF & br.ReadByte());
-                            un <<= 8;
-                            un |= (UInt32)(0x00FF & br.ReadByte());
-
-                            un <<= 16;
-                            un &= 0xffff0000;
-                            data.Z |= (Int32)un;
-
-                        }
                         return data;
                     }
                     break;
@@ -464,45 +434,31 @@ namespace SkyTraqPlugin
                 // FIX COMPACT
                 case 0x8000:
                     {
-                        UInt16 diffTOW = (UInt16)(0x00FF & br.ReadByte());
-                        diffTOW <<= 8;
-                        diffTOW |= (UInt16)(0x00FF & br.ReadByte());
-
-                        Int16 diffX = (Int16)(0x00FF & br.ReadByte());
-                        diffX <<= 2;
-                        UInt16 un = (UInt16)(0x00FF & br.ReadByte());
-                        diffX |= (Int16)(0x0003 & (un >> 6));
-
-                        if (0 != (diffX & 0x0200))
+                        UInt16[] unWork = new UInt16[3];
+                        for (int index = 0; index < unWork.Length; ++index)
                         {
-                            UInt16 unWork = 0xfC00;
-                            diffX |= (Int16)unWork;   // 1111 1100 0000 0000
+                            unWork[index] = (UInt16)(0x00FF & br.ReadByte());
+                            unWork[index] <<= 8;
+                            unWork[index] |= (UInt16)(0x00FF & br.ReadByte());
                         }
+                        UInt16 diffTOW = unWork[0];
+                        Int16 diffX = (Int16)(0x03ff & (unWork[1] >> 6));
+                        Int16 diffY = (Int16)(0x03C0 & (unWork[2] >> 6));
+                        diffY |= (Int16)(0x003f & unWork[1]);
+                        Int16 diffZ = (Int16)(0x03ff & unWork[2]);
 
-                        Int16 diffY = (Int16)(un & 0x003f);
-                        un = (UInt16)(0x00FF & br.ReadByte());
-                        diffY |= (Int16)(0x03C0 & (un << 6));  // 11 1100 0000
-
-                        if (0 != (diffY & 0x0200))
+                        const Int16 flag = 511;
+                        if (flag < diffX)
                         {
-                            UInt16 unWork = 0xfC00;
-                            diffY |= (Int16)unWork;   // 1111 1100 0000 0000
+                            diffX = (Int16)(flag - diffX);
                         }
-
-
-                        Int16 diffZ = (Int16)(0x0003 & un);
-                        diffZ <<= 8;
-                        diffZ |= (Int16)(0x00FF & br.ReadByte());
-
-                        if (0 != (diffZ & 0x0200))
+                        if (flag < diffY)
                         {
-                            UInt16 unWork = 0xfC00;
-                            diffZ |= (Int16)unWork;   // 1111 1100 0000 0000
+                            diffY = (Int16)(flag - diffY);
                         }
-
-                        if (null == current)
+                        if (flag < diffZ)
                         {
-                            return null;
+                            diffZ = (Int16)(flag - diffZ);
                         }
 
                         DataLogFixFull result = new DataLogFixFull();
@@ -684,7 +640,7 @@ namespace SkyTraqPlugin
             BaudRate_230400 = 6
         };
 
-        #endregion
+#endregion
 
         /// <summary>
         /// 自動のポート選択
@@ -902,7 +858,7 @@ namespace SkyTraqPlugin
                             try
                             {
                                 // ECEFに変換する
-                                local = ReadLocation(br, latest);
+                                local = ReadLocation(br, local);
                                 if (null != local)
                                 {
                                     /*
