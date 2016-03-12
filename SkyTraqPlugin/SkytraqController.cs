@@ -356,6 +356,15 @@ namespace SkyTraqPlugin
 
         private void GetBufferStatus(out UInt16 totalSectors, out UInt16 freeSectors, out bool dataLogEnable)
         {
+            UInt32 dummy1;
+            UInt32 dummy2;
+            UInt32 dummy3;
+
+            GetBufferStatus(out  totalSectors, out  freeSectors, out dummy1, out dummy2, out dummy3, out dataLogEnable);
+        }
+
+        private void GetBufferStatus(out UInt16 totalSectors, out UInt16 freeSectors, out UInt32 time, out UInt32 distance, out UInt32 speed, out bool dataLogEnable)
+        {
             Payload p = new Payload(MessageID.Request_Information_of_the_Log_Buffer_Status);
             Write(p);
 
@@ -378,6 +387,30 @@ namespace SkyTraqPlugin
             freeSectors = (UInt16)result.Body[5];
             freeSectors <<= 8;
             freeSectors |= (UInt16)result.Body[4];
+
+            time = (UInt32)result.Body[15];
+            time <<= 8;
+            time |= (UInt32)result.Body[14];
+            time <<= 8;
+            time |= (UInt32)result.Body[14];
+            time <<= 8;
+            time |= (UInt32)result.Body[12];
+
+            distance = (UInt32)result.Body[23];
+            distance <<= 8;
+            distance |= (UInt32)result.Body[22];
+            distance <<= 8;
+            distance |= (UInt32)result.Body[21];
+            distance <<= 8;
+            distance |= (UInt32)result.Body[20];
+
+            speed = (UInt32)result.Body[31];
+            speed <<= 8;
+            speed |= (UInt32)result.Body[30];
+            speed <<= 8;
+            speed |= (UInt32)result.Body[29];
+            speed <<= 8;
+            speed |= (UInt32)result.Body[28];
 
             dataLogEnable = (0x01 == result.Body[32]);
         }
@@ -754,11 +787,15 @@ namespace SkyTraqPlugin
             UInt16 freeSectors;
             bool dataLogEnable;
 
-            GetBufferStatus(out totalSectors, out freeSectors, out dataLogEnable);
+            UInt32 time;
+            UInt32 distance;
+            UInt32 speed;
 
-            System.Diagnostics.Debug.Print("total={0}/free={1}/log enable={2}", totalSectors, freeSectors, dataLogEnable);
+            GetBufferStatus(out totalSectors, out freeSectors, out time, out distance, out speed, out dataLogEnable);
 
-            return new BufferStatus(totalSectors, freeSectors, dataLogEnable);
+            System.Diagnostics.Debug.Print("total={0}/free={1}/time={2}/distance={3}/speed={4}/log enable={5}", totalSectors, freeSectors, time, distance, speed, dataLogEnable);
+
+            return new BufferStatus(totalSectors, freeSectors, time, distance, speed, dataLogEnable);
         }
 
         /// <summary>
@@ -793,7 +830,7 @@ namespace SkyTraqPlugin
                 OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.INIT, 2, 2));
 
                 // データが無効なら終わる
-                //if (!dataLogEnable) return null;
+                if (!dataLogEnable) return null;
 
                 UInt16 sectors = totalSectors;
                 sectors -= freeSectors;
@@ -1084,6 +1121,41 @@ namespace SkyTraqPlugin
                     recovery();
                 }
                 return false;
+            }
+        }
+
+        public void SetLogConfigure(BufferStatus bs)
+        {
+            Payload p = new Payload(MessageID.Configuration_Data_Logging_Criteria, new byte[] {
+                0xff, 0xff, 0xff, 0xff, // max time
+                0x00, 0x00, 0x00, 0x00, // min time
+                0xff, 0xff, 0xff, 0xff, // max distance
+                0x00, 0x00, 0x00, 0x00, // min distance
+                0xff, 0xff, 0xff, 0xff, // max speed
+                0x00, 0x00, 0x00, 0x00, // min speed
+                0x01,   // datalog enale
+                0x00    // reserved
+            });
+
+            p.Body[4] = (byte)(0x000000ff & (bs.Time >> 24));
+            p.Body[5] = (byte)(0x000000ff & (bs.Time >> 16));
+            p.Body[6] = (byte)(0x000000ff & (bs.Time >> 8));
+            p.Body[7] = (byte)(0x000000ff & (bs.Time >> 0));
+
+            p.Body[12] = (byte)(0x000000ff & (bs.Distance >> 24));
+            p.Body[13] = (byte)(0x000000ff & (bs.Distance >> 16));
+            p.Body[14] = (byte)(0x000000ff & (bs.Distance >> 8));
+            p.Body[15] = (byte)(0x000000ff & (bs.Distance >> 0));
+
+            p.Body[20] = (byte)(0x000000ff & (bs.Speed >> 24));
+            p.Body[21] = (byte)(0x000000ff & (bs.Speed >> 16));
+            p.Body[22] = (byte)(0x000000ff & (bs.Speed >> 8));
+            p.Body[23] = (byte)(0x000000ff & (bs.Speed >> 0));
+
+            Write(p);
+            if (RESULT.RESULT_ACK != this.waitResult(MessageID.Configuration_Data_Logging_Criteria))
+            {
+                throw new Exception("設定の書き込みに失敗");
             }
         }
     }
