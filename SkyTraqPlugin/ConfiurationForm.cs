@@ -61,6 +61,7 @@ namespace SkyTraqPlugin
                     }
                 }
                 _port = new SkytraqController(portName);
+                MyEnviroment.LatestPortName = portName;
 
                 // Version情報
                 SoftwareVersion sv = _port.SoftwareVersion;
@@ -114,8 +115,16 @@ namespace SkyTraqPlugin
                 {
                     _posrts.Items.Add(portName);
                 }
-                int index = _posrts.Items.IndexOf(PORT_AUTO);
-                _posrts.SelectedIndex = index;
+                if (MyEnviroment.IsValidPortName)
+                {
+                    int index = _posrts.Items.IndexOf(MyEnviroment.LatestPortName);
+                    _posrts.SelectedIndex = index;
+                }
+                else
+                {
+                    int index = _posrts.Items.IndexOf(PORT_AUTO);
+                    _posrts.SelectedIndex = index;
+                }
             }
             finally
             {

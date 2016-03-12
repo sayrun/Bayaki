@@ -59,6 +59,7 @@
       <DependentUpon>DownloadDataForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Downloaderv1.cs" />
+    <Compile Include="MyEnviroment.cs" />
     <Compile Include="Eraserv1.cs" />
     <Compile Include="EraseDataForm.cs">
       <SubType>Form</SubType>
