@@ -1137,6 +1137,10 @@ namespace SkyTraqPlugin
                 0x00    // reserved
             });
 
+            // canwayの動きを参考にして、両方が0ならTimeを5とする
+            if (0 == bs.Distance && 0 == bs.Time)
+                bs.Time = 5;
+
             p.Body[4] = (byte)(0x000000ff & (bs.Time >> 24));
             p.Body[5] = (byte)(0x000000ff & (bs.Time >> 16));
             p.Body[6] = (byte)(0x000000ff & (bs.Time >> 8));
