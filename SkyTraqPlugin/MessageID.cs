@@ -24,6 +24,7 @@ namespace SkyTraqPlugin
         Configure_Navigation_Data_Message_Interval = 0x11,
         //
         Request_Information_of_the_Log_Buffer_Status = 0x17,
+        Configuration_Data_Logging_Criteria  =0x18,
         Clear_Data_Logging_Buffer = 0x19,
         Enable_data_read_from_the_log_buffer = 0x1d,
         // Input GPS Message
