@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SkyTraqPlugin
 {
-    public class BufferStatus
+    internal class BufferStatus
     {
         public readonly UInt16 TotalSectors;
         public readonly UInt16 FreeSectors;

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace SkyTraqPlugin
 {
-    public partial class DownloadDataForm : Form
+    internal partial class DownloadDataForm : Form
     {
         private const string PORT_AUTO = "Auto";
         private SkytraqController _port;
@@ -164,11 +164,6 @@ namespace SkyTraqPlugin
 
         private void _cancel_Click(object sender, EventArgs e)
         {
-            if( null != _port)
-            {
-                _port.Dispose();
-                _port = null;
-            }
             DialogResult = DialogResult.Cancel;
         }
 
@@ -195,6 +190,15 @@ namespace SkyTraqPlugin
                 _cancel.Enabled = true;
                 _download.Enabled = true;
                 MessageBox.Show(e.Error.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        private void DownloadDataForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if( null != _port)
+            {
+                _port.Dispose();
+                _port = null;
             }
         }
     }

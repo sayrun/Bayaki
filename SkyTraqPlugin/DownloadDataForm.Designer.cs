@@ -161,6 +161,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this._cancel;
             this.ClientSize = new System.Drawing.Size(438, 262);
             this.ControlBox = false;
             this.Controls.Add(this._Revision);
@@ -178,7 +179,9 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "DownloadDataForm";
             this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "データダウンロード";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DownloadDataForm_FormClosed);
             this.Load += new System.EventHandler(this.DownloadDataForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace SkyTraqPlugin
 {
-    public partial class EraseDataForm : Form
+    internal partial class EraseDataForm : Form
     {
         private const string PORT_AUTO = "Auto";
 
