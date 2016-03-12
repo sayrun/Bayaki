@@ -62,7 +62,7 @@ namespace Bayaki.Properties {
         
         /// <summary>
         ///   &lt;html&gt;
-        ///&lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.google.com/maps/api/js?sensor=false&quot;&gt;&lt;/script&gt;
+        ///&lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.google.com/maps/api/js?sensor=false&amp;v=3.22&quot;&gt;&lt;/script&gt;
         ///&lt;script type=&quot;text/javascript&quot;&gt;
         ///var map;
         ///var marker = null;
@@ -75,13 +75,13 @@ namespace Bayaki.Properties {
         ///	var opts = {
         ///			zoom: 14,
         ///			center: latlng,
+        ///			streetViewControl: false,
         ///			mapTypeId: google.maps.MapTypeId.ROADMAP
         ///		};
         ///	map = new google.maps.Map(document.getElementById(&quot;gmap&quot;), opts);
         ///}
         ///
-        ///function movePos( x, y) {
-        ///	var pos = new go [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///functio [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string googlemapsHTML {
             get {

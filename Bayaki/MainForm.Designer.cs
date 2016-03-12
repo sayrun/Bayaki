@@ -63,6 +63,7 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._exportFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this._routePreview = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -283,13 +284,14 @@
             this._locationContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._renameTarckItem,
             this._exportTrackItem,
+            this._routePreview,
             this.toolStripSeparator1,
             this._upPriority,
             this._downPriority,
             this.toolStripSeparator2,
             this._deleteTrackItem});
             this._locationContextMenu.Name = "_locationContextMenu";
-            this._locationContextMenu.Size = new System.Drawing.Size(126, 126);
+            this._locationContextMenu.Size = new System.Drawing.Size(153, 170);
             // 
             // _renameTarckItem
             // 
@@ -404,6 +406,13 @@
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.removeToolStripMenuItem.Text = "remove...";
             // 
+            // _routePreview
+            // 
+            this._routePreview.Name = "_routePreview";
+            this._routePreview.Size = new System.Drawing.Size(152, 22);
+            this._routePreview.Text = "Route Preview";
+            this._routePreview.Click += new System.EventHandler(this._routePreview_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -467,6 +476,7 @@
         private System.Windows.Forms.ToolStripMenuItem _exportCSV;
         private System.Windows.Forms.ToolStripMenuItem _exportKML;
         private System.Windows.Forms.SaveFileDialog _exportFileDialog;
+        private System.Windows.Forms.ToolStripMenuItem _routePreview;
     }
 }
 

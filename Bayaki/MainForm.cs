@@ -847,5 +847,19 @@ namespace Bayaki
 
             }
         }
+
+        private void _routePreview_Click(object sender, EventArgs e)
+        {
+            if (1 != _locationSources.SelectedItems.Count) return;
+            ListViewItem lvItem = _locationSources.SelectedItems[0];
+            TrackItemSummary trackSummary = lvItem.Tag as TrackItemSummary;
+            if (null == trackSummary) return;
+
+            bykIFv1.TrackItem trackItem = trackSummary.TrackItem;
+
+            TrackPointPreviewForm tpf = new TrackPointPreviewForm(trackItem);
+
+            tpf.Show(this);
+        }
     }
 }
