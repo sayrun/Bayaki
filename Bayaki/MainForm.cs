@@ -432,9 +432,9 @@ namespace Bayaki
                     break;
             }
 
-            if (null != jpegItem.CurrentLocation)
+            if (null != jpegItem.NewLocation)
             {
-                _previewMap.Url = new Uri(string.Format("javascript:movePos({0},{1});", jpegItem.CurrentLocation.Longitude, jpegItem.CurrentLocation.Latitude));
+                _previewMap.Url = new Uri(string.Format("javascript:movePos({0},{1});", jpegItem.NewLocation.Latitude, jpegItem.NewLocation.Longitude));
                 _previewMap.Visible = true;
             }
             else

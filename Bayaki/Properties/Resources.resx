@@ -138,8 +138,8 @@ function initialize() {
 	map = new google.maps.Map(document.getElementById("gmap"), opts);
 }
 
-function movePos( x, y) {
-	var pos = new google.maps.LatLng(y, x);
+function movePos( lat, lon) {
+	var pos = new google.maps.LatLng(lat, lon);
 
 	if( null != marker)
 	{
