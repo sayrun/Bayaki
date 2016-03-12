@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace SkyTraqPlugin
 {
-    public partial class ConfiurationForm : Form
+    internal partial class ConfiurationForm : Form
     {
         private const string PORT_AUTO = "Auto";
         private SkytraqController _port;
