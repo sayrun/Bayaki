@@ -76,6 +76,12 @@ namespace SkyTraqPlugin
 
         private void _erase_Click(object sender, EventArgs e)
         {
+            if (DialogResult.OK != MessageBox.Show("Logデータを消去します。\nよろしいですか？", this.Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question))
+            {
+                // 実行を中止しますよ
+                return;
+            }
+
             UseWaitCursor = true;
             NowProcessing = false;
 
