@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SkyTraqPlugin
 {
-    class SoftwareVersion
+    internal class SoftwareVersion
     {
         public readonly byte SoftType;
         public readonly UInt32 KernelVersion;
