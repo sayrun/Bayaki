@@ -26,6 +26,10 @@ namespace SkyTraqPlugin
         Request_Information_of_the_Log_Buffer_Status = 0x17,
         Clear_Data_Logging_Buffer = 0x19,
         Enable_data_read_from_the_log_buffer = 0x1d,
+        // Input GPS Message
+        Set_Ephemeris = 0x31,
+        Set_AGPS = 0x35,
+        Enable_AGPS = 0x33,
         // Output System Messages
         Software_version = 0x80,
         Software_CRC = 0x81,

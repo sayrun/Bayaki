@@ -60,6 +60,14 @@
       <DependentUpon>EraseDataForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ReadProgress.cs" />
+    <Compile Include="SetEphemerisForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SetEphemerisForm.Designer.cs">
+      <DependentUpon>SetEphemerisForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SetEphemerisProgress.cs" />
+    <Compile Include="SetEphemerisv1.cs" />
     <Compile Include="SkytraqController.cs" />
     <Compile Include="MessageID.cs" />
     <Compile Include="Payload.cs" />
@@ -91,9 +99,15 @@
     <EmbeddedResource Include="EraseDataForm.resx">
       <DependentUpon>EraseDataForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SetEphemerisForm.resx">
+      <DependentUpon>SetEphemerisForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Eraser_ICON.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SetEphemeris_ICON.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

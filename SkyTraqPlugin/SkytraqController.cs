@@ -25,7 +25,12 @@ namespace SkyTraqPlugin
         private const int READ_TIMEOUT = (10 * 1000);
         private const int READ_TIMEOUT_INTERNAL = (300);
 
+        private const int EPHEMERIS_BLOCK_SIZE = 0x56;
+        private const int EPHEMERIS_WRITE_SIZE = 8192;
+
+
         public event ReadProgressEventHandler OnRead;
+        public event SetEphemerisProgressHandler OnSetEphemeris;
 
         /// <summary>
         /// コンストラクタ
@@ -640,7 +645,32 @@ namespace SkyTraqPlugin
             BaudRate_230400 = 6
         };
 
-#endregion
+
+        private void WriteString(string s)
+        {
+            _com.Write(s);
+        }
+
+        private string ReadString()
+        {
+            string result = string.Empty;
+            char ch;
+            int n;
+
+            while (true)
+            {
+                n = _com.ReadChar();
+                if (-1 == n) break;
+
+                ch = (char)n;
+                if (0x00 == ch) break;
+
+                result += ch;
+            }
+            return result;
+        }
+
+        #endregion
 
         /// <summary>
         /// 自動のポート選択
@@ -939,6 +969,105 @@ namespace SkyTraqPlugin
                 {
                     throw new Exception("削除できない");
                 }
+
+                return true;
+            }
+            catch (TimeoutException)
+            {
+                try
+                {
+                    // Restartして終了
+                    sendRestart();
+                }
+                catch (TimeoutException)
+                {
+                    // 処理なし
+                    recovery();
+                }
+                return false;
+            }
+        }
+
+        public bool SetEphemeris(byte[] ephemeris)
+        {
+            try
+            {
+                if (0 != (ephemeris.Length % EPHEMERIS_BLOCK_SIZE))
+                {
+                    throw new Exception("Ehemerisのサイズがおかしいと思う。");
+                }
+
+                int max = ephemeris.Length;
+                int value = 0;
+
+                OnSetEphemeris(new SetEphemerisProgressEvent(value, max));
+
+
+                // チェックサムを計算します。
+                byte checkSuma = 0;
+                byte checkSumb = 0;
+                for (int index = 0; index < 0x10000; ++index)
+                {
+                    checkSumb += ephemeris[index];
+                }
+                checkSuma = checkSumb;
+                for (int index = 0x10000; index < ephemeris.Length; ++index)
+                {
+                    checkSuma += ephemeris[index];
+                }
+
+                // Ephemeris書き込み開始を送信
+                Payload p = new Payload(MessageID.Set_AGPS);
+                Write(p);
+                if (RESULT.RESULT_ACK != this.waitResult(MessageID.Set_AGPS))
+                {
+                    throw new Exception("設定できない");
+                }
+                
+                // データサイズ、チェックサム送信
+                string s = string.Format("BINSIZE = {0} Checksum = {1} Checksumb = {2} \0", ephemeris.Length, checkSuma, checkSumb);
+                System.Diagnostics.Debug.Print(s);
+                WriteString(s);
+
+                // 結果受信
+                string result = ReadString();
+                System.Diagnostics.Debug.Print(result);
+                if ("OK" != result) return false;
+
+                byte[] blockdata = new byte[EPHEMERIS_WRITE_SIZE];
+                int writeSize = 0;
+                for( int index = 0; index < ephemeris.Length; index+= EPHEMERIS_WRITE_SIZE)
+                {
+                    // データを書き込みます
+                    writeSize = ((ephemeris.Length - index) >= EPHEMERIS_WRITE_SIZE) ? EPHEMERIS_WRITE_SIZE : (ephemeris.Length - index);
+                    System.Buffer.BlockCopy(ephemeris, index, blockdata, 0, writeSize);
+                    _com.Write(blockdata, 0, writeSize);
+
+                    // 結果を取得します。
+                    result = ReadString();
+                    System.Diagnostics.Debug.Print(result);
+                    if ("OK" != result) return false;
+
+                    value += writeSize;
+                    OnSetEphemeris(new SetEphemerisProgressEvent(value, max));
+                }
+
+                // 結果を取得します。
+                result = ReadString();
+                System.Diagnostics.Debug.Print(result);
+                if ("END" != result) return false;
+
+                System.Threading.Thread.Sleep(500);
+
+                // Ephemeris書き込み開始を送信
+                p = new Payload(MessageID.Enable_AGPS, new byte[] { 0x01 });
+                Write(p);
+                if (RESULT.RESULT_ACK != this.waitResult(MessageID.Enable_AGPS))
+                {
+                    throw new Exception("A-GPSを有効にできない");
+                }
+
+                OnSetEphemeris(new SetEphemerisProgressEvent(max, max));
 
                 return true;
             }

@@ -97,5 +97,24 @@ namespace SkyTraqPlugin.Properties {
                 return ResourceManager.GetString("Eraser_NAME", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap SetEphemeris_ICON {
+            get {
+                object obj = ResourceManager.GetObject("SetEphemeris_ICON", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Skytraq Set Ephemeris に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SetEphemeris_NAME {
+            get {
+                return ResourceManager.GetString("SetEphemeris_NAME", resourceCulture);
+            }
+        }
     }
 }
