@@ -63,7 +63,7 @@ namespace Bayaki
         {
             get
             {
-                return ConvertTo((_point.Latitude >= decimal.Zero) ? "S" : "N");
+                return ConvertTo((_point.Latitude >= decimal.Zero) ? "N" : "S");
             }
         }
 
