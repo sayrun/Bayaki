@@ -588,6 +588,7 @@ namespace Bayaki
                 // 一時ファイルを移動します。
                 File.Move(workPath, item.FilePath);
             }
+            MessageBox.Show("書き込み完了しました。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void addToolStripMenuItem_Click(object sender, EventArgs e)
@@ -711,16 +712,16 @@ namespace Bayaki
 
                     xw.WriteStartElement("bounds");
                     {
-                        decimal minlat = trackItem.Items[0].Latitude;
-                        decimal maxlat = trackItem.Items[0].Latitude;
-                        decimal minlon = trackItem.Items[0].Longitude;
-                        decimal maxlon = trackItem.Items[0].Longitude;
+                        float minlat = (float)trackItem.Items[0].Latitude;
+                        float maxlat = (float)trackItem.Items[0].Latitude;
+                        float minlon = (float)trackItem.Items[0].Longitude;
+                        float maxlon = (float)trackItem.Items[0].Longitude;
                         foreach (bykIFv1.Point point in trackItem.Items)
                         {
-                            if (point.Latitude < minlat) minlat = point.Latitude;
-                            if (point.Latitude < maxlat) maxlat = point.Latitude;
-                            if (point.Longitude < minlon) minlon = point.Longitude;
-                            if (point.Longitude > maxlon) maxlon = point.Longitude;
+                            if ((float)point.Latitude < minlat) minlat = (float)point.Latitude;
+                            if ((float)point.Latitude < maxlat) maxlat = (float)point.Latitude;
+                            if ((float)point.Longitude < minlon) minlon = (float)point.Longitude;
+                            if ((float)point.Longitude > maxlon) maxlon = (float)point.Longitude;
                         }
                         xw.WriteAttributeString("minlat", minlat.ToString());
                         xw.WriteAttributeString("minlon", minlon.ToString());
@@ -738,12 +739,15 @@ namespace Bayaki
                         {
                             xw.WriteStartElement("wpt");
                             {
-                                xw.WriteAttributeString("lat", point.Latitude.ToString());
-                                xw.WriteAttributeString("lon", point.Longitude.ToString());
+                                float lat = (float)point.Latitude;
+                                float log = (float)point.Longitude;
+                                xw.WriteAttributeString("lat", lat.ToString());
+                                xw.WriteAttributeString("lon", log.ToString());
 
                                 xw.WriteElementString("ele", point.Elevation.ToString());
                                 xw.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                                xw.WriteElementString("speed", point.Speed.ToString());
+                                float spd = (float)point.Speed;
+                                xw.WriteElementString("speed", spd.ToString());
                                 xw.WriteElementString("name", string.Format("PT{0:D4}", index));
                             }
                             xw.WriteEndElement();
@@ -759,12 +763,15 @@ namespace Bayaki
                             {
                                 xw.WriteStartElement("trkpt");
                                 {
-                                    xw.WriteAttributeString("lat", point.Latitude.ToString());
-                                    xw.WriteAttributeString("lon", point.Longitude.ToString());
+                                    float lat = (float)point.Latitude;
+                                    float log = (float)point.Longitude;
+                                    xw.WriteAttributeString("lat", lat.ToString());
+                                    xw.WriteAttributeString("lon", log.ToString());
 
                                     xw.WriteElementString("ele", point.Elevation.ToString());
                                     xw.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                                    xw.WriteElementString("speed", point.Speed.ToString());
+                                    float spd = (float)point.Speed;
+                                    xw.WriteElementString("speed", spd.ToString());
                                     xw.WriteElementString("name", string.Format("PT{0:D4}", ++index));
                                 }
                                 xw.WriteEndElement();
