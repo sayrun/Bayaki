@@ -722,10 +722,10 @@ namespace Bayaki
                             if (point.Longitude < minlon) minlon = point.Longitude;
                             if (point.Longitude > maxlon) maxlon = point.Longitude;
                         }
-                        xw.WriteAttributeString("minlat", minlat.ToString());
-                        xw.WriteAttributeString("minlon", minlon.ToString());
-                        xw.WriteAttributeString("maxlat", maxlat.ToString());
-                        xw.WriteAttributeString("maxlon", maxlon.ToString());
+                        xw.WriteAttributeString("minlat", minlat.ToString("0.######"));
+                        xw.WriteAttributeString("minlon", minlon.ToString("0.######"));
+                        xw.WriteAttributeString("maxlat", maxlat.ToString("0.######"));
+                        xw.WriteAttributeString("maxlon", maxlon.ToString("0.######"));
                     }
                     xw.WriteEndElement();
 
@@ -738,12 +738,12 @@ namespace Bayaki
                         {
                             xw.WriteStartElement("wpt");
                             {
-                                xw.WriteAttributeString("lat", point.Latitude.ToString());
-                                xw.WriteAttributeString("lon", point.Longitude.ToString());
+                                xw.WriteAttributeString("lat", point.Latitude.ToString("0.######"));
+                                xw.WriteAttributeString("lon", point.Longitude.ToString("0.######"));
 
                                 xw.WriteElementString("ele", point.Elevation.ToString());
                                 xw.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                                xw.WriteElementString("speed", point.Speed.ToString());
+                                xw.WriteElementString("speed", point.Speed.ToString("0.######"));
                                 xw.WriteElementString("name", string.Format("PT{0:D4}", index));
                             }
                             xw.WriteEndElement();
@@ -759,12 +759,12 @@ namespace Bayaki
                             {
                                 xw.WriteStartElement("trkpt");
                                 {
-                                    xw.WriteAttributeString("lat", point.Latitude.ToString());
-                                    xw.WriteAttributeString("lon", point.Longitude.ToString());
+                                    xw.WriteAttributeString("lat", point.Latitude.ToString("0.######"));
+                                    xw.WriteAttributeString("lon", point.Longitude.ToString("0.######"));
 
                                     xw.WriteElementString("ele", point.Elevation.ToString());
                                     xw.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                                    xw.WriteElementString("speed", point.Speed.ToString());
+                                    xw.WriteElementString("speed", point.Speed.ToString("0.######"));
                                     xw.WriteElementString("name", string.Format("PT{0:D4}", ++index));
                                 }
                                 xw.WriteEndElement();
