@@ -262,33 +262,11 @@ namespace Bayaki
             }
         }
 
-        private Bitmap stretchImage(Image bmp, Size size, Color clr)
-        {
-            Bitmap result = new Bitmap(size.Width, size.Height, System.Drawing.Imaging.PixelFormat.Format16bppRgb555);
-
-            Graphics gs = Graphics.FromImage(result);
-
-            gs.FillRectangle(new SolidBrush(clr), 0, 0, size.Width, size.Height);
-
-            float scaleW = size.Width;
-            scaleW /= bmp.Width;
-            float scaleH = size.Height;
-            scaleH /= bmp.Height;
-
-            float scale = Math.Min(scaleW, scaleH);
-            float targetW = bmp.Width * scale;
-            float targetH = bmp.Height * scale;
-
-            gs.DrawImage(bmp, (size.Width - targetW) / 2, (size.Height - targetH) / 2, targetW, targetH);
-
-            return result;
-        }
-
         private bykIFv1.Point FindPoint(DateTime dt)
         {
-            foreach(TrackItemSummary summary in _locations)
+            foreach (TrackItemSummary summary in _locations)
             {
-                if(summary.IsContein(dt))
+                if (summary.IsContein(dt))
                 {
                     return summary.GetPoint(dt);
                 }
@@ -296,7 +274,7 @@ namespace Bayaki
             return null;
         }
 
-        private void PreviewDropFiles(string[] dropFiles, bool add)
+        private void LoadDropFiles(string[] dropFiles, bool add)
         {
             try
             {
@@ -308,20 +286,17 @@ namespace Bayaki
                 }
                 _targets.LargeImageList.TransparentColor = Color.Transparent;
 
-
-                DateTime debugTime = DateTime.Now;
-                TimeSpan debugSpan;
-                bool match = false;
-                foreach (string dropFile in dropFiles)
+                List<string> targetFiles = new List<string>();
+                foreach(string filePath in dropFiles)
                 {
                     // すでに登録されているものを二重登録しない
-                    match = false;
-                    foreach( ListViewItem item in _targets.Items)
+                    bool match = false;
+                    foreach (ListViewItem item in _targets.Items)
                     {
                         JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
                         if (null == jpegItem) continue;
 
-                        if ( dropFile == jpegItem.FilePath)
+                        if (filePath == jpegItem.FilePath)
                         {
                             match = true;
                             break;
@@ -329,31 +304,20 @@ namespace Bayaki
                     }
                     if (match) continue;
 
-                    using (Image bmp = Bitmap.FromFile(dropFile))
+                    targetFiles.Add(filePath);
+                }
+
+                LoadJpegFile ljf = new LoadJpegFile(_targets.LargeImageList.ImageSize, Color.Transparent);
+                NowProcessingForm<string> npf = new NowProcessingForm<string>(ljf, targetFiles.ToArray());
+
+                if( DialogResult.OK == npf.ShowDialog(this))
+                {
+                    foreach( ListViewItem item in ljf.Items)
                     {
-                        if (null != bmp)
+                        JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
+                        if (null != jpegItem)
                         {
-                            debugTime = DateTime.Now;
-                            int index = _targets.LargeImageList.Images.Count;
-                            _targets.LargeImageList.Images.Add(stretchImage(bmp, _targets.LargeImageList.ImageSize, _targets.LargeImageList.TransparentColor));
-                            string fileName = System.IO.Path.GetFileName(dropFile);
-                            debugSpan = DateTime.Now - debugTime;
-                            System.Diagnostics.Debug.Print(string.Format("stretchImage:{0}", debugSpan.TotalMilliseconds));
-
-                            debugTime = DateTime.Now;
-                            JPEGFileItem jpegItem = new JPEGFileItem(dropFile);
-                            debugSpan = DateTime.Now - debugTime;
-                            System.Diagnostics.Debug.Print(string.Format("JPEGFileItem:{0}", debugSpan.TotalMilliseconds));
-
-                            debugTime = DateTime.Now;
                             jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
-                            debugSpan = DateTime.Now - debugTime;
-                            System.Diagnostics.Debug.Print(string.Format("FindPoint:{0}", debugSpan.TotalMilliseconds));
-
-                            ListViewItem item = new ListViewItem(fileName);
-                            item.ImageIndex = index;
-                            item.Tag = jpegItem;
-
                             if (null != jpegItem.NewLocation)
                             {
                                 _update.Enabled = true;
@@ -363,6 +327,9 @@ namespace Bayaki
                             {
                                 item.Checked = false;
                             }
+
+                            item.ImageIndex = _targets.LargeImageList.Images.Count;
+                            _targets.LargeImageList.Images.Add(jpegItem.ThumNail);
 
                             _targets.Items.Add(item);
                         }
@@ -382,7 +349,7 @@ namespace Bayaki
                 // ドラッグ中のファイルやディレクトリの取得
                 string[] dropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                PreviewDropFiles(dropFiles, true);
+                LoadDropFiles(dropFiles, true);
             }
         }
 
@@ -393,7 +360,7 @@ namespace Bayaki
                 // ドラッグ中のファイルやディレクトリの取得
                 string[] dropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                PreviewDropFiles(dropFiles, false);
+                LoadDropFiles(dropFiles, false);
 
                 _dropCover.Visible = false;
             }
@@ -517,30 +484,9 @@ namespace Bayaki
             _locations.Insert(index + 1, summary);
         }
 
-        private void SetPropertyValue(Image bmp, int ID, short Type, byte[] value)
-        {
-            foreach(PropertyItem item in bmp.PropertyItems)
-            {
-                if( item.Id == ID)
-                {
-                    item.Type = Type;
-                    item.Value = value;
-                    item.Len = value.Length;
-                    bmp.SetPropertyItem(item);
-                    return;
-                }
-            }
-            System.Drawing.Imaging.PropertyItem p1 = bmp.PropertyItems[0];
-            // 緯度
-            p1.Id = ID;
-            p1.Type = Type;
-            p1.Value = value;
-            p1.Len = value.Length;
-            bmp.SetPropertyItem(p1);
-        }
-
         private void _update_Click(object sender, EventArgs e)
         {
+            List<JPEGFileItem> items = new List<JPEGFileItem>();
             foreach(ListViewItem lvItem in _targets.Items)
             {
                 // チェックされていないのは保存対象外
@@ -549,44 +495,13 @@ namespace Bayaki
                 JPEGFileItem item = lvItem.Tag as JPEGFileItem;
                 if (null == item) continue;
 
-                Image bmp = null;
-                FileStream fs = new FileStream(item.FilePath, FileMode.Open, FileAccess.Read, FileShare.Write);
-                bmp = Bitmap.FromStream(fs);
+                items.Add(item);
+            }
 
-                if (null == bmp) continue;
-
-                // 書き込みデータに変換する
-                PointConvertor converter = new PointConvertor(item.NewLocation);
-
-                // 緯度
-                SetPropertyValue(bmp, 1, 2, converter.LatitudeMark);
-                SetPropertyValue(bmp, 2, 5, converter.Latitude);
-
-                // 経度
-                SetPropertyValue(bmp, 3, 2, converter.LongitudeMark);
-                SetPropertyValue(bmp, 4, 5, converter.Longtude);
-
-                // 高度基準
-                SetPropertyValue(bmp, 5, 7, converter.AltitudeRef);
-
-                // 高度
-                SetPropertyValue(bmp, 6, 5, converter.Altitude);
-
-                // 一時ファイルに保存します
-                string workPath = Path.GetTempFileName();
-
-                // 保存する
-                bmp.Save(workPath);
-
-                // 保存するためにクローズする
-                bmp.Dispose();
-                fs.Close();
-
-                // 元ファイルを削除します。
-                File.Delete(item.FilePath);
-
-                // 一時ファイルを移動します。
-                File.Move(workPath, item.FilePath);
+            NowProcessingForm<JPEGFileItem> npf = new NowProcessingForm<JPEGFileItem>(new UpdateJpegFile(), items.ToArray());
+            if( DialogResult.OK == npf.ShowDialog(this))
+            {
+                MessageBox.Show("更新しました", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 

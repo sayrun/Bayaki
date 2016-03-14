@@ -24,13 +24,23 @@ namespace Bayaki
         private bykIFv1.Point _newLocation;
         private Orientation _orientation;
 
-        public JPEGFileItem(string filePath)
+        private Image _thumNail;
+
+        public JPEGFileItem(string filePath, Size thumNailSize, Color transColor)
         {
             _filePath = filePath;
 
-            AnalyzeExif(_filePath);
+            AnalyzeExif(_filePath, thumNailSize, transColor);
 
             _newLocation = null;
+        }
+
+        public Image ThumNail
+        {
+            get
+            {
+                return _thumNail;
+            }
         }
 
         public string FilePath
@@ -107,7 +117,7 @@ namespace Bayaki
             return result;
         }
 
-        private void AnalyzeExif(string filePath)
+        private void AnalyzeExif(string filePath, Size thumNailSize, Color transColor)
         {
             DateTime dt = DateTime.MinValue;
             string sNS = string.Empty;
@@ -115,7 +125,6 @@ namespace Bayaki
 
             UInt32[] uLon = null;
             UInt32[] uLat = null;
-
 
             using (Bitmap bmp = new Bitmap(filePath))
             {
@@ -217,6 +226,9 @@ namespace Bayaki
                             break;
                     }
                 }
+
+                // ついでにサムネイルを作る
+                _thumNail = stretchImage(bmp, thumNailSize, transColor);
             }
 
             _targetdate = dt;
@@ -246,5 +258,26 @@ namespace Bayaki
             }
         }
 
+        private Bitmap stretchImage(Image bmp, Size size, Color clr)
+        {
+            Bitmap result = new Bitmap(size.Width, size.Height, System.Drawing.Imaging.PixelFormat.Format16bppRgb555);
+
+            Graphics gs = Graphics.FromImage(result);
+
+            gs.FillRectangle(new SolidBrush(clr), 0, 0, size.Width, size.Height);
+
+            float scaleW = size.Width;
+            scaleW /= bmp.Width;
+            float scaleH = size.Height;
+            scaleH /= bmp.Height;
+
+            float scale = Math.Min(scaleW, scaleH);
+            float targetW = bmp.Width * scale;
+            float targetH = bmp.Height * scale;
+
+            gs.DrawImage(bmp, (size.Width - targetW) / 2, (size.Height - targetH) / 2, targetW, targetH);
+
+            return result;
+        }
     }
 }
