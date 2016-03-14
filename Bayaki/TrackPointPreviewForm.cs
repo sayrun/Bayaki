@@ -25,6 +25,8 @@ namespace Bayaki
 
         private void TrackPointPreviewForm_Load(object sender, EventArgs e)
         {
+            this.Text = _trackItem.Name;
+
             bykIFv1.Point pm = _trackItem.Items[0];
             StringBuilder sb = new StringBuilder();
 
