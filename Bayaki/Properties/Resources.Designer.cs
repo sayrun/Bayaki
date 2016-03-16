@@ -125,5 +125,26 @@ namespace Bayaki.Properties {
                 return ResourceManager.GetString("SkytraqDownloader_NAME", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   &lt;html&gt;
+        ///&lt;script src=&quot;http://js.api.olp.yahooapis.jp/OpenLocalPlatform/V1/jsapi?appid=dj0zaiZpPUpJRmx2aEp4RUwyMyZzPWNvbnN1bWVyc2VjcmV0Jng9MDM-&quot; type=&quot;text/javascript&quot;  charset=&quot;UTF-8&quot; &gt;&lt;/script&gt;
+        ///&lt;script type=&quot;text/javascript&quot;&gt;
+        ///var map;
+        ///var marker = null;
+        ///window.onload = function() {
+        ///    map = new Y.Map(&quot;Ymap&quot;);
+        ///    map.addControl( new Y.SliderZoomControl() );
+        ///    map.addControl( new Y.LayerSetControl() );
+        ///    map.drawMap(new Y.LatLng(35.665627,139.730738), 16, Y.LayerSetId.NORMAL);
+        ///}
+        ///
+        ///function mov [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string yahoomapsHTML {
+            get {
+                return ResourceManager.GetString("yahoomapsHTML", resourceCulture);
+            }
+        }
     }
 }

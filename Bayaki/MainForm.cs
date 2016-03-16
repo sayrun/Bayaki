@@ -126,8 +126,13 @@ namespace Bayaki
         private void Initialize()
         {
             TrackItemSummary.SavePath = _workPath;
-
+#if _MAP_YAOO
+            _previewMap.DocumentText = Properties.Resources.yahoomapsHTML;
+#else
+#if _MAP_GOOGLE
             _previewMap.DocumentText = Properties.Resources.googlemapsHTML;
+#endif
+#endif
 
             UpdateLocationList();
         }
@@ -371,7 +376,13 @@ namespace Bayaki
             ListView lv = sender as ListView;
             if (null == lv) return;
 
-            if (0 >= lv.SelectedItems.Count) return;
+            if (0 >= lv.SelectedItems.Count)
+            {
+                _previewImage.Image = null;
+                _previewMap.Url = new Uri("javascript:resetMaker();");
+                _previewMap.Visible = false;
+                return;
+            }
 
             ListViewItem item = lv.SelectedItems[0];
             JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
@@ -775,6 +786,13 @@ namespace Bayaki
             TrackPointPreviewForm tpf = new TrackPointPreviewForm(trackItem);
 
             tpf.Show(this);
+        }
+
+        private void _previewMap_SizeChanged(object sender, EventArgs e)
+        {
+#if _MAP_YAOO
+            _previewMap.Url = new Uri("javascript:resizeMap();");
+#endif
         }
     }
 }

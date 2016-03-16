@@ -176,4 +176,43 @@ function resetMarker() {
   <data name="SkytraqDownloader_NAME" xml:space="preserve">
     <value>Skytraq Downloader</value>
   </data>
+  <data name="yahoomapsHTML" xml:space="preserve">
+    <value>&lt;html&gt;
+&lt;script src="http://js.api.olp.yahooapis.jp/OpenLocalPlatform/V1/jsapi?appid=dj0zaiZpPUpJRmx2aEp4RUwyMyZzPWNvbnN1bWVyc2VjcmV0Jng9MDM-" type="text/javascript"  charset="UTF-8" &gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+var map;
+var marker = null;
+window.onload = function() {
+    map = new Y.Map("Ymap");
+    map.addControl( new Y.SliderZoomControl() );
+    map.addControl( new Y.LayerSetControl() );
+    map.drawMap(new Y.LatLng(35.665627,139.730738), 16, Y.LayerSetId.NORMAL);
+}
+
+function movePos( lat, lon) {
+	if( null != marker)
+	{
+		map.clearFeatures();
+	}
+	var latlon = new Y.LatLng(lat,lon);
+	
+	marker = new Y.Marker( latlon);
+
+	map.addFeature(marker);
+	map.panTo(latlon,false);
+}
+
+function resetMarker() {
+	map.clearFeatures();
+}
+
+function resizeMap() {
+	map.updateSize();
+}
+&lt;/script&gt;
+&lt;body marginheight="0" marginwidth="0" &gt;
+&lt;div id="Ymap" style="width:100%; height:100%"&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</value>
+  </data>
 </root>
