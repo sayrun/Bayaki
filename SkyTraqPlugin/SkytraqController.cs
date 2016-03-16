@@ -28,6 +28,9 @@ namespace SkyTraqPlugin
         private const int EPHEMERIS_BLOCK_SIZE = 0x56;
         private const int EPHEMERIS_WRITE_SIZE = 8192;
 
+        private const int RETRY_COUNT = 3;
+        private const int RETRY_TIME = 100;
+
 
         public event ReadProgressEventHandler OnRead;
         public event SetEphemerisProgressHandler OnSetEphemeris;
@@ -307,26 +310,41 @@ namespace SkyTraqPlugin
             RESULT_NACK
         };
 
-        private RESULT waitResult(MessageID id)
+        private RESULT waitSendResult(Payload sendPayload)
         {
-            Payload p = null;
-            while (true)
+            for (int index = 1; ; ++index)
             {
-                p = Read();
-
-                if (p.ID == MessageID.ACK)
+                try
                 {
-                    if (id == (MessageID)p.Body[0])
+                    Write(sendPayload);
+
+                    Payload readPayload = null;
+                    while (true)
                     {
-                        return RESULT.RESULT_ACK;
+                        readPayload = Read();
+
+                        if (readPayload.ID == MessageID.ACK)
+                        {
+                            if (sendPayload.ID == (MessageID)readPayload.Body[0])
+                            {
+                                return RESULT.RESULT_ACK;
+                            }
+                        }
+                        else if (readPayload.ID == MessageID.NACK)
+                        {
+                            if (sendPayload.ID == (MessageID)readPayload.Body[0])
+                            {
+                                return RESULT.RESULT_NACK;
+                            }
+                        }
                     }
                 }
-                else if (p.ID == MessageID.NACK)
+                catch (TimeoutException)
                 {
-                    if (id == (MessageID)p.Body[0])
-                    {
-                        return RESULT.RESULT_NACK;
-                    }
+                    if (index >= RETRY_COUNT)
+                        throw;
+
+                    System.Threading.Thread.Sleep(RETRY_TIME);
                 }
             }
         }
@@ -334,8 +352,7 @@ namespace SkyTraqPlugin
         private void sendRestart()
         {
             Payload p = new Payload(MessageID.System_Restart, new byte[] { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
-            Write(p);
-            if (RESULT.RESULT_ACK == this.waitResult(MessageID.System_Restart))
+            if (RESULT.RESULT_ACK == this.waitSendResult(p))
             {
                 // リセットが成功したのでボーレートも戻す
                 _com.BaudRate = 38400;
@@ -343,15 +360,15 @@ namespace SkyTraqPlugin
             }
         }
 
-        private void sendReadBuffer(int offsetSector, int sectorCount)
+        private RESULT sendReadBuffer(int offsetSector, int sectorCount)
         {
             Payload p = new Payload(MessageID.Enable_data_read_from_the_log_buffer, new byte[] { 0x00, 0x00, 0x00, 0x02 });
             p.Body[0] = (byte)(0x00FF & (offsetSector >> 8));
             p.Body[1] = (byte)(0x00FF & (offsetSector >> 0));
             p.Body[2] = (byte)(0x00FF & (sectorCount >> 8));
             p.Body[3] = (byte)(0x00FF & (sectorCount >> 0));
-            Write(p);
-            this.waitResult(MessageID.Enable_data_read_from_the_log_buffer);
+
+            return waitSendResult(p);
         }
 
         private void GetBufferStatus(out UInt16 totalSectors, out UInt16 freeSectors, out bool dataLogEnable)
@@ -366,14 +383,12 @@ namespace SkyTraqPlugin
         private void GetBufferStatus(out UInt16 totalSectors, out UInt16 freeSectors, out UInt32 time, out UInt32 distance, out UInt32 speed, out bool dataLogEnable)
         {
             Payload p = new Payload(MessageID.Request_Information_of_the_Log_Buffer_Status);
-            Write(p);
-
-            Payload result;
-            if (RESULT.RESULT_ACK != this.waitResult(MessageID.Request_Information_of_the_Log_Buffer_Status))
+            if (RESULT.RESULT_ACK != this.waitSendResult(p))
             {
                 throw new Exception("NACK!");
             }
 
+            Payload result;
             result = Read();
             if (result.ID != MessageID.Output_Status_of_the_Log_Buffer)
             {
@@ -528,9 +543,7 @@ namespace SkyTraqPlugin
         private void setBaudRate(BaudRate rate)
         {
             Payload p = new Payload(MessageID.Configure_Serial_Port, new byte[] { 0x00, (byte)rate, 0x02 });
-            Write(p);
-
-            if (RESULT.RESULT_ACK == this.waitResult(MessageID.Configure_Serial_Port))
+            if (RESULT.RESULT_ACK == this.waitSendResult(p))
             {
                 // 成功したから、COM ポートのボーレートも変更する
                 int[] ParaRate = { 4800, 9600, 19200, 38400, 57600, 115200, 230400 };
@@ -757,14 +770,12 @@ namespace SkyTraqPlugin
         public SoftwareVersion GetSoftwareVersion()
         {
             Payload p = new Payload(MessageID.Query_Software_version, new byte[] { 0x01 });
-            Write(p);
-
-            Payload result;
-            if (RESULT.RESULT_ACK != this.waitResult(MessageID.Query_Software_version))
+            if (RESULT.RESULT_ACK != this.waitSendResult(p))
             {
                 throw new Exception("NACK!");
             }
 
+            Payload result;
             result = Read();
             if (result.ID != MessageID.Software_version)
             {
@@ -849,7 +860,10 @@ namespace SkyTraqPlugin
 
                         System.Diagnostics.Debug.Print("step-1");
                         // 読み出しを指示
-                        sendReadBuffer(index, readSectors);
+                        if( RESULT.RESULT_ACK != sendReadBuffer(index, readSectors))
+                        {
+                            throw new Exception("読み出しコマンドでエラーが返ってきた");
+                        }
 
                         System.Diagnostics.Debug.Print("step-2");
                         // データを取得する
@@ -919,33 +933,20 @@ namespace SkyTraqPlugin
                         OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, 0, (int)br.BaseStream.Length));
 
                         DataLogFixFull local = null;
-                        DataLogFixFull latest = null;
                         while (true)
                         {
                             try
                             {
+                                // 変換状況を通知します
+                                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, (int)br.BaseStream.Position, (int)br.BaseStream.Length));
+
                                 // ECEFに変換する
                                 local = ReadLocation(br, local);
                                 if (null != local)
                                 {
-                                    /*
-                                    string s = @"C:\Users\Tomo\Documents\GEOTagInjector\SkyTraqSerial\XYZ_WN_TOW.txt";
-                                    using (System.IO.TextWriter tw = new System.IO.StreamWriter(s, true))
-                                    {
-                                        tw.WriteLine(string.Format("{0}\t{1}\t{2}\t{3}\t{4}", local.X, local.Y, local.Z, local.WN, local.TOW));
-                                    }*/
-
-                                    if(DataLogFixFull.TYPE.FULL == local.type || DataLogFixFull.TYPE.FULL_POI == local.type)
-                                    {
-                                        latest = local;
-                                    }
-
                                     // longitude/latitudeに変換する
                                     items.Add(ECEF2LonLat(local));
                                 }
-                                // 変換状況を通知します
-                                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, (int)br.BaseStream.Position, (int)br.BaseStream.Length));
-
                             }
                             catch (System.IO.EndOfStreamException)
                             {
@@ -1000,9 +1001,7 @@ namespace SkyTraqPlugin
                 setBaudRate(BaudRate.BaudRate_38400);
 
                 Payload p = new Payload(MessageID.Clear_Data_Logging_Buffer);
-                Write(p);
-
-                if (RESULT.RESULT_ACK != this.waitResult(MessageID.Clear_Data_Logging_Buffer))
+                if (RESULT.RESULT_ACK != this.waitSendResult(p))
                 {
                     throw new Exception("削除できない");
                 }
@@ -1055,8 +1054,7 @@ namespace SkyTraqPlugin
 
                 // Ephemeris書き込み開始を送信
                 Payload p = new Payload(MessageID.Set_AGPS);
-                Write(p);
-                if (RESULT.RESULT_ACK != this.waitResult(MessageID.Set_AGPS))
+                if (RESULT.RESULT_ACK != this.waitSendResult(p))
                 {
                     throw new Exception("設定できない");
                 }
@@ -1098,8 +1096,7 @@ namespace SkyTraqPlugin
 
                 // Ephemeris書き込み開始を送信
                 p = new Payload(MessageID.Enable_AGPS, new byte[] { 0x01 });
-                Write(p);
-                if (RESULT.RESULT_ACK != this.waitResult(MessageID.Enable_AGPS))
+                if (RESULT.RESULT_ACK != this.waitSendResult(p))
                 {
                     throw new Exception("A-GPSを有効にできない");
                 }
@@ -1156,8 +1153,7 @@ namespace SkyTraqPlugin
             p.Body[22] = (byte)(0x000000ff & (bs.Speed >> 8));
             p.Body[23] = (byte)(0x000000ff & (bs.Speed >> 0));
 
-            Write(p);
-            if (RESULT.RESULT_ACK != this.waitResult(MessageID.Configuration_Data_Logging_Criteria))
+            if (RESULT.RESULT_ACK != this.waitSendResult(p))
             {
                 throw new Exception("設定の書き込みに失敗");
             }
