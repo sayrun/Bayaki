@@ -23,7 +23,7 @@ namespace SkyTraqPlugin
         private const UInt16 MASK_LOBYTE = 0x00FF;
 
         private const int READ_TIMEOUT = (10 * 1000);
-        private const int READ_TIMEOUT_INTERNAL = (300);
+        private const int READ_TIMEOUT_INTERNAL = (200);
 
         private const int EPHEMERIS_BLOCK_SIZE = 0x56;
         private const int EPHEMERIS_WRITE_SIZE = 8192;
@@ -48,6 +48,22 @@ namespace SkyTraqPlugin
 
             // 同期しつつバージョンを取得してみる
             SyncBaudRate( out _version);
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="portName">ポート名称</param>
+        /// <param name="timeout">タイムアウト値</param>
+        private SkytraqController(string portName, int timeout)
+        {
+            _com = new SerialPort(portName, 38400, Parity.None, 8, StopBits.One);
+
+            _com.ReadTimeout = timeout;
+            _com.Open();
+
+            // 同期しつつバージョンを取得してみる
+            SyncBaudRate(out _version);
         }
 
         public void Dispose()
@@ -716,6 +732,114 @@ namespace SkyTraqPlugin
             return result;
         }
 
+
+        private void ReadSectors(byte[] readLog, UInt16 sectors)
+        {
+            int retryCount = 0;
+            int readSectors = 0;
+            for (int index = 0; index < sectors;)
+            {
+                readSectors = (SECTOR_COUNT <= (sectors - index)) ? SECTOR_COUNT : 1;
+
+                System.Diagnostics.Debug.Print("step-1");
+                // 読み出しを指示
+                if (RESULT.RESULT_ACK != sendReadBuffer(index, readSectors))
+                {
+                    throw new Exception("読み出しコマンドでエラーが返ってきた");
+                }
+
+                System.Diagnostics.Debug.Print("step-2");
+                // データを取得する
+                ReadLogBuffer(readLog, index * SECTOR_SIZE, readSectors * SECTOR_SIZE);
+
+#if false
+                string s = string.Format(@"C:\Users\Tomo\Documents\GEOTagInjector\SkyTraqSerial\hoge_{0}.bin", index);
+                using (System.IO.BinaryWriter bw = new System.IO.BinaryWriter(File.OpenWrite(s)))
+                {
+                    bw.Write(readLog, index * SECTOR_SIZE, readSectors * SECTOR_SIZE);
+                }
+#endif
+                System.Diagnostics.Debug.Print("step-3");
+                // CS取得
+                byte resultCS = ReadLogBufferCS();
+
+                System.Diagnostics.Debug.Print("step-4");
+                byte calcCS = 0;
+                using (MemoryStream ms = new MemoryStream(readLog, index * SECTOR_SIZE, readSectors * SECTOR_SIZE))
+                {
+                    using (System.IO.BinaryReader br = new System.IO.BinaryReader(ms))
+                    {
+                        while (true)
+                        {
+                            try
+                            {
+                                calcCS ^= br.ReadByte();
+                            }
+                            catch (System.IO.EndOfStreamException)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                System.Diagnostics.Debug.Print("step-5");
+                if (calcCS != resultCS)
+                {
+                    System.Diagnostics.Debug.Print("step-6-1");
+                    if (3 <= retryCount)
+                    {
+                        throw new Exception("データ取得のリトライが失敗した");
+                    }
+                    ++retryCount;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.Print("step-6-2");
+                    // 読み出し状況を通知します
+                    OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.READ, index, sectors));
+
+                    retryCount = 0;
+                    // 次を読み込みます。
+                    index += readSectors;
+                }
+                System.Diagnostics.Debug.Print("step-7");
+                System.Threading.Thread.Sleep(100);
+            }
+        }
+
+        private void SectorsData2LatLon(byte[] readLog, List<bykIFv1.Point> items)
+        {
+            using (BinaryReader br = new BinaryReader(new MemoryStream(readLog)))
+            {
+                // 変換開始を通知します
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, 0, (int)br.BaseStream.Length));
+
+                DataLogFixFull local = null;
+                while (true)
+                {
+                    try
+                    {
+                        // 変換状況を通知します
+                        OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, (int)br.BaseStream.Position, (int)br.BaseStream.Length));
+
+                        // ECEFに変換する
+                        local = ReadLocation(br, local);
+                        if (null != local)
+                        {
+                            // longitude/latitudeに変換する
+                            items.Add(ECEF2LonLat(local));
+                        }
+                    }
+                    catch (System.IO.EndOfStreamException)
+                    {
+                        break;
+                    }
+                }
+                // 変換終了を通知します
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, (int)br.BaseStream.Length, (int)br.BaseStream.Length));
+            }
+        }
         #endregion
 
         /// <summary>
@@ -730,7 +854,7 @@ namespace SkyTraqPlugin
             {
                 try
                 {
-                    port = new SkytraqController(portName);
+                    port = new SkytraqController(portName, READ_TIMEOUT_INTERNAL);
 
                     return portName;
                 }
@@ -820,10 +944,9 @@ namespace SkyTraqPlugin
             // 処理が開始されていないことを最初に通知します。
             OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.UNSTART, 0, 0));
 
+            List<bykIFv1.Point> items = new List<bykIFv1.Point>();
             try
             {
-                List<bykIFv1.Point> items = null;
-
                 UInt16 totalSectors;
                 UInt16 freeSectors;
                 bool dataLogEnable;
@@ -852,110 +975,10 @@ namespace SkyTraqPlugin
 
                     // データを読み込みます
                     byte[] readLog = new byte[sectors * SECTOR_SIZE];
-                    int retryCount = 0;
-                    int readSectors = 0;
-                    for (int index = 0; index < sectors;)
-                    {
-                        readSectors = (SECTOR_COUNT <= (sectors - index)) ? SECTOR_COUNT : 1;
-
-                        System.Diagnostics.Debug.Print("step-1");
-                        // 読み出しを指示
-                        if( RESULT.RESULT_ACK != sendReadBuffer(index, readSectors))
-                        {
-                            throw new Exception("読み出しコマンドでエラーが返ってきた");
-                        }
-
-                        System.Diagnostics.Debug.Print("step-2");
-                        // データを取得する
-                        ReadLogBuffer(readLog, index * SECTOR_SIZE, readSectors * SECTOR_SIZE);
-
-#if false
-                        string s = string.Format(@"C:\Users\Tomo\Documents\GEOTagInjector\SkyTraqSerial\hoge_{0}.bin", index);
-                        using (System.IO.BinaryWriter bw = new System.IO.BinaryWriter(File.OpenWrite(s)))
-                        {
-                            bw.Write(readLog, index * SECTOR_SIZE, readSectors * SECTOR_SIZE);
-                        }
-#endif
-                        System.Diagnostics.Debug.Print("step-3");
-                        // CS取得
-                        byte resultCS = ReadLogBufferCS();
-
-                        System.Diagnostics.Debug.Print("step-4");
-                        byte calcCS = 0;
-                        using (MemoryStream ms = new MemoryStream(readLog, index * SECTOR_SIZE, readSectors * SECTOR_SIZE))
-                        {
-                            using (System.IO.BinaryReader br = new System.IO.BinaryReader(ms))
-                            {
-                                while (true)
-                                {
-                                    try
-                                    {
-                                        calcCS ^= br.ReadByte();
-                                    }
-                                    catch (System.IO.EndOfStreamException)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        System.Diagnostics.Debug.Print("step-5");
-                        if (calcCS != resultCS)
-                        {
-                            System.Diagnostics.Debug.Print("step-6-1");
-                            if (3 <= retryCount)
-                            {
-                                throw new Exception("データ取得のリトライが失敗した");
-                            }
-                            ++retryCount;
-                        }
-                        else
-                        {
-                            System.Diagnostics.Debug.Print("step-6-2");
-                            // 読み出し状況を通知します
-                            OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.READ, index, sectors));
-
-                            retryCount = 0;
-                            // 次を読み込みます。
-                            index += readSectors;
-                        }
-                        System.Diagnostics.Debug.Print("step-7");
-                        System.Threading.Thread.Sleep(100);
-                    }
-
+                    ReadSectors(readLog, sectors);
 
                     // 読み出したデータを変換します
-                    items = new List<bykIFv1.Point>();
-                    using (BinaryReader br = new BinaryReader(new MemoryStream(readLog)))
-                    {
-                        // 変換開始を通知します
-                        OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, 0, (int)br.BaseStream.Length));
-
-                        DataLogFixFull local = null;
-                        while (true)
-                        {
-                            try
-                            {
-                                // 変換状況を通知します
-                                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, (int)br.BaseStream.Position, (int)br.BaseStream.Length));
-
-                                // ECEFに変換する
-                                local = ReadLocation(br, local);
-                                if (null != local)
-                                {
-                                    // longitude/latitudeに変換する
-                                    items.Add(ECEF2LonLat(local));
-                                }
-                            }
-                            catch (System.IO.EndOfStreamException)
-                            {
-                                break;
-                            }
-                        }
-                        // 変換終了を通知します
-                        OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.CONVERT, (int)br.BaseStream.Length, (int)br.BaseStream.Length));
-                    }
+                    SectorsData2LatLon(readLog, items);
                 }
 
                 // リセット開始を通知します
@@ -990,9 +1013,13 @@ namespace SkyTraqPlugin
             }
 
             // 値は返せない
-            return null;
+            return items;
         }
 
+        /// <summary>
+        /// データの消去を行います
+        /// </summary>
+        /// <returns></returns>
         public bool EraceLatLonData()
         {
             try
@@ -1024,6 +1051,11 @@ namespace SkyTraqPlugin
             }
         }
 
+        /// <summary>
+        /// A-GPS(Ephemeris)更新
+        /// </summary>
+        /// <param name="ephemeris">更新データ</param>
+        /// <returns></returns>
         public bool SetEphemeris(byte[] ephemeris)
         {
             try
@@ -1121,6 +1153,10 @@ namespace SkyTraqPlugin
             }
         }
 
+        /// <summary>
+        /// 設定情報の更新
+        /// </summary>
+        /// <param name="bs">設定情報</param>
         public void SetLogConfigure(BufferStatus bs)
         {
             Payload p = new Payload(MessageID.Configuration_Data_Logging_Criteria, new byte[] {
