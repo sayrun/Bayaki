@@ -41,6 +41,7 @@
             this._routePreview.Size = new System.Drawing.Size(893, 538);
             this._routePreview.TabIndex = 0;
             this._routePreview.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._routePreview_DocumentCompleted);
+            this._routePreview.SizeChanged += new System.EventHandler(this._routePreview_SizeChanged);
             // 
             // TrackPointPreviewForm
             // 

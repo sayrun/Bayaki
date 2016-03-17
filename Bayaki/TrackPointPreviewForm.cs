@@ -60,5 +60,10 @@ namespace Bayaki
             // 描画を実行します。
             _routePreview.Document.InvokeScript("drawPolyline");
         }
+
+        private void _routePreview_SizeChanged(object sender, EventArgs e)
+        {
+            _routePreview.Document.InvokeScript("resizeMap");
+        }
     }
 }
