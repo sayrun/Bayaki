@@ -66,8 +66,11 @@ namespace Bayaki.Properties {
         ///&lt;script type=&quot;text/javascript&quot;&gt;
         ///var map;
         ///var marker = null;
+        ///var path = null;
+        ///var count = 0;
+        ///var drawLine = null;
         ///
-        ///function initialize() {
+        ///function Initialize() {
         ///	// 東京都庁の座標
         ///	var y = 35.689634;
         ///	var x = 139.692101;
@@ -78,10 +81,7 @@ namespace Bayaki.Properties {
         ///			streetViewControl: false,
         ///			mapTypeId: google.maps.MapTypeId.ROADMAP
         ///		};
-        ///	map = new google.maps.Map(document.getElementById(&quot;gmap&quot;), opts);
-        ///}
-        ///
-        ///functio [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///	map = new google.maps.M [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string googlemapsHTML {
             get {
@@ -142,14 +142,14 @@ namespace Bayaki.Properties {
         ///&lt;script type=&quot;text/javascript&quot;&gt;
         ///var map;
         ///var marker = null;
-        ///window.onload = function() {
+        ///var path = null;
+        ///var count = 0;
+        ///
+        ///function Initialize() {
         ///    map = new Y.Map(&quot;Ymap&quot;);
         ///    map.addControl( new Y.SliderZoomControl() );
         ///    map.addControl( new Y.LayerSetControl() );
-        ///    map.drawMap(new Y.LatLng(35.665627,139.730738), 16, Y.LayerSetId.NORMAL);
-        ///}
-        ///
-        ///function mov [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///    map.drawMap(new Y.LatLng(35.665627,139.730738), 16, Y.LayerSe [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string yahoomapsHTML {
             get {

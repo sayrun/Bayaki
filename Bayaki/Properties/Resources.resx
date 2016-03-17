@@ -123,8 +123,11 @@
 &lt;script type="text/javascript"&gt;
 var map;
 var marker = null;
+var path = null;
+var count = 0;
+var drawLine = null;
 
-function initialize() {
+function Initialize() {
 	// 東京都庁の座標
 	var y = 35.689634;
 	var x = 139.692101;
@@ -157,8 +160,38 @@ function resetMarker() {
 	marker = new google.maps.Marker( { map: map, position: pos } );
 	marker.setMap(null);
 }
+
+function resizeMap() {
+}
+
+function addPoint( lat, lon) {
+	path[count] = new google.maps.LatLng(lat, lon);
+	count++;
+}
+
+function drawPolyline() {
+	if(null != drawLine)
+	{
+		drawLine.setMap(null);
+		drawLine = null;
+	}
+	
+	drawLine = new google.maps.Polyline({
+		path: path,
+		strokeColor: '#8855FF',
+		strokeOpacity: 0.8,
+		strokeWeight: 4
+	});
+	drawLine.setMap(map);
+	map.setCenter(path[0]);
+}
+
+function clearPoint() {
+	path = [];
+	count = 0;
+}
 &lt;/script&gt;
-&lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0" onload="initialize()"&gt;
+&lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0"&gt;
 &lt;div id="gmap" style="width:100%; height:100%"&gt;&lt;/div&gt;
 &lt;/body&gt;
 &lt;/html&gt;</value>
@@ -182,7 +215,10 @@ function resetMarker() {
 &lt;script type="text/javascript"&gt;
 var map;
 var marker = null;
-window.onload = function() {
+var path = null;
+var count = 0;
+
+function Initialize() {
     map = new Y.Map("Ymap");
     map.addControl( new Y.SliderZoomControl() );
     map.addControl( new Y.LayerSetControl() );
@@ -209,8 +245,25 @@ function resetMarker() {
 function resizeMap() {
 	map.updateSize();
 }
+
+function addPoint( lat, lon) {
+	path[count] = new Y.LatLng(lat,lon);
+	count++;
+}
+
+function drawPolyline() {
+	var line = new Y.Polyline(path);
+	map.addFeature(line);
+	map.setCenter(path[0]);
+}
+
+function clearPoint() {
+	path = [];
+	count = 0;
+	map.clearFeatures();
+}
 &lt;/script&gt;
-&lt;body marginheight="0" marginwidth="0" &gt;
+&lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0"&gt;
 &lt;div id="Ymap" style="width:100%; height:100%"&gt;&lt;/div&gt;
 &lt;/body&gt;
 &lt;/html&gt;</value>
