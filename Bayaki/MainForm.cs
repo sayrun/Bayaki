@@ -40,6 +40,9 @@ namespace Bayaki
             _exportCSV.Tag = EXPORT_FORMAT.CSV;
             _exportKML.Tag = EXPORT_FORMAT.KML;
 
+            // Exifの元ネタ作成用画像をセットする
+            UpdateJpegFile.SetHeaderSeed(Properties.Resources.HeaderSeed);
+
             // とりあえず作業フォルダを固定する（あとで設定できるよにしようとは思う）
             _workPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string locations = System.IO.Path.Combine(_workPath, "BayakiSummary.dat");

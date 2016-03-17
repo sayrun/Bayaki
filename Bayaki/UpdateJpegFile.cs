@@ -11,6 +11,12 @@ namespace Bayaki
 {
     class UpdateJpegFile : NowProcessingForm<JPEGFileItem>.ProcessingStrategy
     {
+        private static Image _headerSeed;
+
+        public static void SetHeaderSeed(Image headerSeed)
+        {
+            _headerSeed = headerSeed;
+        }
 
         private void SetPropertyValue(Image bmp, int ID, short Type, byte[] value)
         {
@@ -25,7 +31,7 @@ namespace Bayaki
                     return;
                 }
             }
-            System.Drawing.Imaging.PropertyItem p1 = bmp.PropertyItems[0];
+            System.Drawing.Imaging.PropertyItem p1 = _headerSeed.PropertyItems[0];
             // 緯度
             p1.Id = ID;
             p1.Type = Type;
