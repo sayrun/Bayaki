@@ -220,6 +220,7 @@
             this._previewMap.ScrollBarsEnabled = false;
             this._previewMap.Size = new System.Drawing.Size(334, 186);
             this._previewMap.TabIndex = 0;
+            this._previewMap.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._previewMap_DocumentCompleted);
             this._previewMap.SizeChanged += new System.EventHandler(this._previewMap_SizeChanged);
             // 
             // tabPage2

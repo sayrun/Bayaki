@@ -40,6 +40,7 @@
             this._routePreview.ScrollBarsEnabled = false;
             this._routePreview.Size = new System.Drawing.Size(893, 538);
             this._routePreview.TabIndex = 0;
+            this._routePreview.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._routePreview_DocumentCompleted);
             // 
             // TrackPointPreviewForm
             // 

@@ -129,7 +129,7 @@ namespace Bayaki
         private void Initialize()
         {
             TrackItemSummary.SavePath = _workPath;
-#if _MAP_YAOO
+#if _MAP_YAHOO
             _previewMap.DocumentText = Properties.Resources.yahoomapsHTML;
 #else
 #if _MAP_GOOGLE
@@ -382,7 +382,7 @@ namespace Bayaki
             if (0 >= lv.SelectedItems.Count)
             {
                 _previewImage.Image = null;
-                _previewMap.Url = new Uri("javascript:resetMaker();");
+                _previewMap.Document.InvokeScript("resetMaker");
                 _previewMap.Visible = false;
                 return;
             }
@@ -415,12 +415,12 @@ namespace Bayaki
 
             if (null != jpegItem.NewLocation)
             {
-                _previewMap.Url = new Uri(string.Format("javascript:movePos({0},{1});", jpegItem.NewLocation.Latitude, jpegItem.NewLocation.Longitude));
+                _previewMap.Document.InvokeScript("movePos", new object[] { jpegItem.NewLocation.Latitude, jpegItem.NewLocation.Longitude });
                 _previewMap.Visible = true;
             }
             else
             {
-                _previewMap.Url = new Uri("javascript:resetMaker();");
+                _previewMap.Document.InvokeScript("resetMaker");
                 _previewMap.Visible = false;
             }
         }
@@ -793,9 +793,13 @@ namespace Bayaki
 
         private void _previewMap_SizeChanged(object sender, EventArgs e)
         {
-#if _MAP_YAOO
-            _previewMap.Url = new Uri("javascript:resizeMap();");
-#endif
+            _previewMap.Document.InvokeScript("resizeMap");
+        }
+
+        private void _previewMap_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+            // 初期化してあげます
+            _previewMap.Document.InvokeScript("Initialize");
         }
     }
 }
