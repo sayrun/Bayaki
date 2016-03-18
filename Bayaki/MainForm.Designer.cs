@@ -39,6 +39,9 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this._previewImage = new System.Windows.Forms.PictureBox();
+            this._previewImageContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this._removeLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._addLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._previewMap = new System.Windows.Forms.WebBrowser();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this._locationSources = new System.Windows.Forms.ListView();
@@ -65,17 +68,16 @@
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._exportFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._previewImage)).BeginInit();
+            this._previewImageContextMenu.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this._locationContextMenu.SuspendLayout();
             this._locationToolbarContextMenu.SuspendLayout();
@@ -200,6 +202,7 @@
             // 
             // _previewImage
             // 
+            this._previewImage.ContextMenuStrip = this._previewImageContextMenu;
             this._previewImage.Dock = System.Windows.Forms.DockStyle.Fill;
             this._previewImage.Location = new System.Drawing.Point(0, 0);
             this._previewImage.Name = "_previewImage";
@@ -207,6 +210,29 @@
             this._previewImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this._previewImage.TabIndex = 0;
             this._previewImage.TabStop = false;
+            // 
+            // _previewImageContextMenu
+            // 
+            this._previewImageContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._removeLocationToolStripMenuItem,
+            this._addLocationToolStripMenuItem});
+            this._previewImageContextMenu.Name = "_previewImageContextMenu";
+            this._previewImageContextMenu.Size = new System.Drawing.Size(183, 48);
+            this._previewImageContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._previewImageContextMenu_Opening);
+            // 
+            // _removeLocationToolStripMenuItem
+            // 
+            this._removeLocationToolStripMenuItem.Name = "_removeLocationToolStripMenuItem";
+            this._removeLocationToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this._removeLocationToolStripMenuItem.Text = "remove location...";
+            this._removeLocationToolStripMenuItem.Click += new System.EventHandler(this._removeLocationToolStripMenuItem_Click);
+            // 
+            // _addLocationToolStripMenuItem
+            // 
+            this._addLocationToolStripMenuItem.Name = "_addLocationToolStripMenuItem";
+            this._addLocationToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this._addLocationToolStripMenuItem.Text = "add location";
+            this._addLocationToolStripMenuItem.Click += new System.EventHandler(this._addLocationToolStripMenuItem_Click);
             // 
             // _previewMap
             // 
@@ -216,7 +242,6 @@
             this._previewMap.Location = new System.Drawing.Point(0, 0);
             this._previewMap.MinimumSize = new System.Drawing.Size(20, 20);
             this._previewMap.Name = "_previewMap";
-            this._previewMap.ScriptErrorsSuppressed = true;
             this._previewMap.ScrollBarsEnabled = false;
             this._previewMap.Size = new System.Drawing.Size(334, 186);
             this._previewMap.TabIndex = 0;
@@ -426,15 +451,14 @@
             this.panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this._previewImage)).EndInit();
+            this._previewImageContextMenu.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this._locationContextMenu.ResumeLayout(false);
@@ -479,6 +503,9 @@
         private System.Windows.Forms.ToolStripMenuItem _exportKML;
         private System.Windows.Forms.SaveFileDialog _exportFileDialog;
         private System.Windows.Forms.ToolStripMenuItem _routePreview;
+        private System.Windows.Forms.ContextMenuStrip _previewImageContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem _removeLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem _addLocationToolStripMenuItem;
     }
 }
 

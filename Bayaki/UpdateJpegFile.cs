@@ -5,7 +5,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Bayaki
 {
@@ -40,30 +39,54 @@ namespace Bayaki
             bmp.SetPropertyItem(p1);
         }
 
+        private void RemovePropertyValue(Image bmp, int ID)
+        {
+            bmp.RemovePropertyItem(ID);
+        }
+
         public void DoProcess(JPEGFileItem jpegItem)
         {
+            if(jpegItem.CurrentLocation == null && jpegItem.NewLocation == null)
+            {
+                // 位置情報なし→なしだから、処理しない
+                return;
+            }
+
             Image bmp = null;
             FileStream fs = new FileStream(jpegItem.FilePath, FileMode.Open, FileAccess.Read, FileShare.Write);
             bmp = Bitmap.FromStream(fs);
 
             if (null == bmp) return;
 
-            // 書き込みデータに変換する
-            PointConvertor converter = new PointConvertor(jpegItem.NewLocation);
+            if (null != jpegItem.NewLocation)
+            {
 
-            // 緯度
-            SetPropertyValue(bmp, 1, 2, converter.LatitudeMark);
-            SetPropertyValue(bmp, 2, 5, converter.Latitude);
+                // 書き込みデータに変換する
+                PointConvertor converter = new PointConvertor(jpegItem.NewLocation);
 
-            // 経度
-            SetPropertyValue(bmp, 3, 2, converter.LongitudeMark);
-            SetPropertyValue(bmp, 4, 5, converter.Longtude);
+                // 緯度
+                SetPropertyValue(bmp, 1, 2, converter.LatitudeMark);
+                SetPropertyValue(bmp, 2, 5, converter.Latitude);
 
-            // 高度基準
-            SetPropertyValue(bmp, 5, 7, converter.AltitudeRef);
+                // 経度
+                SetPropertyValue(bmp, 3, 2, converter.LongitudeMark);
+                SetPropertyValue(bmp, 4, 5, converter.Longtude);
 
-            // 高度
-            SetPropertyValue(bmp, 6, 5, converter.Altitude);
+                // 高度基準
+                SetPropertyValue(bmp, 5, 7, converter.AltitudeRef);
+
+                // 高度
+                SetPropertyValue(bmp, 6, 5, converter.Altitude);
+            }
+            else
+            {
+                RemovePropertyValue(bmp, 1);
+                RemovePropertyValue(bmp, 2);
+                RemovePropertyValue(bmp, 3);
+                RemovePropertyValue(bmp, 4);
+                RemovePropertyValue(bmp, 5);
+                RemovePropertyValue(bmp, 6);
+            }
 
             // 一時ファイルに保存します
             string workPath = Path.GetTempFileName();

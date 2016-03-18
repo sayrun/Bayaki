@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using System.Reflection;
@@ -22,6 +21,7 @@ namespace Bayaki
         private List<TrackItemSummary> _locations;
         private List<JPEGFileItem> _images;
         private List<string> _pluginPath;
+        private WebBrowserObserver _observer;
 
         private enum EXPORT_FORMAT
         {
@@ -96,6 +96,33 @@ namespace Bayaki
                     File.Delete(locations);
                 }
             }
+
+            _observer = new WebBrowserObserver();
+            _observer.OnMakerDrag += _observer_OnMakerDrag;
+            _previewMap.ObjectForScripting = _observer;
+        }
+
+        private void _observer_OnMakerDrag(double lat, double lon)
+        {
+            if (1 != _targets.SelectedItems.Count) return;
+
+            ListViewItem item = _targets.SelectedItems[0];
+            JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
+            if (null == jpegItem) return;
+
+            System.Diagnostics.Debug.Print("new pos {0},{1}", lat, lon);
+
+            bykIFv1.Point point = jpegItem.NewLocation;
+            bykIFv1.Point pnew;
+            if( null != point)
+            {
+                pnew = new bykIFv1.Point(point.Time, (decimal)lat, (decimal)lon, decimal.Zero, decimal.Zero, false);
+            }
+            else
+            {
+                pnew = new bykIFv1.Point(jpegItem.DateTimeOriginal, (decimal)lat, (decimal)lon, decimal.Zero, decimal.Zero, false);
+            }
+            jpegItem.NewLocation = pnew;
         }
 
         private void SerializePluginList()
@@ -382,8 +409,7 @@ namespace Bayaki
             if (0 >= lv.SelectedItems.Count)
             {
                 _previewImage.Image = null;
-                _previewMap.Document.InvokeScript("resetMaker");
-                _previewMap.Visible = false;
+                _previewMap.Document.InvokeScript("resetMarker");
                 return;
             }
 
@@ -416,12 +442,10 @@ namespace Bayaki
             if (null != jpegItem.NewLocation)
             {
                 _previewMap.Document.InvokeScript("movePos", new object[] { jpegItem.NewLocation.Latitude, jpegItem.NewLocation.Longitude });
-                _previewMap.Visible = true;
             }
             else
             {
-                _previewMap.Document.InvokeScript("resetMaker");
-                _previewMap.Visible = false;
+                _previewMap.Document.InvokeScript("resetMarker");
             }
         }
 
@@ -800,6 +824,55 @@ namespace Bayaki
         {
             // 初期化してあげます
             _previewMap.Document.InvokeScript("Initialize");
+        }
+
+        private void _previewImageContextMenu_Opening(object sender, CancelEventArgs e)
+        {
+            bool removeLocation = false;
+            bool addLocation = false;
+            if( 1 == _targets.SelectedItems.Count)
+            {
+                ListViewItem item = _targets.SelectedItems[0];
+                JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
+                if( null != jpegItem)
+                {
+                    if( null != jpegItem.NewLocation)
+                    {
+                        removeLocation = true;
+                    }
+                    else
+                    {
+                        addLocation = true;
+                    }
+                }
+            }
+            else
+            {
+                e.Cancel = true;
+            }
+            _removeLocationToolStripMenuItem.Enabled = removeLocation;
+            _addLocationToolStripMenuItem.Enabled = addLocation;
+        }
+
+        private void _removeLocationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if( DialogResult.Yes == MessageBox.Show("位置情報を削除しますか？", this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+            {
+                if (1 != _targets.SelectedItems.Count) return;
+
+                ListViewItem item = _targets.SelectedItems[0];
+                JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
+                if (null == jpegItem) return;
+
+                jpegItem.NewLocation = null;
+
+                _previewMap.Document.InvokeScript("resetMarker");
+            }
+        }
+
+        private void _addLocationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _previewMap.Document.InvokeScript("dropMarker");
         }
     }
 }

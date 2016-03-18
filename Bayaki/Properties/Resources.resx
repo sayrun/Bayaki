@@ -147,18 +147,24 @@ function movePos( lat, lon) {
 	if( null != marker)
 	{
 		marker.setMap(null);
+		marker = null;
 	}
 
 	marker = new google.maps.Marker( { map: map, position: pos } );
+	marker.setDraggable(true);
+	google.maps.event.addListener(marker, "dragend", function(e){
+		var latlon = marker.getPosition();
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    });
+    marker.setMap(map);
 	map.setCenter(pos);
 }
 
 function resetMarker() {
-	var y = 35.689634;
-	var x = 139.692101;
-	var pos = new google.maps.LatLng(y, x);
-	marker = new google.maps.Marker( { map: map, position: pos } );
-	marker.setMap(null);
+	if( null != marker) {
+		marker.setMap(null);
+		marker = null;
+	}
 }
 
 function resizeMap() {
@@ -189,6 +195,21 @@ function drawPolyline() {
 function clearPoint() {
 	path = [];
 	count = 0;
+}
+
+function dropMarker() {
+	if( null == marker) {
+		var latlon = map.getCenter();
+		marker = new google.maps.Marker( { map: map, position: latlon } );
+		
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+	}
+	
+	marker.setDraggable(true);
+	google.maps.event.addListener(marker, "dragend", function(e){
+		var latlon = marker.getPosition();
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    });
 }
 &lt;/script&gt;
 &lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0"&gt;
@@ -233,12 +254,17 @@ function movePos( lat, lon) {
 	var latlon = new Y.LatLng(lat,lon);
 	
 	marker = new Y.Marker( latlon);
-
+	marker.setDraggable(true);
+	marker.bind("dragend", function(latlng){
+		var latlon = marker.getLatLng();
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    });
 	map.addFeature(marker);
 	map.panTo(latlon,false);
 }
 
 function resetMarker() {
+	marker = null;
 	map.clearFeatures();
 }
 
@@ -262,6 +288,24 @@ function clearPoint() {
 	count = 0;
 	map.clearFeatures();
 }
+
+function dropMarker() {
+	if( null == marker) {
+		var latlon = map.getCenter();
+		marker = new Y.Marker( latlon);
+		map.addFeature(marker);
+		
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+	}
+	
+	marker.setDraggable(true);
+	marker.bind("dragend", function(latlng){
+		var latlon = marker.getLatLng();
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    });
+	map.panTo(marker.getLatLng(),false);
+}
+
 &lt;/script&gt;
 &lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0"&gt;
 &lt;div id="Ymap" style="width:100%; height:100%"&gt;&lt;/div&gt;
