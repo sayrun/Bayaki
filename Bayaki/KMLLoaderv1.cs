@@ -114,7 +114,7 @@ namespace Bayaki
                                                                             decimal lon = decimal.Parse(coords[1]);
                                                                             decimal lat = decimal.Parse(coords[0]);
                                                                             decimal ele = (coords.Length > 2) ? decimal.Parse(coords[2]) : decimal.Zero;
-                                                                            bykIFv1.Point item = new bykIFv1.Point(dt, lon, lat, ele, decimal.Zero, false);
+                                                                            bykIFv1.Point item = new bykIFv1.Point(dt.ToUniversalTime(), lon, lat, ele, decimal.Zero, false);
                                                                             result.Items.Add(item);
                                                                         }
 
