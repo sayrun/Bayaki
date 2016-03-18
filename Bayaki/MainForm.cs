@@ -71,6 +71,7 @@ namespace Bayaki
 
             // ツールバーにGPS情報取得プラグインを追加する
             AddToolbar(new GPXLoaderv1());
+            AddToolbar(new KMLLoaderv1());
             string plugins = System.IO.Path.Combine(_workPath, "BayakiPlugins.dat");
             if (File.Exists(plugins))
             {

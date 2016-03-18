@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="GPXLoaderv1.cs" />
     <Compile Include="JPEGFileItem.cs" />
+    <Compile Include="KMLLoaderv1.cs" />
     <Compile Include="LoadJpegFile.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -139,6 +140,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\HeaderSeed.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\KMLLoader_ICON.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

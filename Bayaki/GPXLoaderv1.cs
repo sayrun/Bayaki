@@ -36,7 +36,7 @@ namespace Bayaki
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Title = "select gpx file";
             dialog.Filter = "gpx file(*.gpx)|*.gpx|all file(*.*)|*.*||";
-            dialog.DefaultExt = "gpx";
+            dialog.DefaultExt = ".gpx";
             dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             dialog.Multiselect = true;
 

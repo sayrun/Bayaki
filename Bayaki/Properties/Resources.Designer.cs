@@ -119,6 +119,25 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
+        ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Bitmap KMLLoader_ICON {
+            get {
+                object obj = ResourceManager.GetObject("KMLLoader_ICON", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   KMLLoader に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string KMLLoader_NAME {
+            get {
+                return ResourceManager.GetString("KMLLoader_NAME", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   削除してもよいですか？ に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string MSG1 {
