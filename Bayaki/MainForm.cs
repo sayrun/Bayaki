@@ -811,6 +811,7 @@ namespace Bayaki
 
             bykIFv1.TrackItem trackItem = trackSummary.TrackItem;
 
+            trackItem.Name = trackSummary.Name;
             TrackPointPreviewForm tpf = new TrackPointPreviewForm(trackItem);
 
             tpf.Show(this);
