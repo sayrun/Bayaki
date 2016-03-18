@@ -155,16 +155,37 @@ namespace Bayaki
             // 指定された時間をUTCに変換する
             TimeSpan diff = System.TimeZoneInfo.Local.GetUtcOffset(targetDate);
             DateTime utcTime = targetDate.Subtract(diff);
+            bykIFv1.Point orless = null;
             foreach ( bykIFv1.Point pnt in _item.Items)
             {
+                if(utcTime > pnt.Time)
+                {
+                    orless = pnt;
+                }
                 if(utcTime == pnt.Time)
                 {
                     return pnt;
                 }
                 // ソートされているから省略する
-                if (utcTime <= pnt.Time)
+                if (utcTime < pnt.Time)
                 {
-                    return null;
+                    if( null != orless)
+                    {
+                        TimeSpan s1 = utcTime - orless.Time;
+                        TimeSpan s2 = pnt.Time - utcTime;
+                        if( s1 < s2)
+                        {
+                            return orless;
+                        }
+                        else
+                        {
+                            return pnt;
+                        }
+                    }
+                    else
+                    {
+                        return pnt;
+                    }
                 }
             }
             return null;
