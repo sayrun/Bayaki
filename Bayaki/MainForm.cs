@@ -244,7 +244,6 @@ namespace Bayaki
             {
                 JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
                 if (null == jpegItem) continue;
-                if (null != jpegItem.NewLocation) continue;
 
                 jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
                 if( null != jpegItem.NewLocation)
@@ -300,14 +299,39 @@ namespace Bayaki
 
         private bykIFv1.Point FindPoint(DateTime dt)
         {
+
+            List<bykIFv1.Point> points = new List<bykIFv1.Point>();
+            // 総当たりで位置情報を取得
             foreach (TrackItemSummary summary in _locations)
             {
                 if (summary.IsContein(dt))
                 {
-                    return summary.GetPoint(dt);
+                    points.Add(summary.GetPoint(dt));
                 }
             }
-            return null;
+
+            if( 1 == points.Count)
+            {
+                return points[0];
+            }
+            else
+            {
+                // 複数の結果が得られたら、より時間の小さいほう
+                bykIFv1.Point result = null;
+                double diff = 0;
+                double diffOld = double.MaxValue;
+                foreach(bykIFv1.Point pnt in points)
+                {
+                    TimeSpan s = pnt.Time - dt;
+                    diff = Math.Abs(s.TotalSeconds);
+                    if( diffOld > diff)
+                    {
+                        result = pnt;
+                        diffOld = diff;
+                    }
+                }
+                return result;
+            }
         }
 
         private void LoadDropFiles(string[] dropFiles, bool add)
@@ -448,30 +472,6 @@ namespace Bayaki
             {
                 _previewMap.Document.InvokeScript("resetMarker");
             }
-        }
-
-        private void _deleteTrackItem_Paint(object sender, PaintEventArgs e)
-        {
-            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
-            menuItem.Enabled = (0 < _locationSources.SelectedItems.Count);
-        }
-
-        private void _renameTarckItem_Paint(object sender, PaintEventArgs e)
-        {
-            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
-            menuItem.Enabled = (0 < _locationSources.SelectedItems.Count);
-        }
-
-        private void _upPriority_Paint(object sender, PaintEventArgs e)
-        {
-            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
-            menuItem.Enabled = (1 == _locationSources.SelectedIndices.Count && 1 < _locationSources.SelectedIndices[0]);
-        }
-
-        private void _downPriority_Paint(object sender, PaintEventArgs e)
-        {
-            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
-            menuItem.Enabled = (1 == _locationSources.SelectedIndices.Count && (_locationSources.Items.Count - 1) > _locationSources.SelectedIndices[0]);
         }
 
         private void _deleteTrackItem_Click(object sender, EventArgs e)
@@ -875,6 +875,21 @@ namespace Bayaki
         private void _addLocationToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _previewMap.Document.InvokeScript("dropMarker");
+        }
+
+        private void _locationContextMenu_Opening(object sender, CancelEventArgs e)
+        {
+            if( 0 >= _locationSources.SelectedItems.Count)
+            {
+                e.Cancel = true;
+            }
+
+            _deleteTrackItem.Enabled = (0 < _locationSources.SelectedItems.Count);
+            _renameTarckItem.Enabled = (0 < _locationSources.SelectedItems.Count);
+            _exportTrackItem.Enabled = (0 < _locationSources.SelectedItems.Count);
+            _routePreview.Enabled = (0 < _locationSources.SelectedItems.Count);
+            _upPriority.Enabled = (1 == _locationSources.SelectedIndices.Count && 0 < _locationSources.SelectedIndices[0]);
+            _downPriority.Enabled = (1 == _locationSources.SelectedIndices.Count && (_locationSources.Items.Count - 1) > _locationSources.SelectedIndices[0]);
         }
     }
 }
