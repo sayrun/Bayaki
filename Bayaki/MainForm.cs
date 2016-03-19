@@ -23,6 +23,8 @@ namespace Bayaki
         private List<string> _pluginPath;
         private WebBrowserObserver _observer;
 
+        private const int MAX_TIMEDIFF = (60 * 20); // 根拠ないけど、20分以上差異があれば採用しない
+
         private enum EXPORT_FORMAT
         {
             INVALID,
@@ -316,14 +318,17 @@ namespace Bayaki
             }
             else
             {
+                // 比較用にUTCにする
+                DateTime utcdt = dt.Subtract(System.TimeZoneInfo.Local.GetUtcOffset(dt));
                 // 複数の結果が得られたら、より時間の小さいほう
                 bykIFv1.Point result = null;
                 double diff = 0;
                 double diffOld = double.MaxValue;
                 foreach(bykIFv1.Point pnt in points)
                 {
-                    TimeSpan s = pnt.Time - dt;
+                    TimeSpan s = pnt.Time - utcdt;
                     diff = Math.Abs(s.TotalSeconds);
+                    if (diff >= MAX_TIMEDIFF) continue;
                     if( diffOld > diff)
                     {
                         result = pnt;
