@@ -5,11 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using bykIFv1;
+using System.Device.Location;
 
 namespace Bayaki
 {
     class KMLLoaderv1 : bykIFv1.PlugInInterface
     {
+        private const double MAX_SPEED = 340.0; // 音速(m/s)
+
         public Bitmap Icon
         {
             get
@@ -57,6 +60,8 @@ namespace Bayaki
 
         private static TrackItem LoadKmlFile(string filePath)
         {
+            bykIFv1.Point olditem = null;
+
             TrackItem result = new TrackItem(filePath, DateTime.Now);
 
             result.Description = string.Format("from [{0}]", filePath);
@@ -111,11 +116,27 @@ namespace Bayaki
                                                                         DateTime dt;
                                                                         if (DateTime.TryParse(datetime, out dt))
                                                                         {
-                                                                            decimal lon = decimal.Parse(coords[1]);
-                                                                            decimal lat = decimal.Parse(coords[0]);
-                                                                            decimal ele = (coords.Length > 2) ? decimal.Parse(coords[2]) : decimal.Zero;
-                                                                            bykIFv1.Point item = new bykIFv1.Point(dt.ToUniversalTime(), lon, lat, ele, decimal.Zero, false);
-                                                                            result.Items.Add(item);
+                                                                            double lon = double.Parse(coords[1]);
+                                                                            double lat = double.Parse(coords[0]);
+                                                                            double ele = (coords.Length > 2) ? double.Parse(coords[2]) : double.NaN;
+
+                                                                            bykIFv1.Point item = new bykIFv1.Point(dt.ToUniversalTime(), lon, lat, ele, 0, false);
+
+                                                                            bool skip = false;
+                                                                            if( null != olditem)
+                                                                            {
+                                                                                TimeSpan s = item.Time - olditem.Time;
+
+                                                                                double maxDistance = MAX_SPEED * s.TotalSeconds;
+
+                                                                                // 音速を超える移動は破棄する
+                                                                                skip = (maxDistance < item.Location.GetDistanceTo(olditem.Location));
+                                                                            }
+                                                                            if (false == skip)
+                                                                            {
+                                                                                result.Items.Add(item);
+                                                                                olditem = item;
+                                                                            }
                                                                         }
 
                                                                         datetime = string.Empty;
