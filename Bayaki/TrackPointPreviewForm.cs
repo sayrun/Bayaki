@@ -35,25 +35,37 @@ namespace Bayaki
 
         private void _routePreview_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
+            string format;
+#if _MAP_YAHOO
+            format = "{0}<br>{1:0.######}, {2:0.######}";
+#else
+#if _MAP_GOOGLE
+            format = "{0}\r\n{1:0.######}, {2:0.######}";
+#endif
+#endif
+
             // 初期化してあげます
             _routePreview.Document.InvokeScript("Initialize");
             _routePreview.Document.InvokeScript("clearPoint");
 
             // パス情報を追加していきます
             bykIFv1.Point pm = _trackItem.Items[0];
-            _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude });
+            string markerText = (pm.Interest) ? string.Format(format, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude) : string.Empty;
+            _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude, markerText });
             foreach (bykIFv1.Point p in _trackItem.Items)
             {
-                if (pm.Time.AddSeconds(10) < p.Time)
+                if( p.Interest || (pm.Time.AddSeconds(10) < p.Time))
                 {
                     pm = p;
-                    _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude });
+                    markerText = (pm.Interest) ? string.Format(format, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude) : string.Empty;
+                    _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude, markerText });
                 }
             }
             if (pm != _trackItem.Items[_trackItem.Items.Count - 1])
             {
                 pm = _trackItem.Items[_trackItem.Items.Count - 1];
-                _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude });
+                markerText = (pm.Interest) ? string.Format(format, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude) : string.Empty;
+                _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude, markerText });
             }
 
             // 描画を実行します。

@@ -162,13 +162,14 @@ namespace Bayaki.Properties {
         ///var map;
         ///var marker = null;
         ///var path = null;
+        ///var intersts = null;
         ///var count = 0;
         ///
         ///function Initialize() {
         ///    map = new Y.Map(&quot;Ymap&quot;);
         ///    map.addControl( new Y.SliderZoomControl() );
         ///    map.addControl( new Y.LayerSetControl() );
-        ///    map.drawMap(new Y.LatLng(35.665627,139.730738), 16, Y.LayerSe [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///    map.drawMap(new Y.LatLng(35.665627,139. [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string yahoomapsHTML {
             get {
