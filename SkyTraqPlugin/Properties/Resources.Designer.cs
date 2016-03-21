@@ -71,7 +71,8 @@ namespace SkyTraqPlugin.Properties {
         }
         
         /// <summary>
-        ///   Skytraq Configuration に類似しているローカライズされた文字列を検索します。
+        ///   Skytraq
+        ///Configuration に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Configure_NAME {
             get {
@@ -90,7 +91,8 @@ namespace SkyTraqPlugin.Properties {
         }
         
         /// <summary>
-        ///   Skytraq download に類似しているローカライズされた文字列を検索します。
+        ///   Skytraq
+        ///logdata download に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Downloader_NAME {
             get {
@@ -109,7 +111,8 @@ namespace SkyTraqPlugin.Properties {
         }
         
         /// <summary>
-        ///   Skytraq Erase に類似しているローカライズされた文字列を検索します。
+        ///   Skytraq
+        ///logdata Erase に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Eraser_NAME {
             get {
@@ -128,7 +131,8 @@ namespace SkyTraqPlugin.Properties {
         }
         
         /// <summary>
-        ///   Skytraq Set Ephemeris に類似しているローカライズされた文字列を検索します。
+        ///   Skytraq
+        ///Set Ephemeris に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SetEphemeris_NAME {
             get {

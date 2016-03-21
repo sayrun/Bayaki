@@ -122,24 +122,28 @@
     <value>..\Resources\Configure_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Configure_NAME" xml:space="preserve">
-    <value>Skytraq Configuration</value>
+    <value>Skytraq
+Configuration</value>
   </data>
   <data name="Downloader_ICON" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Downloader_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Downloader_NAME" xml:space="preserve">
-    <value>Skytraq download</value>
+    <value>Skytraq
+logdata download</value>
   </data>
   <data name="Eraser_ICON" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Eraser_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Eraser_NAME" xml:space="preserve">
-    <value>Skytraq Erase</value>
+    <value>Skytraq
+logdata Erase</value>
   </data>
   <data name="SetEphemeris_ICON" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SetEphemeris_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="SetEphemeris_NAME" xml:space="preserve">
-    <value>Skytraq Set Ephemeris</value>
+    <value>Skytraq
+Set Ephemeris</value>
   </data>
 </root>
