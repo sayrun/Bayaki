@@ -29,7 +29,7 @@ namespace GoogleMapTimelinePlugin
         {
             DateTime target = dateTimePicker1.Value;
 
-            string s = string.Format("https://accounts.google.com/ServiceLogin?hl=ja&passive=true&continue=https://www.google.com/maps/timeline/kml?authuser=0&pb=!1m8!1m3!1i{0}!2i{1}!3i{2}!2m3!1i{0}!2i{1}!3i{2}", target.Year, target.Month - 1, target.Day);
+            string s = string.Format("https://www.google.com/maps/timeline/kml?authuser=0&pb=!1m8!1m3!1i{0}!2i{1}!3i{2}!2m3!1i{0}!2i{1}!3i{2}", target.Year, target.Month - 1, target.Day);
 
             webBrowser1.Navigate(new Uri(s));
         }
