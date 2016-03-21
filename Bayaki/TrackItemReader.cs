@@ -162,7 +162,7 @@ namespace Bayaki
                                 {
                                     bool wayPoint = (0 <= wayPoints.IndexOf(dt));
 
-                                    bykIFv1.Point item = new bykIFv1.Point(dt.ToUniversalTime(), decimal.Parse(lat), decimal.Parse(lon), decimal.Parse(sEle), decimal.Parse(sSpeed), wayPoint);
+                                    bykIFv1.Point item = new bykIFv1.Point(dt.ToUniversalTime(), double.Parse(lat), double.Parse(lon), double.Parse(sEle), double.Parse(sSpeed), wayPoint);
                                     points.Add(item);
                                 }
                             }

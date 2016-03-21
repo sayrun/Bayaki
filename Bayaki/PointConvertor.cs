@@ -9,14 +9,14 @@ namespace Bayaki
     {
         private bykIFv1.Point _point;
 
-        public PointConvertor( bykIFv1.Point point)
+        public PointConvertor(bykIFv1.Point point)
         {
             _point = point;
         }
 
-        private UInt32[] ToEleArray(decimal value)
+        private UInt32[] ToEleArray(double value)
         {
-            decimal lonA = Math.Floor(Math.Abs(value) * 1000);
+            double lonA = Math.Floor(Math.Abs(value) * 1000);
 
             lonA *= Math.Sign(value);
 
@@ -25,15 +25,15 @@ namespace Bayaki
             return result;
         }
 
-        private UInt32[] ToLonLatArray(decimal value)
+        private UInt32[] ToLonLatArray(double value)
         {
             value = Math.Abs(value);
 
-            decimal lonA = Math.Floor(value);
+            double lonA = Math.Floor(value);
 
-            decimal lonB = Math.Floor((value - lonA) * 60);
+            double lonB = Math.Floor((value - lonA) * 60);
 
-            decimal lonC = Math.Floor(((value - lonA) - (lonB / 60)) * 60 * 60 * 1000);
+            double lonC = Math.Floor(((value - lonA) - (lonB / 60)) * 60 * 60 * 1000);
 
             UInt32[] result = new UInt32[] { (UInt32)lonA, 1, (UInt32)lonB, 1, (UInt32)lonC, 1000 };
 
@@ -62,7 +62,7 @@ namespace Bayaki
         {
             get
             {
-                return ConvertTo((_point.Latitude >= decimal.Zero) ? "N" : "S");
+                return ConvertTo((_point.Latitude >= 0) ? "N" : "S");
             }
         }
 
@@ -70,7 +70,7 @@ namespace Bayaki
         {
             get
             {
-                decimal latitude = Math.Abs(_point.Latitude);
+                double latitude = Math.Abs(_point.Latitude);
 
                 return ConvertTo(ToLonLatArray(latitude));
             }
@@ -80,7 +80,7 @@ namespace Bayaki
         {
             get
             {
-                return ConvertTo((_point.Longitude >= decimal.Zero) ? "E" : "W");
+                return ConvertTo((_point.Longitude >= 0) ? "E" : "W");
             }
         }
 
@@ -88,7 +88,7 @@ namespace Bayaki
         {
             get
             {
-                decimal longitude = Math.Abs(_point.Longitude);
+                double longitude = Math.Abs(_point.Longitude);
 
                 return ConvertTo(ToLonLatArray(longitude));
             }
@@ -98,7 +98,9 @@ namespace Bayaki
         {
             get
             {
-                decimal elevation = Math.Abs(_point.Elevation);
+                if (double.NaN == _point.Altitude) return null;
+
+                double elevation = Math.Abs(_point.Altitude);
 
                 return ConvertTo(ToEleArray(elevation));
             }

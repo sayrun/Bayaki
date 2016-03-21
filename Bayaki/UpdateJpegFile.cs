@@ -72,11 +72,19 @@ namespace Bayaki
                 SetPropertyValue(bmp, 3, 2, converter.LongitudeMark);
                 SetPropertyValue(bmp, 4, 5, converter.Longtude);
 
-                // 高度基準
-                SetPropertyValue(bmp, 5, 7, converter.AltitudeRef);
+                if (null != converter.Altitude)
+                {
+                    // 高度基準
+                    SetPropertyValue(bmp, 5, 7, converter.AltitudeRef);
 
-                // 高度
-                SetPropertyValue(bmp, 6, 5, converter.Altitude);
+                    // 高度
+                    SetPropertyValue(bmp, 6, 5, converter.Altitude);
+                }
+                else
+                {
+                    RemovePropertyValue(bmp, 5);
+                    RemovePropertyValue(bmp, 6);
+                }
             }
             else
             {

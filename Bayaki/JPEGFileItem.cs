@@ -97,15 +97,15 @@ namespace Bayaki
             }
         }
 
-        private decimal ToDegree(UInt32[] source)
+        private double ToDegree(UInt32[] source)
         {
-            decimal result = source[0];
+            double result = source[0];
             result /= source[1];
 
-            decimal dPar1 = 60;
+            double dPar1 = 60;
             for (int index = 1; index < source.Length / 2; ++index)
             {
-                decimal dWork = source[index * 2];
+                double dWork = source[index * 2];
                 dWork /= dPar1;
                 dWork /= source[index * 2 + 1];
 
@@ -236,14 +236,14 @@ namespace Bayaki
             {
 
                 // 経度
-                decimal lon = ToDegree(uLon);
+                double lon = ToDegree(uLon);
                 if (0 == string.Compare(sEW, "W", true))
                 {
                     lon *= -1;
                 }
 
                 // 緯度
-                decimal lat = ToDegree(uLat);
+                double lat = ToDegree(uLat);
                 if (0 == string.Compare(sNS, "S", true))
                 {
                     lat *= -1;

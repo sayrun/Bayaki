@@ -83,10 +83,10 @@ namespace Bayaki
 
                 _xmlWriter.WriteStartElement("bounds");
                 {
-                    decimal minlat = trackItem.Items[0].Latitude;
-                    decimal maxlat = trackItem.Items[0].Latitude;
-                    decimal minlon = trackItem.Items[0].Longitude;
-                    decimal maxlon = trackItem.Items[0].Longitude;
+                    double minlat = trackItem.Items[0].Latitude;
+                    double maxlat = trackItem.Items[0].Latitude;
+                    double minlon = trackItem.Items[0].Longitude;
+                    double maxlon = trackItem.Items[0].Longitude;
                     foreach (bykIFv1.Point point in trackItem.Items)
                     {
                         if (point.Latitude < minlat) minlat = point.Latitude;
@@ -113,9 +113,15 @@ namespace Bayaki
                             _xmlWriter.WriteAttributeString("lat", point.Latitude.ToString("0.######"));
                             _xmlWriter.WriteAttributeString("lon", point.Longitude.ToString("0.######"));
 
-                            _xmlWriter.WriteElementString("ele", point.Elevation.ToString());
+                            if (double.NaN != point.Altitude)
+                            {
+                                _xmlWriter.WriteElementString("ele", point.Altitude.ToString());
+                            }
                             _xmlWriter.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                            _xmlWriter.WriteElementString("speed", point.Speed.ToString("0.######"));
+                            if (double.NaN != point.Speed)
+                            {
+                                _xmlWriter.WriteElementString("speed", point.Speed.ToString("0.######"));
+                            }
                             _xmlWriter.WriteElementString("name", string.Format("PT{0:D4}", index));
                         }
                         _xmlWriter.WriteEndElement();
@@ -134,9 +140,15 @@ namespace Bayaki
                                 _xmlWriter.WriteAttributeString("lat", point.Latitude.ToString("0.######"));
                                 _xmlWriter.WriteAttributeString("lon", point.Longitude.ToString("0.######"));
 
-                                _xmlWriter.WriteElementString("ele", point.Elevation.ToString());
+                                if (double.NaN != point.Altitude)
+                                {
+                                    _xmlWriter.WriteElementString("ele", point.Altitude.ToString());
+                                }
                                 _xmlWriter.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                                _xmlWriter.WriteElementString("speed", point.Speed.ToString("0.######"));
+                                if (double.NaN != point.Speed)
+                                {
+                                    _xmlWriter.WriteElementString("speed", point.Speed.ToString("0.######"));
+                                }
                                 _xmlWriter.WriteElementString("name", string.Format("PT{0:D4}", ++index));
                             }
                             _xmlWriter.WriteEndElement();

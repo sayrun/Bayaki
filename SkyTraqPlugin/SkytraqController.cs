@@ -687,10 +687,10 @@ namespace SkyTraqPlugin
 
             DateTime dt = GPSTIME2diffUTC(local.WN, local.TOW);
 
-            decimal spd = (local.V * 1000);
+            double spd = (local.V * 1000);
             spd /= 3600;
 
-            result = new bykIFv1.Point(dt, (decimal)lat, (decimal)lon, (decimal)alt, spd, (DataLogFixFull.TYPE.FULL_POI == local.type));
+            result = new bykIFv1.Point(dt, lat, lon, alt, spd, (DataLogFixFull.TYPE.FULL_POI == local.type));
 
             return result;
         }

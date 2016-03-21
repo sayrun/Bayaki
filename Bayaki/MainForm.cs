@@ -78,11 +78,11 @@ namespace Bayaki
             bykIFv1.Point pnew;
             if( null != point)
             {
-                pnew = new bykIFv1.Point(point.Time, (decimal)lat, (decimal)lon, decimal.Zero, decimal.Zero, false);
+                pnew = new bykIFv1.Point(point.Time, lat, lon, double.NaN, 0, false);
             }
             else
             {
-                pnew = new bykIFv1.Point(jpegItem.DateTimeOriginal, (decimal)lat, (decimal)lon, decimal.Zero, decimal.Zero, false);
+                pnew = new bykIFv1.Point(jpegItem.DateTimeOriginal, lat, lon, double.NaN, 0, false);
             }
             jpegItem.NewLocation = pnew;
         }
