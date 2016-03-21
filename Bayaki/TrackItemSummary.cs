@@ -134,6 +134,9 @@ namespace Bayaki
                     using (TrackItemReader tir = new TrackItemReader(locations))
                     {
                         _item = tir.Read();
+
+                        // 変更された名前を設定する
+                        _item.Name = this.Name;
                     }
                 }
                 return _item;
