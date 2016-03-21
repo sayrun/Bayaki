@@ -80,6 +80,8 @@
     <Compile Include="PointConvertor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TrackItemReader.cs" />
+    <Compile Include="TrackItemWriter.cs" />
     <Compile Include="TrackItemSummary.cs" />
     <Compile Include="TrackPointPreviewForm.cs">
       <SubType>Form</SubType>

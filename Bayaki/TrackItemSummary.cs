@@ -22,6 +22,8 @@ namespace Bayaki
 
         private static string _savePath;
 
+        private const int DATA_VERSION = 0x0100;
+
         bykIFv1.TrackItem _item;
 
         public TrackItemSummary( bykIFv1.TrackItem track)
@@ -55,11 +57,11 @@ namespace Bayaki
                 fileName = string.Format("TrackItem{0:D4}.dat", index);
                 try
                 {
-                    using (Stream stream = new FileStream(Path.Combine(_savePath, fileName), FileMode.CreateNew))
+                    string savePath = Path.Combine(_savePath, fileName);
+                    using (TrackItemWriter tiw = new TrackItemWriter(savePath))
                     {
                         // 保存します
-                        BinaryFormatter bf = new BinaryFormatter();
-                        bf.Serialize(stream, _item);
+                        tiw.Write(_item);
 
                         // ファイルが作成できたからこれをファイル名にします。
                         _saveFileName = fileName;
@@ -76,6 +78,7 @@ namespace Bayaki
 
         public TrackItemSummary(SerializationInfo info, StreamingContext context)
         {
+            int version = info.GetInt32("Version");
             PointCount = info.GetInt32("PointCount");
             From = info.GetDateTime("From");
             To = info.GetDateTime("To");
@@ -92,6 +95,7 @@ namespace Bayaki
                 SafeTrackItem();
             }
 
+            info.AddValue("Version", DATA_VERSION);
             info.AddValue("PointCount", PointCount);
             info.AddValue("From", From);
             info.AddValue("To", To);
@@ -124,11 +128,9 @@ namespace Bayaki
                 if (null == _item)
                 {
                     string locations = System.IO.Path.Combine(_savePath, _saveFileName);
-                    using (var stream = new FileStream(locations, FileMode.Open))
+                    using (TrackItemReader tir = new TrackItemReader(locations))
                     {
-                        BinaryFormatter bf = new BinaryFormatter();
-
-                        _item = bf.Deserialize(stream) as bykIFv1.TrackItem;
+                        _item = tir.Read();
                     }
                 }
                 return _item;

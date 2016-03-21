@@ -25,6 +25,8 @@ namespace Bayaki
 
         private const int MAX_TIMEDIFF = (60 * 20); // 根拠ないけど、20分以上差異があれば採用しない
 
+        private const string DIRECTORY_DATAFOLDER = "Bayaki Folder";
+
         private enum EXPORT_FORMAT
         {
             INVALID,
@@ -45,61 +47,18 @@ namespace Bayaki
             // Exifの元ネタ作成用画像をセットする
             UpdateJpegFile.SetHeaderSeed(Properties.Resources.HeaderSeed);
 
-            // とりあえず作業フォルダを固定する（あとで設定できるよにしようとは思う）
-            _workPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string locations = System.IO.Path.Combine(_workPath, "BayakiSummary.dat");
-            if (File.Exists(locations))
-            {
-                try
-                {
-                    using (var stream = new FileStream(locations, FileMode.Open))
-                    {
-                        BinaryFormatter bf = new BinaryFormatter();
-                        _locations = bf.Deserialize(stream) as List<TrackItemSummary>;
-                    }
-                }
-                catch
-                {
-                    // 読み出せないよ？
-                    File.Delete(locations);
-                }
-            }
-            if( null == _locations)
-            {
-                _locations = new List<TrackItemSummary>();
-            }
+            // データ保存用フォルダを作成
+            _workPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), DIRECTORY_DATAFOLDER);
+
+            _locations = null;
             _images = new List<JPEGFileItem>();
             _pluginPath = new List<string>();
 
             // ツールバーにGPS情報取得プラグインを追加する
             AddToolbar(new GPXLoaderv1());
             AddToolbar(new KMLLoaderv1());
-            string plugins = System.IO.Path.Combine(_workPath, "BayakiPlugins.dat");
-            if (File.Exists(plugins))
-            {
-                try
-                {
-                    List<string> loadWork = null;
-                    using (var stream = new FileStream(plugins, FileMode.Open))
-                    {
-                        BinaryFormatter bf = new BinaryFormatter();
-                        loadWork = bf.Deserialize(stream) as List<string>;
-                    }
-                    if(null != loadWork)
-                    {
-                        foreach( string filePath in loadWork)
-                        {
-                            LoadPlugin(filePath);
-                        }
-                    }
-                }
-                catch
-                {
-                    // 読み出せないよ？
-                    File.Delete(locations);
-                }
-            }
-
+ 
+            // 地図情報をJavascriptからもらう        
             _observer = new WebBrowserObserver();
             _observer.OnMakerDrag += _observer_OnMakerDrag;
             _previewMap.ObjectForScripting = _observer;
@@ -651,89 +610,9 @@ namespace Bayaki
 
         private void ExportGPX( string filePath, bykIFv1.TrackItem trackItem)
         {
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = "\t";
-            settings.Encoding = Encoding.UTF8;
-            using (XmlWriter xw = XmlWriter.Create(filePath, settings))
+            using (TrackItemWriter tiw = new TrackItemWriter(filePath))
             {
-                xw.WriteStartElement("gpx");
-                {
-                    xw.WriteAttributeString("version", "1.0");
-                    xw.WriteAttributeString("creator", "Bayaki");
-
-                    xw.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                    xw.WriteAttributeString("schemaLocation", "http://www.w3.org/2001/XMLSchema-instance", "http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd");
-
-                    // 作成時間
-                    xw.WriteElementString("time", trackItem.CreateTime.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-
-                    xw.WriteStartElement("bounds");
-                    {
-                        decimal minlat = trackItem.Items[0].Latitude;
-                        decimal maxlat = trackItem.Items[0].Latitude;
-                        decimal minlon = trackItem.Items[0].Longitude;
-                        decimal maxlon = trackItem.Items[0].Longitude;
-                        foreach (bykIFv1.Point point in trackItem.Items)
-                        {
-                            if (point.Latitude < minlat) minlat = point.Latitude;
-                            if (point.Latitude < maxlat) maxlat = point.Latitude;
-                            if (point.Longitude < minlon) minlon = point.Longitude;
-                            if (point.Longitude > maxlon) maxlon = point.Longitude;
-                        }
-                        xw.WriteAttributeString("minlat", minlat.ToString("0.######"));
-                        xw.WriteAttributeString("minlon", minlon.ToString("0.######"));
-                        xw.WriteAttributeString("maxlat", maxlat.ToString("0.######"));
-                        xw.WriteAttributeString("maxlon", maxlon.ToString("0.######"));
-                    }
-                    xw.WriteEndElement();
-
-                    // waypointを出力します
-                    int index = 0;
-                    foreach (bykIFv1.Point point in trackItem.Items)
-                    {
-                        ++index;
-                        if ( point.Interest)
-                        {
-                            xw.WriteStartElement("wpt");
-                            {
-                                xw.WriteAttributeString("lat", point.Latitude.ToString("0.######"));
-                                xw.WriteAttributeString("lon", point.Longitude.ToString("0.######"));
-
-                                xw.WriteElementString("ele", point.Elevation.ToString());
-                                xw.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                                xw.WriteElementString("speed", point.Speed.ToString("0.######"));
-                                xw.WriteElementString("name", string.Format("PT{0:D4}", index));
-                            }
-                            xw.WriteEndElement();
-                        }
-                    }
-
-                    xw.WriteStartElement("trk");
-                    {
-                        xw.WriteStartElement("trkseg");
-                        {
-                            index = 0;
-                            foreach (bykIFv1.Point point in trackItem.Items)
-                            {
-                                xw.WriteStartElement("trkpt");
-                                {
-                                    xw.WriteAttributeString("lat", point.Latitude.ToString("0.######"));
-                                    xw.WriteAttributeString("lon", point.Longitude.ToString("0.######"));
-
-                                    xw.WriteElementString("ele", point.Elevation.ToString());
-                                    xw.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                                    xw.WriteElementString("speed", point.Speed.ToString("0.######"));
-                                    xw.WriteElementString("name", string.Format("PT{0:D4}", ++index));
-                                }
-                                xw.WriteEndElement();
-                            }
-                        }
-                        xw.WriteEndElement();
-                    }
-                    xw.WriteEndElement();
-                }
-                xw.WriteEndElement();
+                tiw.Write(trackItem);
             }
         }
 
@@ -895,6 +774,65 @@ namespace Bayaki
             _routePreview.Enabled = (0 < _locationSources.SelectedItems.Count);
             _upPriority.Enabled = (1 == _locationSources.SelectedIndices.Count && 0 < _locationSources.SelectedIndices[0]);
             _downPriority.Enabled = (1 == _locationSources.SelectedIndices.Count && (_locationSources.Items.Count - 1) > _locationSources.SelectedIndices[0]);
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            // 保存先フォルダがないなら作る
+            if( !System.IO.Directory.Exists(_workPath))
+            {
+                System.IO.Directory.CreateDirectory(_workPath);
+            }
+
+            // 場所情報のサマリーを取得する
+            string locations = System.IO.Path.Combine(_workPath, "BayakiSummary.dat");
+            if (File.Exists(locations))
+            {
+                try
+                {
+                    using (var stream = new FileStream(locations, FileMode.Open))
+                    {
+                        BinaryFormatter bf = new BinaryFormatter();
+                        _locations = bf.Deserialize(stream) as List<TrackItemSummary>;
+                    }
+                }
+                catch
+                {
+                    // 読み出せないよ？
+                    File.Delete(locations);
+                }
+            }
+            if (null == _locations)
+            {
+                _locations = new List<TrackItemSummary>();
+            }
+
+            // プラグインの情報を読み出し
+            string plugins = System.IO.Path.Combine(_workPath, "BayakiPlugins.dat");
+            if (File.Exists(plugins))
+            {
+                try
+                {
+                    List<string> loadWork = null;
+                    using (var stream = new FileStream(plugins, FileMode.Open))
+                    {
+                        BinaryFormatter bf = new BinaryFormatter();
+                        loadWork = bf.Deserialize(stream) as List<string>;
+                    }
+                    if (null != loadWork)
+                    {
+                        foreach (string filePath in loadWork)
+                        {
+                            LoadPlugin(filePath);
+                        }
+                    }
+                }
+                catch
+                {
+                    // 読み出せないよ？
+                    File.Delete(locations);
+                }
+            }
         }
     }
 }

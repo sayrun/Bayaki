@@ -447,6 +447,7 @@
             this.Controls.Add(this.panel1);
             this.Name = "MainForm";
             this.Text = "場所を焼きこむツール";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
