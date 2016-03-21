@@ -151,6 +151,7 @@
             this._targets.Location = new System.Drawing.Point(0, 0);
             this._targets.Name = "_targets";
             this._targets.Size = new System.Drawing.Size(788, 267);
+            this._targets.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this._targets.TabIndex = 0;
             this._targets.UseCompatibleStateImageBehavior = false;
             this._targets.SelectedIndexChanged += new System.EventHandler(this._targets_SelectedIndexChanged);

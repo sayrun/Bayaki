@@ -195,11 +195,11 @@ namespace Bayaki
                 UpdateLocationList();
 
                 // 読み込んでいるイメージに対して再度位置情報のマッチングを実施する
-                ReMatching();
+                LocationMatching();
             }
         }
 
-        private void ReMatching()
+        private void LocationMatching()
         {
             foreach(ListViewItem item in _targets.Items)
             {
@@ -211,6 +211,15 @@ namespace Bayaki
                 {
                     _update.Enabled = true;
                     item.Checked = true;
+
+                    if (jpegItem.NewLocation.Time != jpegItem.DateTimeOriginal.ToUniversalTime())
+                    {
+                        item.ForeColor = Color.Pink;
+                    }
+                    else
+                    {
+                        item.ForeColor = Color.Black;
+                    }
                 }
             }
         }
@@ -346,6 +355,15 @@ namespace Bayaki
                             {
                                 _update.Enabled = true;
                                 item.Checked = true;
+
+                                if(jpegItem.NewLocation.Time != jpegItem.DateTimeOriginal.ToUniversalTime())
+                                {
+                                    item.ForeColor = Color.Pink;
+                                }
+                                else
+                                {
+                                    item.ForeColor = Color.Black;
+                                }
                             }
                             else
                             {
