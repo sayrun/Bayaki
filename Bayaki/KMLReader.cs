@@ -52,9 +52,9 @@ namespace Bayaki
                                 string datetime = string.Empty;
                                 string coord = string.Empty;
 
-                                while (xr.Read())
+                                while (_xmlReader.Read())
                                 {
-                                    switch (xr.NodeType)
+                                    switch (_xmlReader.NodeType)
                                     {
                                         case System.Xml.XmlNodeType.Element:
                                             if (0 == string.Compare(_xmlReader.Name, "name", true))
@@ -80,7 +80,7 @@ namespace Bayaki
                                                                 }
                                                                 else if (0 == string.Compare(_xmlReader.Name, "gx:coord", true))
                                                                 {
-                                                                    coord = xr.ReadString();
+                                                                    coord = _xmlReader.ReadString();
 
                                                                     string[] coords = coord.Split(' ');
 
@@ -114,10 +114,10 @@ namespace Bayaki
                                                                 }
                                                                 else
                                                                 {
-                                                                    if (!xr.IsEmptyElement)
+                                                                    if (!_xmlReader.IsEmptyElement)
                                                                     {
-                                                                        while (xr.Read())
-                                                                            if (xr.NodeType == System.Xml.XmlNodeType.EndElement) break;
+                                                                        while (_xmlReader.Read())
+                                                                            if (_xmlReader.NodeType == System.Xml.XmlNodeType.EndElement) break;
                                                                     }
                                                                 }
                                                                 continue;

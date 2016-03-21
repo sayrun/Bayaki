@@ -6,12 +6,14 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace Bayaki
 {
     public partial class TrackPointPreviewForm : Form
     {
-        bykIFv1.TrackItem _trackItem;
+        private bykIFv1.TrackItem _trackItem;
+
 
         public TrackPointPreviewForm(bykIFv1.TrackItem trackItem)
         {
@@ -50,7 +52,9 @@ namespace Bayaki
 
             // パス情報を追加していきます
             bykIFv1.Point pm = _trackItem.Items[0];
-            string markerText = (pm.Interest) ? string.Format(format, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude) : string.Empty;
+            string markerText = string.Empty;
+
+            markerText = (pm.Interest) ? string.Format(format, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude) : string.Empty;
             _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude, markerText });
             foreach (bykIFv1.Point p in _trackItem.Items)
             {

@@ -65,6 +65,7 @@
     <Compile Include="GPXLoaderv1.cs" />
     <Compile Include="JPEGFileItem.cs" />
     <Compile Include="KMLLoaderv1.cs" />
+    <Compile Include="KMLReader.cs" />
     <Compile Include="LoadJpegFile.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
