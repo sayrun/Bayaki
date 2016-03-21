@@ -124,21 +124,26 @@ namespace Bayaki
             return (From <= targetDate && To >= targetDate);
         }
 
+        private void RestoreTrackItem()
+        {
+            if (null == _item)
+            {
+                string locations = System.IO.Path.Combine(_savePath, _saveFileName);
+                using (TrackItemReader tir = new TrackItemReader(locations))
+                {
+                    _item = tir.Read();
+
+                    // 変更された名前を設定する
+                    _item.Name = this.Name;
+                }
+            }
+        }
+
         public bykIFv1.TrackItem TrackItem
         {
             get
             {
-                if (null == _item)
-                {
-                    string locations = System.IO.Path.Combine(_savePath, _saveFileName);
-                    using (TrackItemReader tir = new TrackItemReader(locations))
-                    {
-                        _item = tir.Read();
-
-                        // 変更された名前を設定する
-                        _item.Name = this.Name;
-                    }
-                }
+                RestoreTrackItem();
                 return _item;
             }
         }
@@ -149,16 +154,7 @@ namespace Bayaki
             if (!IsContein(targetDate)) return null;
 
             // 読み込まれていない場合読み込む
-            if ( null == _item)
-            {
-                string locations = System.IO.Path.Combine(_savePath, _saveFileName);
-                using (var stream = new FileStream(locations, FileMode.Open))
-                {
-                    BinaryFormatter bf = new BinaryFormatter();
-
-                    _item = bf.Deserialize(stream) as bykIFv1.TrackItem;
-                }
-            }
+            RestoreTrackItem();
 
             // 指定された時間をUTCに変換する
             TimeSpan diff = System.TimeZoneInfo.Local.GetUtcOffset(targetDate);
