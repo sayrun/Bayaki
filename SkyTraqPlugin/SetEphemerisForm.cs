@@ -134,8 +134,11 @@ namespace SkyTraqPlugin
         private void Wc_DownloadProgressChanged(object sender, System.Net.DownloadProgressChangedEventArgs e)
         {
             _phase.Text = "ダウンロード中";
-            _progress.Maximum = 110940;
-            _progress.Value = (int)e.BytesReceived;
+            if (0 < e.TotalBytesToReceive)
+            {
+                _progress.Maximum = (int)e.TotalBytesToReceive;
+                _progress.Value = (int)e.BytesReceived;
+            }
         }
 
         private void _setEphemerisWorker_DoWork(object sender, DoWorkEventArgs e)
