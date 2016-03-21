@@ -62,7 +62,7 @@ namespace Bayaki.Properties {
         
         /// <summary>
         ///   &lt;html&gt;
-        ///&lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.google.com/maps/api/js?sensor=false&amp;v=3.22&quot;&gt;&lt;/script&gt;
+        ///&lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.google.com/maps/api/js?key=AIzaSyDlepDvnD6x9Fkm-5l9IfqiH12kZiiO78g&amp;sensor=false&amp;v=3.22&quot;&gt;&lt;/script&gt;
         ///&lt;script type=&quot;text/javascript&quot;&gt;
         ///var map;
         ///var marker = null;
@@ -71,17 +71,14 @@ namespace Bayaki.Properties {
         ///var drawLine = null;
         ///
         ///function Initialize() {
-        ///	// 東京都庁の座標
-        ///	var y = 35.689634;
-        ///	var x = 139.692101;
+        ///	var y = 34.784167;
+        ///	var x = 135.400806;
         ///	var latlng = new google.maps.LatLng(y, x);
         ///	var opts = {
         ///			zoom: 14,
         ///			center: latlng,
         ///			streetViewControl: false,
-        ///			mapTypeId: google.maps.MapTypeId.ROADMAP
-        ///		};
-        ///	map = new google.maps.M [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///			mapTypeId: google.maps.MapTypeId.ROADMAP        /// [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string googlemapsHTML {
             get {
@@ -169,7 +166,7 @@ namespace Bayaki.Properties {
         ///    map = new Y.Map(&quot;Ymap&quot;);
         ///    map.addControl( new Y.SliderZoomControl() );
         ///    map.addControl( new Y.LayerSetControl() );
-        ///    map.drawMap(new Y.LatLng(35.665627,139. [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///    map.drawMap(new Y.LatLng(34.784167, 135 [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string yahoomapsHTML {
             get {
