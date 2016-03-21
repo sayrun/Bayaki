@@ -167,7 +167,9 @@ function resetMarker() {
 }
 
 function resizeMap() {
+	var center = map.getCenter();
 	google.maps.event.trigger(map, 'resize');
+	map.setCenter(center);
 }
 
 function addPoint( lat, lon, interest) {
