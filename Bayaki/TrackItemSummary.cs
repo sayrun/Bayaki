@@ -58,14 +58,17 @@ namespace Bayaki
                 try
                 {
                     string savePath = Path.Combine(_savePath, fileName);
-                    using (TrackItemWriter tiw = new TrackItemWriter(savePath))
+                    using (Stream stream = new FileStream(Path.Combine(_savePath, fileName), FileMode.CreateNew))
                     {
-                        // 保存します
-                        tiw.Write(_item);
+                        using (TrackItemWriter tiw = new TrackItemWriter(stream))
+                        {
+                            // 保存します
+                            tiw.Write(_item);
 
-                        // ファイルが作成できたからこれをファイル名にします。
-                        _saveFileName = fileName;
-                        break;
+                            // ファイルが作成できたからこれをファイル名にします。
+                            _saveFileName = fileName;
+                            break;
+                        }
                     }
                 }
                 catch (IOException)

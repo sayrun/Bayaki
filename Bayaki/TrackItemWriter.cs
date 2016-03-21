@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -33,6 +34,16 @@ namespace Bayaki
         public TrackItemWriter(XmlWriter xw)
         {
             _xmlWriter = xw;
+        }
+
+        public TrackItemWriter(Stream stream)
+        {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.IndentChars = "\t";
+            settings.Encoding = Encoding.UTF8;
+
+            _xmlWriter = XmlWriter.Create(stream, settings);
         }
 
         public void Dispose()
