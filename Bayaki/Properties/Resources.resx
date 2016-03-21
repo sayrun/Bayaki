@@ -190,15 +190,17 @@ function drawPolyline() {
 		strokeWeight: 4
 	});
 
+	var bounds = new google.maps.LatLngBounds();
 	for( index = 0; index &lt; count; ++index) {
 		if( "" != intersts[index]) {
 			marker = new google.maps.Marker( { map: map, position: path[ index], title: intersts[index]} );
 			marker.setMap(map);
 		}
+		bounds.extend(path[ index]);
 	}
 
 	drawLine.setMap(map);
-	map.setCenter(path[0]);
+	map.fitBounds (bounds);
 }
 
 function clearPoint() {
@@ -293,14 +295,17 @@ function drawPolyline() {
 	var line = new Y.Polyline(path);
 	map.addFeature(line);
 
+	var bounds = new Y.LatLngBounds();
 	for( index = 0; index &lt; count; ++index) {
 		if( "" != intersts[index]) {
 			marker = new Y.Marker( path[ index], { title: intersts[index]});
 			map.addFeature(marker);
 		}
+		bounds.extend(path[ index]);
 	}
 
 	map.setCenter(path[0]);
+	map.drawBounds(bounds, Y.LayerSetId.NORMAL);
 }
 
 function clearPoint() {
