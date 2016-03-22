@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
@@ -13,7 +16,12 @@ namespace GoogleMapTimelinePlugin
 {
     public partial class DownloadForm : Form
     {
+        bykIFv1.TrackItem _trackItem;
         private double _maxSpeed = 340.0;
+        private string _SID = string.Empty;
+        private string _APISID = string.Empty;
+        private string _SAPISID = string.Empty;
+        private string _OGPC = string.Empty;
 
         public DownloadForm()
         {
@@ -22,28 +30,82 @@ namespace GoogleMapTimelinePlugin
 
         private void DownloadForm_Load(object sender, EventArgs e)
         {
-
+            button1.Enabled = false;
+            string s = @"https://accounts.google.com/ServiceLogin?hl=ja&passive=true&continue=https://www.google.com/";
+            webBrowser1.Navigate(new Uri(s));
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            DateTime target = dateTimePicker1.Value;
+            try
+            {
+                DateTime target = dateTimePicker1.Value;
 
-            string s = string.Format("https://www.google.com/maps/timeline/kml?authuser=0&pb=!1m8!1m3!1i{0}!2i{1}!3i{2}!2m3!1i{0}!2i{1}!3i{2}", target.Year, target.Month - 1, target.Day);
+                string s = string.Format("https://www.google.com/maps/timeline/kml?authuser=0&pb=!1m8!1m3!1i{0}!2i{1}!3i{2}!2m3!1i{0}!2i{1}!3i{2}", target.Year, target.Month - 1, target.Day);
 
-            webBrowser1.Navigate(new Uri(s));
+                // HTTPリクエストを作成
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(s);
+                request.CookieContainer = new CookieContainer();
+                request.CookieContainer.Add(new Cookie("OGPC", this._OGPC, "/", @"www.google.com"));
+                request.CookieContainer.Add(new Cookie("SID", this._SID, "/", @"www.google.com"));
+                request.CookieContainer.Add(new Cookie("APISID", this._APISID, "/", @"www.google.com"));
+                request.CookieContainer.Add(new Cookie("SAPISID", this._SAPISID, "/", @"www.google.com"));
+                // HTTPレスポンスを取得
+                HttpWebResponse responce = (HttpWebResponse)request.GetResponse();
+                // レスポンスのストリームを取得
+                using (Stream responcestream = responce.GetResponseStream())
+                {
+                    // XMLリーダーを作成
+                    using (XmlReader reader = XmlReader.Create(responcestream))
+                    {
+                        _trackItem = Read(reader);
+                    }
+                }
+            }
+            catch( Exception ex)
+            {
+                MessageBox.Show(ex.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
-
-        bykIFv1.TrackItem _data;
 
         private void webBrowser1_FileDownload(object sender, EventArgs e)
         {
             try
             {
-                using (XmlReader xr = XmlReader.Create(webBrowser1.DocumentStream))
+                string sCookie =  webBrowser1.Document.Cookie;
+                System.Diagnostics.Debug.Print("Cookie={0}", sCookie);
+
+                Regex regex = new Regex(@"([^= ]+)=(.+)", RegexOptions.Compiled);
+                foreach (string item in sCookie.Split(';'))
                 {
-                    _data = Read(xr);
+                    if (regex.IsMatch(item))
+                    {
+                        Match match = regex.Match(item);
+                        switch (match.Groups[1].Value)
+                        {
+                           case "SID":
+                                 _SID = match.Groups[2].Value;
+
+                                System.Diagnostics.Debug.Print("SID={0}", _SID);
+                                button1.Enabled = true;
+                                 break;
+                            case "APISID":
+                                _APISID = match.Groups[2].Value;
+                                System.Diagnostics.Debug.Print("APISID={0}", _APISID);
+                                break;
+                            case "SAPISID":
+                                _SAPISID = match.Groups[2].Value;
+                                System.Diagnostics.Debug.Print("SAPISID={0}", _SAPISID);
+                                break;
+                            case "OGPC":
+                                _OGPC = match.Groups[2].Value;
+                                System.Diagnostics.Debug.Print("OGPC={0}", _OGPC);
+                                break;
+
+                        }
+                    }
                 }
+
             }
             catch
             {
@@ -55,7 +117,7 @@ namespace GoogleMapTimelinePlugin
         {
             get
             {
-                return _data;
+                return _trackItem;
             }
         }
 
@@ -179,26 +241,6 @@ namespace GoogleMapTimelinePlugin
             }
 
             return result;
-        }
-
-        private void webBrowser1_Navigating(object sender, WebBrowserNavigatingEventArgs e)
-        {
-            if (e.Url.Segments[e.Url.Segments.Length - 1].EndsWith(".kml"))
-            {
-                string filename = e.Url.Segments[e.Url.Segments.Length - 1];
-
-                System.Net.WebClient client = new System.Net.WebClient();
-                client.DownloadFileAsync(e.Url, "c:\\hoge.txt");
-
-                e.Cancel = true;
-            }
-
-            System.Diagnostics.Debug.Print("uri = {0}", e.Url);
-        }
-
-        private void webBrowser1_NewWindow(object sender, CancelEventArgs e)
-        {
-            e.Cancel = true;
         }
     }
 }

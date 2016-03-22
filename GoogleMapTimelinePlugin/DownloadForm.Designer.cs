@@ -58,8 +58,6 @@
             this.webBrowser1.Size = new System.Drawing.Size(645, 391);
             this.webBrowser1.TabIndex = 2;
             this.webBrowser1.FileDownload += new System.EventHandler(this.webBrowser1_FileDownload);
-            this.webBrowser1.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webBrowser1_Navigating);
-            this.webBrowser1.NewWindow += new System.ComponentModel.CancelEventHandler(this.webBrowser1_NewWindow);
             // 
             // DownloadForm
             // 
