@@ -410,6 +410,16 @@ namespace SkyTraqPlugin
                 throw new Exception("Sequence error");
             }
 
+            UInt32 pointer;
+            pointer = (UInt32)result.Body[3];
+            pointer <<= 8;
+            pointer |= (UInt32)result.Body[2];
+            pointer <<= 8;
+            pointer |= (UInt32)result.Body[1];
+            pointer <<= 8;
+            pointer |= (UInt32)result.Body[0];
+            System.Diagnostics.Debug.Print("pointer = {0}", pointer);
+
             totalSectors = (UInt16)result.Body[7];
             totalSectors <<= 8;
             totalSectors |= (UInt16)result.Body[6];
@@ -417,14 +427,16 @@ namespace SkyTraqPlugin
             freeSectors = (UInt16)result.Body[5];
             freeSectors <<= 8;
             freeSectors |= (UInt16)result.Body[4];
+            freeSectors -= 1;
 
             time = (UInt32)result.Body[15];
             time <<= 8;
             time |= (UInt32)result.Body[14];
             time <<= 8;
-            time |= (UInt32)result.Body[14];
+            time |= (UInt32)result.Body[13];
             time <<= 8;
             time |= (UInt32)result.Body[12];
+            System.Diagnostics.Debug.Print("pointer = {0}", time);
 
             distance = (UInt32)result.Body[23];
             distance <<= 8;
@@ -433,6 +445,7 @@ namespace SkyTraqPlugin
             distance |= (UInt32)result.Body[21];
             distance <<= 8;
             distance |= (UInt32)result.Body[20];
+            System.Diagnostics.Debug.Print("pointer = {0}", distance);
 
             speed = (UInt32)result.Body[31];
             speed <<= 8;
@@ -441,6 +454,7 @@ namespace SkyTraqPlugin
             speed |= (UInt32)result.Body[29];
             speed <<= 8;
             speed |= (UInt32)result.Body[28];
+            System.Diagnostics.Debug.Print("pointer = {0}", speed);
 
             dataLogEnable = (0x01 == result.Body[32]);
         }
@@ -927,7 +941,7 @@ namespace SkyTraqPlugin
 
             GetBufferStatus(out totalSectors, out freeSectors, out time, out distance, out speed, out dataLogEnable);
 
-            System.Diagnostics.Debug.Print("total={0}/free={1}/time={2}/distance={3}/speed={4}/log enable={5}", totalSectors, freeSectors, time, distance, speed, dataLogEnable);
+            System.Diagnostics.Debug.Print("total={0}/used={1}/time={2}/distance={3}/speed={4}/log enable={5}", totalSectors, freeSectors, time, distance, speed, dataLogEnable);
 
             return new BufferStatus(totalSectors, freeSectors, time, distance, speed, dataLogEnable);
         }
