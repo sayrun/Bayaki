@@ -154,6 +154,7 @@
             this._targets.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this._targets.TabIndex = 0;
             this._targets.UseCompatibleStateImageBehavior = false;
+            this._targets.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this._targets_ItemChecked);
             this._targets.SelectedIndexChanged += new System.EventHandler(this._targets_SelectedIndexChanged);
             this._targets.DragDrop += new System.Windows.Forms.DragEventHandler(this._targets_DragDrop);
             this._targets.DragEnter += new System.Windows.Forms.DragEventHandler(this._dropCover_DragEnter);

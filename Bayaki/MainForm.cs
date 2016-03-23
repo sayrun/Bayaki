@@ -23,6 +23,8 @@ namespace Bayaki
         private List<string> _pluginPath;
         private WebBrowserObserver _observer;
 
+        private Color TRANS_COLOR = Color.White;
+
         private const int MAX_TIMEDIFF = (60 * 20); // 根拠ないけど、20分以上差異があれば採用しない
 
         private const string DIRECTORY_DATAFOLDER = "Bayaki Folder";
@@ -209,7 +211,6 @@ namespace Bayaki
                 jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
                 if( null != jpegItem.NewLocation)
                 {
-                    _update.Enabled = true;
                     item.Checked = true;
 
                     if (jpegItem.NewLocation.Time != jpegItem.DateTimeOriginal.ToUniversalTime())
@@ -317,7 +318,7 @@ namespace Bayaki
                     _targets.Clear();
                     _targets.LargeImageList.Images.Clear();
                 }
-                _targets.LargeImageList.TransparentColor = Color.Transparent;
+                _targets.LargeImageList.TransparentColor = TRANS_COLOR;
 
                 List<string> targetFiles = new List<string>();
                 foreach(string filePath in dropFiles)
@@ -340,7 +341,7 @@ namespace Bayaki
                     targetFiles.Add(filePath);
                 }
 
-                LoadJpegFile ljf = new LoadJpegFile(_targets.LargeImageList.ImageSize, Color.Transparent);
+                LoadJpegFile ljf = new LoadJpegFile(_targets.LargeImageList.ImageSize, TRANS_COLOR);
                 NowProcessingForm<string> npf = new NowProcessingForm<string>(ljf, targetFiles.ToArray());
 
                 if( DialogResult.OK == npf.ShowDialog(this))
@@ -353,7 +354,6 @@ namespace Bayaki
                             jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
                             if (null != jpegItem.NewLocation)
                             {
-                                _update.Enabled = true;
                                 item.Checked = true;
 
                                 if(jpegItem.NewLocation.Time != jpegItem.DateTimeOriginal.ToUniversalTime())
@@ -368,6 +368,11 @@ namespace Bayaki
                             else
                             {
                                 item.Checked = false;
+
+                                if( null != jpegItem.CurrentLocation)
+                                {
+                                    item.ForeColor = Color.Blue;
+                                }
                             }
 
                             item.ImageIndex = _targets.LargeImageList.Images.Count;
@@ -452,7 +457,14 @@ namespace Bayaki
             }
             else
             {
-                _previewMap.Document.InvokeScript("resetMarker");
+                if (null != jpegItem.CurrentLocation)
+                {
+                    _previewMap.Document.InvokeScript("movePos", new object[] { jpegItem.CurrentLocation.Latitude, jpegItem.CurrentLocation.Longitude });
+                }
+                else
+                {
+                    _previewMap.Document.InvokeScript("resetMarker");
+                }
             }
         }
 
@@ -740,7 +752,7 @@ namespace Bayaki
                 JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
                 if( null != jpegItem)
                 {
-                    if( null != jpegItem.NewLocation)
+                    if( null != jpegItem.NewLocation || null != jpegItem.CurrentLocation)
                     {
                         removeLocation = true;
                     }
@@ -768,7 +780,7 @@ namespace Bayaki
                 JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
                 if (null == jpegItem) return;
 
-                jpegItem.NewLocation = null;
+                jpegItem.RemoveLocation();
 
                 _previewMap.Document.InvokeScript("resetMarker");
             }
@@ -851,6 +863,11 @@ namespace Bayaki
                     File.Delete(locations);
                 }
             }
+        }
+
+        private void _targets_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            _update.Enabled = (0 < _targets.CheckedItems.Count);
         }
     }
 }

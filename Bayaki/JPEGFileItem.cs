@@ -77,6 +77,12 @@ namespace Bayaki
             }
         }
 
+        public void RemoveLocation()
+        {
+            _currentLocation = null;
+            _newLocation = null;
+        }
+
         public bykIFv1.Point CurrentLocation
         {
             get
