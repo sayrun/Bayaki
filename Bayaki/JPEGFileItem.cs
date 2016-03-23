@@ -25,6 +25,8 @@ namespace Bayaki
 
         private Image _thumNail;
 
+        private bool _remove;
+
         public JPEGFileItem(string filePath, Size thumNailSize, Color transColor)
         {
             _filePath = filePath;
@@ -32,6 +34,8 @@ namespace Bayaki
             AnalyzeExif(_filePath, thumNailSize, transColor);
 
             _newLocation = null;
+
+            _remove = false;
         }
 
         public Image ThumNail
@@ -77,10 +81,17 @@ namespace Bayaki
             }
         }
 
-        public void RemoveLocation()
+        public bool RemoveLocation
         {
-            _currentLocation = null;
-            _newLocation = null;
+            get
+            {
+                return _remove;
+            }
+            set
+            {
+                _remove = true;
+                _newLocation = null;
+            }
         }
 
         public bykIFv1.Point CurrentLocation
@@ -100,6 +111,7 @@ namespace Bayaki
             set
             {
                 _newLocation = value;
+                _remove = (null == _newLocation);
             }
         }
 
