@@ -191,6 +191,15 @@ namespace SkyTraqPlugin
             {
                 _item = e.Result as bykIFv1.TrackItem;
 
+                if( null != _item && 0>= _item.Items.Count)
+                {
+                    _cancel.Enabled = true;
+                    _download.Enabled = true;
+                    MessageBox.Show("データはありませんでした。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    DialogResult = DialogResult.Cancel;
+                }
+
                 DialogResult = DialogResult.OK;
             }
             else
