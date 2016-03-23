@@ -220,20 +220,20 @@
             this._removeLocationToolStripMenuItem,
             this._addLocationToolStripMenuItem});
             this._previewImageContextMenu.Name = "_previewImageContextMenu";
-            this._previewImageContextMenu.Size = new System.Drawing.Size(169, 48);
+            this._previewImageContextMenu.Size = new System.Drawing.Size(183, 48);
             this._previewImageContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._previewImageContextMenu_Opening);
             // 
             // _removeLocationToolStripMenuItem
             // 
             this._removeLocationToolStripMenuItem.Name = "_removeLocationToolStripMenuItem";
-            this._removeLocationToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this._removeLocationToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this._removeLocationToolStripMenuItem.Text = "remove location...";
             this._removeLocationToolStripMenuItem.Click += new System.EventHandler(this._removeLocationToolStripMenuItem_Click);
             // 
             // _addLocationToolStripMenuItem
             // 
             this._addLocationToolStripMenuItem.Name = "_addLocationToolStripMenuItem";
-            this._addLocationToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this._addLocationToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this._addLocationToolStripMenuItem.Text = "add location";
             this._addLocationToolStripMenuItem.Click += new System.EventHandler(this._addLocationToolStripMenuItem_Click);
             // 
@@ -284,6 +284,7 @@
             this._locationSources.UseCompatibleStateImageBehavior = false;
             this._locationSources.View = System.Windows.Forms.View.Details;
             this._locationSources.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this._locationSources_AfterLabelEdit);
+            this._locationSources.DoubleClick += new System.EventHandler(this._routePreview_Click);
             // 
             // columnHeader1
             // 
@@ -321,13 +322,13 @@
             this.toolStripSeparator2,
             this._deleteTrackItem});
             this._locationContextMenu.Name = "_locationContextMenu";
-            this._locationContextMenu.Size = new System.Drawing.Size(150, 148);
+            this._locationContextMenu.Size = new System.Drawing.Size(168, 148);
             this._locationContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationContextMenu_Opening);
             // 
             // _renameTarckItem
             // 
             this._renameTarckItem.Name = "_renameTarckItem";
-            this._renameTarckItem.Size = new System.Drawing.Size(149, 22);
+            this._renameTarckItem.Size = new System.Drawing.Size(167, 22);
             this._renameTarckItem.Text = "Rename...";
             this._renameTarckItem.Click += new System.EventHandler(this._renameTarckItem_Click);
             // 
@@ -338,13 +339,13 @@
             this._exportCSV,
             this._exportKML});
             this._exportTrackItem.Name = "_exportTrackItem";
-            this._exportTrackItem.Size = new System.Drawing.Size(149, 22);
+            this._exportTrackItem.Size = new System.Drawing.Size(167, 22);
             this._exportTrackItem.Text = "Export...";
             // 
             // _exportGPX
             // 
             this._exportGPX.Name = "_exportGPX";
-            this._exportGPX.Size = new System.Drawing.Size(98, 22);
+            this._exportGPX.Size = new System.Drawing.Size(101, 22);
             this._exportGPX.Text = "GPX";
             this._exportGPX.Click += new System.EventHandler(this._export_Click);
             // 
@@ -352,7 +353,7 @@
             // 
             this._exportCSV.Enabled = false;
             this._exportCSV.Name = "_exportCSV";
-            this._exportCSV.Size = new System.Drawing.Size(98, 22);
+            this._exportCSV.Size = new System.Drawing.Size(101, 22);
             this._exportCSV.Text = "CSV";
             this._exportCSV.Click += new System.EventHandler(this._export_Click);
             // 
@@ -360,45 +361,46 @@
             // 
             this._exportKML.Enabled = false;
             this._exportKML.Name = "_exportKML";
-            this._exportKML.Size = new System.Drawing.Size(98, 22);
+            this._exportKML.Size = new System.Drawing.Size(101, 22);
             this._exportKML.Text = "KML";
             this._exportKML.Click += new System.EventHandler(this._export_Click);
             // 
             // _routePreview
             // 
+            this._routePreview.Font = new System.Drawing.Font("メイリオ", 9F, System.Drawing.FontStyle.Bold);
             this._routePreview.Name = "_routePreview";
-            this._routePreview.Size = new System.Drawing.Size(149, 22);
+            this._routePreview.Size = new System.Drawing.Size(167, 22);
             this._routePreview.Text = "Route Preview";
             this._routePreview.Click += new System.EventHandler(this._routePreview_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(146, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(164, 6);
             // 
             // _upPriority
             // 
             this._upPriority.Name = "_upPriority";
-            this._upPriority.Size = new System.Drawing.Size(149, 22);
+            this._upPriority.Size = new System.Drawing.Size(167, 22);
             this._upPriority.Text = "Up";
             this._upPriority.Click += new System.EventHandler(this._upPriority_Click);
             // 
             // _downPriority
             // 
             this._downPriority.Name = "_downPriority";
-            this._downPriority.Size = new System.Drawing.Size(149, 22);
+            this._downPriority.Size = new System.Drawing.Size(167, 22);
             this._downPriority.Text = "Down";
             this._downPriority.Click += new System.EventHandler(this._downPriority_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(146, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(164, 6);
             // 
             // _deleteTrackItem
             // 
             this._deleteTrackItem.Name = "_deleteTrackItem";
-            this._deleteTrackItem.Size = new System.Drawing.Size(149, 22);
+            this._deleteTrackItem.Size = new System.Drawing.Size(167, 22);
             this._deleteTrackItem.Text = "Delete...";
             this._deleteTrackItem.Click += new System.EventHandler(this._deleteTrackItem_Click);
             // 
@@ -419,25 +421,25 @@
             this.toolStripSeparator3,
             this.removeToolStripMenuItem});
             this._locationToolbarContextMenu.Name = "_locationToolbarContextMenu";
-            this._locationToolbarContextMenu.Size = new System.Drawing.Size(123, 54);
+            this._locationToolbarContextMenu.Size = new System.Drawing.Size(134, 54);
             this._locationToolbarContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationToolbarContextMenu_Opening);
             // 
             // addToolStripMenuItem
             // 
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.addToolStripMenuItem.Text = "add...";
             this.addToolStripMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(119, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(130, 6);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.removeToolStripMenuItem.Text = "remove...";
             // 
             // MainForm

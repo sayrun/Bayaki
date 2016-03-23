@@ -38,11 +38,17 @@ namespace Bayaki
         private void _routePreview_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             string format;
+            string formatStart;
+            string formatEnd;
 #if _MAP_YAHOO
             format = "{0}<br>{1:0.######}, {2:0.######}";
+            formatStart = "Start[{0}]<br>{1:0.######}, {2:0.######}";
+            formatEnd = "End[{0}]<br>{1:0.######}, {2:0.######}";
 #else
 #if _MAP_GOOGLE
             format = "{0}\r\n{1:0.######}, {2:0.######}";
+            formatStart = "Start[{0}]\r\n{1:0.######}, {2:0.######}";
+            formatEnd = "End[{0}]\r\n{1:0.######}, {2:0.######}";
 #endif
 #endif
 
@@ -54,21 +60,28 @@ namespace Bayaki
             bykIFv1.Point pm = _trackItem.Items[0];
             string markerText = string.Empty;
 
-            markerText = (pm.Interest) ? string.Format(format, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude) : string.Empty;
+            markerText = string.Format(formatStart, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude);
             _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude, markerText });
             foreach (bykIFv1.Point p in _trackItem.Items)
             {
-                if( p.Interest || (pm.Time.AddSeconds(10) < p.Time))
+                if( p.Interest || (pm.Time.AddSeconds(6) < p.Time))
                 {
                     pm = p;
-                    markerText = (pm.Interest) ? string.Format(format, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude) : string.Empty;
+                    if (pm == _trackItem.Items[_trackItem.Items.Count - 1])
+                    {
+                        markerText = string.Format(formatEnd, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude);
+                    }
+                    else
+                    {
+                        markerText = (pm.Interest) ? string.Format(format, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude) : string.Empty;
+                    }
                     _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude, markerText });
                 }
             }
             if (pm != _trackItem.Items[_trackItem.Items.Count - 1])
             {
                 pm = _trackItem.Items[_trackItem.Items.Count - 1];
-                markerText = (pm.Interest) ? string.Format(format, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude) : string.Empty;
+                markerText = string.Format(formatEnd, pm.Time.ToLocalTime(), pm.Latitude, pm.Longitude);
                 _routePreview.Document.InvokeScript("addPoint", new object[] { pm.Latitude, pm.Longitude, markerText });
             }
 
