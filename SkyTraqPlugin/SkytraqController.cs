@@ -22,7 +22,7 @@ namespace SkyTraqPlugin
         private const UInt16 MASK_LOBYTE = 0x00FF;
 
         private const int READ_TIMEOUT = (10 * 1000);
-        private const int READ_TIMEOUT_INTERNAL = (200);
+        private const int READ_TIMEOUT_INTERNAL = (100);
 
         private const int EPHEMERIS_BLOCK_SIZE = 0x56;
         private const int EPHEMERIS_WRITE_SIZE = 8192;
