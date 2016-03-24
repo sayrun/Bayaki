@@ -21,7 +21,6 @@ namespace Bayaki
         private List<TrackItemSummary> _locations;
         private List<JPEGFileItem> _images;
         private List<string> _pluginPath;
-        private MapControl _previewMap;
 
         private Color TRANS_COLOR = Color.White;
 
@@ -61,8 +60,7 @@ namespace Bayaki
             AddToolbar(new KMLLoaderv1());
 
             // 地図情報をJavascriptからもらう        
-            _previewMap = new MapControl(_mapView);
-            _previewMap.OnMakerDrag += _observer_OnMakerDrag;
+            _mapView.OnMakerDrag += _observer_OnMakerDrag;
 
             // 自分自身のAssemblyを取得
             System.Reflection.Assembly asm = System.Reflection.Assembly.GetExecutingAssembly();
@@ -423,7 +421,7 @@ namespace Bayaki
             if (0 >= lv.SelectedItems.Count)
             {
                 _previewImage.Image = null;
-                _previewMap.resetMarker();
+                _mapView.resetMarker();
                 return;
             }
 
@@ -455,17 +453,17 @@ namespace Bayaki
 
             if (null != jpegItem.NewLocation)
             {
-                _previewMap.movePos(jpegItem.NewLocation.Latitude, jpegItem.NewLocation.Longitude);
+                _mapView.movePos(jpegItem.NewLocation.Latitude, jpegItem.NewLocation.Longitude);
             }
             else
             {
                 if (null != jpegItem.CurrentLocation)
                 {
-                    _previewMap.movePos(jpegItem.CurrentLocation.Latitude, jpegItem.CurrentLocation.Longitude);
+                    _mapView.movePos(jpegItem.CurrentLocation.Latitude, jpegItem.CurrentLocation.Longitude);
                 }
                 else
                 {
-                    _previewMap.resetMarker();
+                    _mapView.resetMarker();
                 }
             }
         }
@@ -741,13 +739,13 @@ namespace Bayaki
 
         private void _previewMap_SizeChanged(object sender, EventArgs e)
         {
-            _previewMap.resizeMap();
+            _mapView.resizeMap();
         }
 
         private void _previewMap_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             // 初期化してあげます
-            _previewMap.Initialize();
+            _mapView.Initialize();
         }
 
         private void _previewImageContextMenu_Opening(object sender, CancelEventArgs e)
@@ -796,7 +794,7 @@ namespace Bayaki
 
                 jpegItem.RemoveLocation();
 
-                _previewMap.resetMarker();
+                _mapView.resetMarker();
 
                 item.Checked = true;
                 item.ForeColor = Color.Black;
@@ -805,7 +803,7 @@ namespace Bayaki
 
         private void _addLocationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _previewMap.dropMarker();
+            _mapView.dropMarker();
         }
 
         private void _locationContextMenu_Opening(object sender, CancelEventArgs e)

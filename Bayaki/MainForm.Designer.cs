@@ -43,7 +43,7 @@
             this._removeLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._addLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._rematchingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._mapView = new System.Windows.Forms.WebBrowser();
+            this._mapView = new MapControlLibrary.MapControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this._locationSources = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -256,6 +256,7 @@
             this._mapView.Location = new System.Drawing.Point(0, 0);
             this._mapView.MinimumSize = new System.Drawing.Size(20, 20);
             this._mapView.Name = "_mapView";
+            this._mapView.Provider = MapControlLibrary.MapControl.MapProvider.YAHOO;
             this._mapView.ScrollBarsEnabled = false;
             this._mapView.Size = new System.Drawing.Size(379, 186);
             this._mapView.TabIndex = 0;
@@ -499,7 +500,6 @@
         private System.Windows.Forms.ColumnHeader columnHeader4;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.PictureBox _previewImage;
-        private System.Windows.Forms.WebBrowser _mapView;
         private System.Windows.Forms.Label _dropCover;
         private System.Windows.Forms.ImageList _targetsImage;
         private System.Windows.Forms.ContextMenuStrip _locationContextMenu;
@@ -523,6 +523,7 @@
         private System.Windows.Forms.ToolStripMenuItem _removeLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem _addLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem _rematchingToolStripMenuItem;
+        private MapControlLibrary.MapControl _mapView;
     }
 }
 

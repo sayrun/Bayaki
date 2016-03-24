@@ -61,32 +61,6 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
-        ///   &lt;html&gt;
-        ///&lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.google.com/maps/api/js?key=AIzaSyDlepDvnD6x9Fkm-5l9IfqiH12kZiiO78g&amp;sensor=false&amp;v=3.22&quot;&gt;&lt;/script&gt;
-        ///&lt;script type=&quot;text/javascript&quot;&gt;
-        ///var map;
-        ///var marker = null;
-        ///var path = null;
-        ///var count = 0;
-        ///var drawLine = null;
-        ///
-        ///function Initialize() {
-        ///	var y = 34.784167;
-        ///	var x = 135.400806;
-        ///	var latlng = new google.maps.LatLng(y, x);
-        ///	var opts = {
-        ///			zoom: 14,
-        ///			center: latlng,
-        ///			streetViewControl: false,
-        ///			mapTypeId: google.maps.MapTypeId.ROADMAP        /// [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string googlemapsHTML {
-            get {
-                return ResourceManager.GetString("googlemapsHTML", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
         internal static System.Drawing.Bitmap GPXLoader_ICON {
@@ -212,28 +186,6 @@ namespace Bayaki.Properties {
         internal static string SkytraqDownloader_NAME {
             get {
                 return ResourceManager.GetString("SkytraqDownloader_NAME", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   &lt;html&gt;
-        ///&lt;script src=&quot;http://js.api.olp.yahooapis.jp/OpenLocalPlatform/V1/jsapi?appid=dj0zaiZpPUpJRmx2aEp4RUwyMyZzPWNvbnN1bWVyc2VjcmV0Jng9MDM-&quot; type=&quot;text/javascript&quot;  charset=&quot;UTF-8&quot; &gt;&lt;/script&gt;
-        ///&lt;script type=&quot;text/javascript&quot;&gt;
-        ///var map;
-        ///var marker = null;
-        ///var path = null;
-        ///var intersts = null;
-        ///var count = 0;
-        ///
-        ///function Initialize() {
-        ///    map = new Y.Map(&quot;Ymap&quot;);
-        ///    map.addControl( new Y.SliderZoomControl() );
-        ///    map.addControl( new Y.LayerSetControl() );
-        ///    map.drawMap(new Y.LatLng(34.784167, 135 [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string yahoomapsHTML {
-            get {
-                return ResourceManager.GetString("yahoomapsHTML", resourceCulture);
             }
         }
     }

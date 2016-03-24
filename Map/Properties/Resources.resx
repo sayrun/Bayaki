@@ -117,47 +117,214 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="GPXLoader_ICON" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\GPXLoader_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="googlemapsHTML" xml:space="preserve">
+    <value>&lt;html&gt;
+&lt;script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyDlepDvnD6x9Fkm-5l9IfqiH12kZiiO78g&amp;sensor=false&amp;v=3.22"&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+var map;
+var marker = null;
+var path = null;
+var count = 0;
+var drawLine = null;
+
+function Initialize() {
+	var y = 34.784167;
+	var x = 135.400806;
+	var latlng = new google.maps.LatLng(y, x);
+	var opts = {
+			zoom: 14,
+			center: latlng,
+			streetViewControl: false,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+	map = new google.maps.Map(document.getElementById("gmap"), opts);
+}
+
+function movePos( lat, lon) {
+	var pos = new google.maps.LatLng(lat, lon);
+
+	if( null != marker)
+	{
+		marker.setMap(null);
+		marker = null;
+	}
+
+	marker = new google.maps.Marker( { map: map, position: pos } );
+	marker.setDraggable(true);
+	google.maps.event.addListener(marker, "dragend", function(e){
+		var latlon = marker.getPosition();
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    });
+    marker.setMap(map);
+	map.setCenter(pos);
+}
+
+function resetMarker() {
+	if( null != marker) {
+		marker.setMap(null);
+		marker = null;
+	}
+}
+
+function resizeMap() {
+	var center = map.getCenter();
+	google.maps.event.trigger(map, 'resize');
+	map.setCenter(center);
+}
+
+function addPoint( lat, lon, interest) {
+	path[count] = new google.maps.LatLng(lat, lon);
+	intersts[count] = interest;
+	count++;
+}
+
+function drawPolyline() {
+	if(null != drawLine)
+	{
+		drawLine.setMap(null);
+		drawLine = null;
+	}
+	
+	drawLine = new google.maps.Polyline({
+		path: path,
+		strokeColor: '#8855FF',
+		strokeOpacity: 0.8,
+		strokeWeight: 4
+	});
+
+	var bounds = new google.maps.LatLngBounds();
+	for( index = 0; index &lt; count; ++index) {
+		if( "" != intersts[index]) {
+			marker = new google.maps.Marker( { map: map, position: path[ index], title: intersts[index]} );
+			marker.setMap(map);
+		}
+		bounds.extend(path[ index]);
+	}
+
+	drawLine.setMap(map);
+	map.fitBounds (bounds);
+}
+
+function clearPoint() {
+	path = [];
+	intersts = [];
+	count = 0;
+}
+
+function dropMarker() {
+	if( null == marker) {
+		var latlon = map.getCenter();
+		marker = new google.maps.Marker( { map: map, position: latlon } );
+		
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+	}
+	
+	marker.setDraggable(true);
+	google.maps.event.addListener(marker, "dragend", function(e){
+		var latlon = marker.getPosition();
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    });
+}
+&lt;/script&gt;
+&lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0"&gt;
+&lt;div id="gmap" style="width:100%; height:100%"&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</value>
   </data>
-  <data name="GPXLoader_NAME" xml:space="preserve">
-    <value>GPXLoader</value>
-  </data>
-  <data name="MSG1" xml:space="preserve">
-    <value>削除してもよいですか？</value>
-  </data>
-  <data name="SkytraqDownloader_NAME" xml:space="preserve">
-    <value>Skytraq Downloader</value>
-  </data>
-  <data name="HeaderSeed" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\HeaderSeed.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="KMLLoader_ICON" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\KMLLoader_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="KMLLoader_NAME" xml:space="preserve">
-    <value>KMLLoader</value>
-  </data>
-  <data name="MSG2" xml:space="preserve">
-    <value>plugin[{0}]でエラーが発生しました。\n\n詳細\n{1}</value>
-  </data>
-  <data name="MSG3" xml:space="preserve">
-    <value>更新しました</value>
-  </data>
-  <data name="MSG4" xml:space="preserve">
-    <value>プラグイン選択</value>
-  </data>
-  <data name="MSG5" xml:space="preserve">
-    <value>位置情報を削除しますか？</value>
-  </data>
-  <data name="MSG6" xml:space="preserve">
-    <value>二重起動はできません。</value>
-  </data>
-  <data name="MSG7" xml:space="preserve">
-    <value>{0}(記録開始)</value>
-  </data>
-  <data name="MSG8" xml:space="preserve">
-    <value>{0}(記録終了)</value>
+  <data name="yahoomapsHTML" xml:space="preserve">
+    <value>&lt;html&gt;
+&lt;script src="http://js.api.olp.yahooapis.jp/OpenLocalPlatform/V1/jsapi?appid=dj0zaiZpPUpJRmx2aEp4RUwyMyZzPWNvbnN1bWVyc2VjcmV0Jng9MDM-" type="text/javascript"  charset="UTF-8" &gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+var map;
+var marker = null;
+var path = null;
+var intersts = null;
+var count = 0;
+
+function Initialize() {
+    map = new Y.Map("Ymap");
+    map.addControl( new Y.SliderZoomControl() );
+    map.addControl( new Y.LayerSetControl() );
+    map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
+}
+
+function movePos( lat, lon) {
+	if( null != marker)
+	{
+		map.clearFeatures();
+	}
+	var latlon = new Y.LatLng(lat,lon);
+	
+	marker = new Y.Marker( latlon);
+	marker.setDraggable(true);
+	marker.bind("dragend", function(latlng){
+		var latlon = marker.getLatLng();
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    });
+	map.addFeature(marker);
+	map.panTo(latlon,false);
+}
+
+function resetMarker() {
+	marker = null;
+	map.clearFeatures();
+}
+
+function resizeMap() {
+	map.updateSize();
+}
+
+function addPoint( lat, lon, interest) {
+	path[count] = new Y.LatLng(lat,lon);
+	intersts[count] = interest;
+	count++;
+}
+
+function drawPolyline() {
+	var line = new Y.Polyline(path);
+	map.addFeature(line);
+
+	var bounds = new Y.LatLngBounds();
+	for( index = 0; index &lt; count; ++index) {
+		if( "" != intersts[index]) {
+			marker = new Y.Marker( path[ index], { title: intersts[index]});
+			map.addFeature(marker);
+		}
+		bounds.extend(path[ index]);
+	}
+
+	map.setCenter(path[0]);
+	map.drawBounds(bounds, Y.LayerSetId.NORMAL);
+}
+
+function clearPoint() {
+	path = [];
+	intersts = [];
+	count = 0;
+	map.clearFeatures();
+}
+
+function dropMarker() {
+	if( null == marker) {
+		var latlon = map.getCenter();
+		marker = new Y.Marker( latlon);
+		map.addFeature(marker);
+		
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+	}
+	
+	marker.setDraggable(true);
+	marker.bind("dragend", function(latlng){
+		var latlon = marker.getLatLng();
+		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    });
+	map.panTo(marker.getLatLng(),false);
+}
+
+&lt;/script&gt;
+&lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0"&gt;
+&lt;div id="Ymap" style="width:100%; height:100%"&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</value>
   </data>
 </root>

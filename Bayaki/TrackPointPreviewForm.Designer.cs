@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this._mapView = new System.Windows.Forms.WebBrowser();
+            this._mapView = new MapControlLibrary.MapControl();
             this.SuspendLayout();
             // 
             // _mapView
@@ -37,6 +37,7 @@
             this._mapView.Location = new System.Drawing.Point(0, 0);
             this._mapView.MinimumSize = new System.Drawing.Size(20, 20);
             this._mapView.Name = "_mapView";
+            this._mapView.Provider = MapControlLibrary.MapControl.MapProvider.YAHOO;
             this._mapView.ScrollBarsEnabled = false;
             this._mapView.Size = new System.Drawing.Size(893, 538);
             this._mapView.TabIndex = 0;
@@ -58,6 +59,6 @@
 
         #endregion
 
-        private System.Windows.Forms.WebBrowser _mapView;
+        private MapControlLibrary.MapControl _mapView;
     }
 }

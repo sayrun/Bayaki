@@ -7,6 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bayaki", "Bayaki\Bayaki.csp
 	ProjectSection(ProjectDependencies) = postProject
 		{29A9BD31-EA8B-4BBF-B03A-5A33EAB7BBDB} = {29A9BD31-EA8B-4BBF-B03A-5A33EAB7BBDB}
 		{7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB} = {7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB}
+		{1DF971FE-CF3D-4610-812C-406A1B9ABE32} = {1DF971FE-CF3D-4610-812C-406A1B9ABE32}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bykIFv1", "bykIFv1\bykIFv1.csproj", "{5F304F85-B09A-4FF0-9197-DBABF1BDEEAF}"
@@ -14,6 +15,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyTraqPlugin", "SkyTraqPlugin\SkyTraqPlugin.csproj", "{7AB8D1F1-9946-4AE9-A3B9-6B4A378A56CB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPSBabelPlugin", "GPSBabelPlugin\GPSBabelPlugin.csproj", "{29A9BD31-EA8B-4BBF-B03A-5A33EAB7BBDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControlLibrary", "MapControlLibrary\MapControlLibrary.csproj", "{1DF971FE-CF3D-4610-812C-406A1B9ABE32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +40,10 @@ Global
 		{29A9BD31-EA8B-4BBF-B03A-5A33EAB7BBDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29A9BD31-EA8B-4BBF-B03A-5A33EAB7BBDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29A9BD31-EA8B-4BBF-B03A-5A33EAB7BBDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DF971FE-CF3D-4610-812C-406A1B9ABE32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF971FE-CF3D-4610-812C-406A1B9ABE32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DF971FE-CF3D-4610-812C-406A1B9ABE32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DF971FE-CF3D-4610-812C-406A1B9ABE32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

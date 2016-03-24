@@ -73,7 +73,6 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MapControl.cs" />
     <Compile Include="NowProcessingForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -129,6 +128,10 @@
     <ProjectReference Include="..\bykIFv1\bykIFv1.csproj">
       <Project>{5f304f85-b09a-4ff0-9197-dbabf1bdeeaf}</Project>
       <Name>bykIFv1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MapControlLibrary\MapControlLibrary.csproj">
+      <Project>{1df971fe-cf3d-4610-812c-406a1b9abe32}</Project>
+      <Name>MapControlLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
