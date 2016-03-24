@@ -60,7 +60,7 @@ namespace Bayaki
             AddToolbar(new KMLLoaderv1());
 
             // 地図情報をJavascriptからもらう        
-            _mapView.OnMakerDrag += _observer_OnMakerDrag;
+            _mapView.OnMakerDrag += _mapView_OnMakerDrag;
 
             // 自分自身のAssemblyを取得
             System.Reflection.Assembly asm = System.Reflection.Assembly.GetExecutingAssembly();
@@ -70,7 +70,7 @@ namespace Bayaki
             this.Text = string.Format("{0} - Ver.{1}", this.Text, ver.ToString());
         }
 
-        private void _observer_OnMakerDrag(double lat, double lon)
+        private void _mapView_OnMakerDrag(double lat, double lon)
         {
             if (1 != _targets.SelectedItems.Count) return;
 
