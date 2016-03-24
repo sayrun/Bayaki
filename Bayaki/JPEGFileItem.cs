@@ -81,24 +81,17 @@ namespace Bayaki
             }
         }
 
-        public bool RemoveLocation
+        public void RemoveLocation()
         {
-            get
-            {
-                return _remove;
-            }
-            set
-            {
-                _remove = true;
-                _newLocation = null;
-            }
+            _remove = true;
+            _newLocation = null;
         }
 
         public bykIFv1.Point CurrentLocation
         {
             get
             {
-                return _currentLocation;
+                return _remove ? null : _currentLocation;
             }
         }
 
@@ -111,7 +104,6 @@ namespace Bayaki
             set
             {
                 _newLocation = value;
-                _remove = (null == _newLocation);
             }
         }
 

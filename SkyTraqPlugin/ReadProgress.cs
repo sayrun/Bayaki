@@ -15,7 +15,7 @@ namespace SkyTraqPlugin
             INIT,       // 初期化
             READ,       // 読み出し
             CONVERT,    // 変換
-            RESTERT     // 初期化
+            RESTART     // 初期化
         };
 
         public readonly READ_PHASE Phase;
@@ -36,15 +36,15 @@ namespace SkyTraqPlugin
                 switch(Phase)
                 {
                     case READ_PHASE.UNSTART:
-                        return "開始前";
+                        return Properties.Resources.MSG17;
                     case READ_PHASE.INIT:
-                        return "初期化処理";
+                        return Properties.Resources.MSG18;
                     case READ_PHASE.READ:
-                        return "読出処理";
+                        return Properties.Resources.MSG19;
                     case READ_PHASE.CONVERT:
-                        return "変換処理";
-                    case READ_PHASE.RESTERT:
-                        return "再起動";
+                        return Properties.Resources.MSG20;
+                    case READ_PHASE.RESTART:
+                        return Properties.Resources.MSG21;
                     default:
                         return string.Empty;
                 }

@@ -81,6 +81,15 @@ namespace SkyTraqPlugin.Properties {
         }
         
         /// <summary>
+        ///   Skytraq Download Data に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string DownloadData_DefaultName {
+            get {
+                return ResourceManager.GetString("DownloadData_DefaultName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
         internal static System.Drawing.Bitmap Downloader_ICON {
@@ -117,6 +126,204 @@ namespace SkyTraqPlugin.Properties {
         internal static string Eraser_NAME {
             get {
                 return ResourceManager.GetString("Eraser_NAME", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   自動でポートを選択できませんでした。 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG1 {
+            get {
+                return ResourceManager.GetString("MSG1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   完了 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG10 {
+            get {
+                return ResourceManager.GetString("MSG10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   書き込み中 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG11 {
+            get {
+                return ResourceManager.GetString("MSG11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   ダウンロード失敗 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG12 {
+            get {
+                return ResourceManager.GetString("MSG12", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   ダウンロード完了 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG13 {
+            get {
+                return ResourceManager.GetString("MSG13", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   ダウンロード中 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG14 {
+            get {
+                return ResourceManager.GetString("MSG14", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   メートル に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG15 {
+            get {
+                return ResourceManager.GetString("MSG15", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   秒 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG16 {
+            get {
+                return ResourceManager.GetString("MSG16", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   開始前 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG17 {
+            get {
+                return ResourceManager.GetString("MSG17", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   初期化処理 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG18 {
+            get {
+                return ResourceManager.GetString("MSG18", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   読出処理 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG19 {
+            get {
+                return ResourceManager.GetString("MSG19", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   設定しました に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG2 {
+            get {
+                return ResourceManager.GetString("MSG2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   変換処理 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG20 {
+            get {
+                return ResourceManager.GetString("MSG20", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   再起動 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG21 {
+            get {
+                return ResourceManager.GetString("MSG21", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   データはありませんでした。 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG3 {
+            get {
+                return ResourceManager.GetString("MSG3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Skytraqの接続に失敗しました\n\n{0} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG4 {
+            get {
+                return ResourceManager.GetString("MSG4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Logデータを消去します。\nよろしいですか？ に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG5 {
+            get {
+                return ResourceManager.GetString("MSG5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   消去しました に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG6 {
+            get {
+                return ResourceManager.GetString("MSG6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   消去できませんでした。\n・ポートがあっていますか？\n・電源はONになっていますか？ に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG7 {
+            get {
+                return ResourceManager.GetString("MSG7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ephemerisを書き込みました に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG8 {
+            get {
+                return ResourceManager.GetString("MSG8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ephemerisを書き込みできませんでした に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG9 {
+            get {
+                return ResourceManager.GetString("MSG9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   自動 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string PORT_AUTOSEL {
+            get {
+                return ResourceManager.GetString("PORT_AUTOSEL", resourceCulture);
             }
         }
         

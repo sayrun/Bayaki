@@ -30,9 +30,12 @@ namespace GPSBabelPlugin
 
             if(System.Windows.Forms.DialogResult.OK == dlg.ShowDialog(owner))
             {
-                return dlg.GetItems();
+                if( null != dlg.Item)
+                {
+                    return new TrackItem[] { dlg.Item };
+                }
             }
-
+            // 結果なしを返す
             return new TrackItem[] { };
         }
     }

@@ -28,15 +28,11 @@ namespace GPSBabelPlugin
             }
         }
 
-        public bykIFv1.TrackItem[] GetItems()
+        public bykIFv1.TrackItem Item
         {
-            if (null != _item)
+            get
             {
-                return new bykIFv1.TrackItem[] { _item };
-            }
-            else
-            {
-                return new bykIFv1.TrackItem[] {  };
+                return _item;
             }
         }
 
@@ -47,6 +43,13 @@ namespace GPSBabelPlugin
                 _exec.Enabled = false;
                 _cancel.Enabled = false;
                 _selExecFile.Enabled = false;
+
+                if ((0 <= _parameters.Text.IndexOf("-o")) || (0 <= _parameters.Text.IndexOf("-F")))
+                {
+                    _parameters.Focus();
+                    MessageBox.Show(Properties.Resources.MSG1, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
 
                 this.UseWaitCursor = true;
 
@@ -60,8 +63,9 @@ namespace GPSBabelPlugin
                 p.StartInfo.RedirectStandardInput = false;
                 p.StartInfo.RedirectStandardError = false;
                 //ウィンドウを表示しないようにする
-                p.StartInfo.CreateNoWindow = false;
+                p.StartInfo.CreateNoWindow = true;
 
+                // 一時ファイルに出力させる
                 p.StartInfo.Arguments = string.Format("{0} -o gpx -F {1}", _parameters.Text, tempFileName);
 
                 p.Start();
@@ -70,13 +74,12 @@ namespace GPSBabelPlugin
                 System.Diagnostics.Debug.Print(results);
 
                 //プロセス終了まで待機する
-                //WaitForExitはReadToEndの後である必要がある
-                //(親プロセス、子プロセスでブロック防止のため)
                 p.WaitForExit();
                 p.Close();
 
                 try
                 {
+                    // 一時ファイルから読み込む
                     using (Bayaki.TrackItemReader tir = new Bayaki.TrackItemReader(tempFileName))
                     {
                         bykIFv1.TrackItem item = tir.Read();
@@ -85,8 +88,15 @@ namespace GPSBabelPlugin
                 }
                 finally
                 {
+                    // 一時ファイルを削除する
                     System.IO.File.Delete(tempFileName);
                 }
+
+                // 設定を更新
+                Properties.Settings.Default.GPSBabel_PATH = _execPath.Text;
+                Properties.Settings.Default.GPSBabel_Param = _parameters.Text;
+                Properties.Settings.Default.Save();
+
                 DialogResult = DialogResult.OK;
             }
             catch (Exception ex)
@@ -104,6 +114,12 @@ namespace GPSBabelPlugin
 
                 this.UseWaitCursor = false;
             }
+        }
+
+        private void ExecCommandForm_Load(object sender, EventArgs e)
+        {
+            _execPath.Text = Properties.Settings.Default.GPSBabel_PATH;
+            _parameters.Text = Properties.Settings.Default.GPSBabel_Param;
         }
     }
 }

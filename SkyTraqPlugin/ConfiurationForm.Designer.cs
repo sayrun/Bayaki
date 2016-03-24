@@ -91,7 +91,7 @@
             this._cancel.Name = "_cancel";
             this._cancel.Size = new System.Drawing.Size(75, 23);
             this._cancel.TabIndex = 14;
-            this._cancel.Text = "close";
+            this._cancel.Text = "閉じる";
             this._cancel.UseVisualStyleBackColor = true;
             // 
             // _update
@@ -101,7 +101,7 @@
             this._update.Name = "_update";
             this._update.Size = new System.Drawing.Size(75, 23);
             this._update.TabIndex = 15;
-            this._update.Text = "update";
+            this._update.Text = "設定";
             this._update.UseVisualStyleBackColor = true;
             this._update.Click += new System.EventHandler(this._update_Click);
             // 
@@ -117,20 +117,20 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(31, 43);
+            this.label2.Location = new System.Drawing.Point(23, 43);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(42, 12);
+            this.label2.Size = new System.Drawing.Size(50, 12);
             this.label2.TabIndex = 11;
-            this.label2.Text = "version";
+            this.label2.Text = "バージョン";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(48, 17);
+            this.label1.Location = new System.Drawing.Point(40, 17);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(25, 12);
+            this.label1.Size = new System.Drawing.Size(33, 12);
             this.label1.TabIndex = 12;
-            this.label1.Text = "port";
+            this.label1.Text = "ポート";
             // 
             // _threshold
             // 
@@ -148,11 +148,11 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(128, 138);
+            this.label6.Location = new System.Drawing.Point(134, 138);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(35, 12);
+            this.label6.Size = new System.Drawing.Size(29, 12);
             this.label6.TabIndex = 11;
-            this.label6.Text = "speed";
+            this.label6.Text = "速度";
             // 
             // _speed
             // 
@@ -181,9 +181,9 @@
             this._thresholdLabel.AutoSize = true;
             this._thresholdLabel.Location = new System.Drawing.Point(255, 113);
             this._thresholdLabel.Name = "_thresholdLabel";
-            this._thresholdLabel.Size = new System.Drawing.Size(47, 12);
+            this._thresholdLabel.Size = new System.Drawing.Size(17, 12);
             this._thresholdLabel.TabIndex = 11;
-            this._thresholdLabel.Text = "seconds";
+            this._thresholdLabel.Text = "秒";
             // 
             // _thresholdType
             // 
@@ -191,8 +191,8 @@
             this._thresholdType.Enabled = false;
             this._thresholdType.FormattingEnabled = true;
             this._thresholdType.Items.AddRange(new object[] {
-            "time",
-            "distance"});
+            "時間",
+            "距離"});
             this._thresholdType.Location = new System.Drawing.Point(79, 110);
             this._thresholdType.Name = "_thresholdType";
             this._thresholdType.Size = new System.Drawing.Size(84, 20);

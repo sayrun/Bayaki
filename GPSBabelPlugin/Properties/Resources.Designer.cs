@@ -78,5 +78,14 @@ namespace GPSBabelPlugin.Properties {
                 return ResourceManager.GetString("GPSBabelLoader_NAME", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   -o/-Fはプログラム側で指定します。指定しないでください。 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG1 {
+            get {
+                return ResourceManager.GetString("MSG1", resourceCulture);
+            }
+        }
     }
 }

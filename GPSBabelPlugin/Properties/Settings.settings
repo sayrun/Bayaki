@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="GPSBabelPlugin.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="GPSBabel_PATH" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Program Files\GPSBabel\gpsbabel.exe</Value>
+    </Setting>
+    <Setting Name="GPSBabel_Param" Type="System.String" Scope="User">
+      <Value Profile="(Default)">-w -t -i skytraq,erase=0,baud=115200,initbaud=38400,no-output=0 -f COM6</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -11,7 +11,6 @@ namespace SkyTraqPlugin
 {
     internal partial class ConfiurationForm : Form
     {
-        private const string PORT_AUTO = "Auto";
         private SkytraqController _port;
         private BufferStatus _bs;
 
@@ -45,7 +44,7 @@ namespace SkyTraqPlugin
             try
             {
                 string portName = this.PortName;
-                if (PORT_AUTO == portName)
+                if (Properties.Resources.PORT_AUTOSEL == portName)
                 {
                     try
                     {
@@ -55,7 +54,7 @@ namespace SkyTraqPlugin
                     catch
                     {
                         _posrts.Items.Remove(portName);
-                        MessageBox.Show("自動でポートを選択できませんでした。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        MessageBox.Show(Properties.Resources.MSG1, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         return;
                     }
                 }
@@ -109,7 +108,7 @@ namespace SkyTraqPlugin
             try
             {
                 _posrts.BeginUpdate();
-                _posrts.Items.Add(PORT_AUTO);
+                _posrts.Items.Add(Properties.Resources.PORT_AUTOSEL);
                 foreach (string portName in System.IO.Ports.SerialPort.GetPortNames())
                 {
                     _posrts.Items.Add(portName);
@@ -121,7 +120,7 @@ namespace SkyTraqPlugin
                 }
                 else
                 {
-                    int index = _posrts.Items.IndexOf(PORT_AUTO);
+                    int index = _posrts.Items.IndexOf(Properties.Resources.PORT_AUTOSEL);
                     _posrts.SelectedIndex = index;
                 }
             }
@@ -162,7 +161,7 @@ namespace SkyTraqPlugin
 
                 _port.SetLogConfigure(bs);
 
-                MessageBox.Show("設定しました", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(Properties.Resources.MSG2, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
                 DialogResult = DialogResult.OK;
             }
@@ -183,12 +182,12 @@ namespace SkyTraqPlugin
 
             if( 1 == cb.SelectedIndex)
             {
-                _thresholdLabel.Text = "meters";
+                _thresholdLabel.Text = Properties.Resources.MSG15;
                 _threshold.Value = _bs.Distance;
             }
             else
             {
-                _thresholdLabel.Text = "seconds";
+                _thresholdLabel.Text = Properties.Resources.MSG16;
                 _threshold.Value = _bs.Time;
             }
         }

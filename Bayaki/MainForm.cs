@@ -87,6 +87,9 @@ namespace Bayaki
                 pnew = new bykIFv1.Point(jpegItem.DateTimeOriginal, lat, lon, double.NaN, 0, false);
             }
             jpegItem.NewLocation = pnew;
+
+            item.ForeColor = Color.Black;
+            item.Checked = true;
         }
 
         private void SerializePluginList()
@@ -174,7 +177,7 @@ namespace Bayaki
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("plugin[{0}]でエラーが発生しました。\n\n詳細\n{1}", plugin.Name, ex.Message), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(Properties.Resources.MSG2, plugin.Name, ex.Message), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             if (null == results) return;
 
@@ -534,14 +537,14 @@ namespace Bayaki
             NowProcessingForm<JPEGFileItem> npf = new NowProcessingForm<JPEGFileItem>(new UpdateJpegFile(), items.ToArray());
             if( DialogResult.OK == npf.ShowDialog(this))
             {
-                MessageBox.Show("更新しました", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Properties.Resources.MSG3, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void addToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog of = new OpenFileDialog();
-            of.Title = "プラグイン選択";
+            of.Title = Properties.Resources.MSG4;
             of.DefaultExt = ".dll";
             of.InitialDirectory = Path.GetDirectoryName(Application.ExecutablePath);
             of.Filter = "byk plugin(*.dll)|*.dll|all(*.*)|*.*";
@@ -746,13 +749,18 @@ namespace Bayaki
         {
             bool removeLocation = false;
             bool addLocation = false;
+            bool rematching = false;
             if( 1 == _targets.SelectedItems.Count)
             {
                 ListViewItem item = _targets.SelectedItems[0];
                 JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
                 if( null != jpegItem)
                 {
-                    if( null != jpegItem.NewLocation || null != jpegItem.CurrentLocation)
+                    if (null == jpegItem.NewLocation)
+                    {
+                        rematching = true;
+                    }
+                    if ( null != jpegItem.NewLocation || null != jpegItem.CurrentLocation)
                     {
                         removeLocation = true;
                     }
@@ -768,11 +776,12 @@ namespace Bayaki
             }
             _removeLocationToolStripMenuItem.Enabled = removeLocation;
             _addLocationToolStripMenuItem.Enabled = addLocation;
+            _rematchingToolStripMenuItem.Enabled = rematching;
         }
 
         private void _removeLocationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if( DialogResult.Yes == MessageBox.Show("位置情報を削除しますか？", this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+            if( DialogResult.Yes == MessageBox.Show(Properties.Resources.MSG5, this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question))
             {
                 if (1 != _targets.SelectedItems.Count) return;
 
@@ -783,6 +792,9 @@ namespace Bayaki
                 jpegItem.RemoveLocation();
 
                 _previewMap.Document.InvokeScript("resetMarker");
+
+                item.Checked = true;
+                item.ForeColor = Color.Black;
             }
         }
 

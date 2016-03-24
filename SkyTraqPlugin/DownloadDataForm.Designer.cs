@@ -57,7 +57,7 @@
             this._cancel.Name = "_cancel";
             this._cancel.Size = new System.Drawing.Size(75, 23);
             this._cancel.TabIndex = 6;
-            this._cancel.Text = "close";
+            this._cancel.Text = "閉じる";
             this._cancel.UseVisualStyleBackColor = true;
             this._cancel.Click += new System.EventHandler(this._cancel_Click);
             // 
@@ -68,7 +68,7 @@
             this._download.Name = "_download";
             this._download.Size = new System.Drawing.Size(75, 23);
             this._download.TabIndex = 7;
-            this._download.Text = "download";
+            this._download.Text = "ダウンロード";
             this._download.UseVisualStyleBackColor = true;
             this._download.Click += new System.EventHandler(this._download_Click);
             // 
@@ -84,11 +84,11 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(33, 15);
+            this.label1.Location = new System.Drawing.Point(35, 15);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(25, 12);
+            this.label1.Size = new System.Drawing.Size(33, 12);
             this.label1.TabIndex = 4;
-            this.label1.Text = "port";
+            this.label1.Text = "ポート";
             // 
             // _connect
             // 
@@ -103,11 +103,11 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(23, 49);
+            this.label2.Location = new System.Drawing.Point(16, 48);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 12);
+            this.label2.Size = new System.Drawing.Size(52, 12);
             this.label2.TabIndex = 4;
-            this.label2.Text = "buffer";
+            this.label2.Text = "ログサイズ";
             // 
             // _kernelVersion
             // 

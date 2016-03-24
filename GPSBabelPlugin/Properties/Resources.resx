@@ -124,4 +124,7 @@
   <data name="GPSBabelLoader_NAME" xml:space="preserve">
     <value>GPSBabel wrapper</value>
   </data>
+  <data name="MSG1" xml:space="preserve">
+    <value>-o/-Fはプログラム側で指定します。指定しないでください。</value>
+  </data>
 </root>

@@ -125,6 +125,9 @@
     <value>Skytraq
 Configuration</value>
   </data>
+  <data name="DownloadData_DefaultName" xml:space="preserve">
+    <value>Skytraq Download Data</value>
+  </data>
   <data name="Downloader_ICON" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Downloader_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -138,6 +141,72 @@ logdata download</value>
   <data name="Eraser_NAME" xml:space="preserve">
     <value>Skytraq
 logdata Erase</value>
+  </data>
+  <data name="MSG1" xml:space="preserve">
+    <value>自動でポートを選択できませんでした。</value>
+  </data>
+  <data name="MSG10" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="MSG11" xml:space="preserve">
+    <value>書き込み中</value>
+  </data>
+  <data name="MSG12" xml:space="preserve">
+    <value>ダウンロード失敗</value>
+  </data>
+  <data name="MSG13" xml:space="preserve">
+    <value>ダウンロード完了</value>
+  </data>
+  <data name="MSG14" xml:space="preserve">
+    <value>ダウンロード中</value>
+  </data>
+  <data name="MSG15" xml:space="preserve">
+    <value>メートル</value>
+  </data>
+  <data name="MSG16" xml:space="preserve">
+    <value>秒</value>
+  </data>
+  <data name="MSG17" xml:space="preserve">
+    <value>開始前</value>
+  </data>
+  <data name="MSG18" xml:space="preserve">
+    <value>初期化処理</value>
+  </data>
+  <data name="MSG19" xml:space="preserve">
+    <value>読出処理</value>
+  </data>
+  <data name="MSG2" xml:space="preserve">
+    <value>設定しました</value>
+  </data>
+  <data name="MSG20" xml:space="preserve">
+    <value>変換処理</value>
+  </data>
+  <data name="MSG21" xml:space="preserve">
+    <value>再起動</value>
+  </data>
+  <data name="MSG3" xml:space="preserve">
+    <value>データはありませんでした。</value>
+  </data>
+  <data name="MSG4" xml:space="preserve">
+    <value>Skytraqの接続に失敗しました\n\n{0}</value>
+  </data>
+  <data name="MSG5" xml:space="preserve">
+    <value>Logデータを消去します。\nよろしいですか？</value>
+  </data>
+  <data name="MSG6" xml:space="preserve">
+    <value>消去しました</value>
+  </data>
+  <data name="MSG7" xml:space="preserve">
+    <value>消去できませんでした。\n・ポートがあっていますか？\n・電源はONになっていますか？</value>
+  </data>
+  <data name="MSG8" xml:space="preserve">
+    <value>Ephemerisを書き込みました</value>
+  </data>
+  <data name="MSG9" xml:space="preserve">
+    <value>Ephemerisを書き込みできませんでした</value>
+  </data>
+  <data name="PORT_AUTOSEL" xml:space="preserve">
+    <value>自動</value>
   </data>
   <data name="SetEphemeris_ICON" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SetEphemeris_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

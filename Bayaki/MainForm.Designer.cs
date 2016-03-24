@@ -42,6 +42,7 @@
             this._previewImageContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this._removeLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._addLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._rematchingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._previewMap = new System.Windows.Forms.WebBrowser();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this._locationSources = new System.Windows.Forms.ListView();
@@ -91,7 +92,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(788, 521);
+            this.panel1.Size = new System.Drawing.Size(891, 521);
             this.panel1.TabIndex = 1;
             // 
             // splitContainer1
@@ -110,7 +111,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
-            this.splitContainer1.Size = new System.Drawing.Size(788, 521);
+            this.splitContainer1.Size = new System.Drawing.Size(891, 521);
             this.splitContainer1.SplitterDistance = 299;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -121,7 +122,7 @@
             this._dropCover.Dock = System.Windows.Forms.DockStyle.Fill;
             this._dropCover.Location = new System.Drawing.Point(0, 0);
             this._dropCover.Name = "_dropCover";
-            this._dropCover.Size = new System.Drawing.Size(788, 299);
+            this._dropCover.Size = new System.Drawing.Size(891, 299);
             this._dropCover.TabIndex = 2;
             this._dropCover.Text = "JPEGファイルをここにドロップしてください";
             this._dropCover.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -132,11 +133,11 @@
             // 
             this._update.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this._update.Enabled = false;
-            this._update.Location = new System.Drawing.Point(710, 273);
+            this._update.Location = new System.Drawing.Point(813, 273);
             this._update.Name = "_update";
             this._update.Size = new System.Drawing.Size(75, 23);
             this._update.TabIndex = 1;
-            this._update.Text = "Update";
+            this._update.Text = "更新保存";
             this._update.UseVisualStyleBackColor = true;
             this._update.Click += new System.EventHandler(this._update_Click);
             // 
@@ -147,10 +148,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._targets.CheckBoxes = true;
+            this._targets.HideSelection = false;
             this._targets.LargeImageList = this._targetsImage;
             this._targets.Location = new System.Drawing.Point(0, 0);
             this._targets.Name = "_targets";
-            this._targets.Size = new System.Drawing.Size(788, 267);
+            this._targets.Size = new System.Drawing.Size(891, 267);
             this._targets.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this._targets.TabIndex = 0;
             this._targets.UseCompatibleStateImageBehavior = false;
@@ -173,7 +175,7 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(788, 218);
+            this.tabControl1.Size = new System.Drawing.Size(891, 218);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -182,9 +184,9 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(780, 192);
+            this.tabPage1.Size = new System.Drawing.Size(883, 192);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "preview";
+            this.tabPage1.Text = "画像プレビュー";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // splitContainer2
@@ -200,8 +202,8 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this._previewMap);
-            this.splitContainer2.Size = new System.Drawing.Size(774, 186);
-            this.splitContainer2.SplitterDistance = 436;
+            this.splitContainer2.Size = new System.Drawing.Size(877, 186);
+            this.splitContainer2.SplitterDistance = 494;
             this.splitContainer2.TabIndex = 0;
             // 
             // _previewImage
@@ -210,7 +212,7 @@
             this._previewImage.Dock = System.Windows.Forms.DockStyle.Fill;
             this._previewImage.Location = new System.Drawing.Point(0, 0);
             this._previewImage.Name = "_previewImage";
-            this._previewImage.Size = new System.Drawing.Size(436, 186);
+            this._previewImage.Size = new System.Drawing.Size(494, 186);
             this._previewImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this._previewImage.TabIndex = 0;
             this._previewImage.TabStop = false;
@@ -219,24 +221,32 @@
             // 
             this._previewImageContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._removeLocationToolStripMenuItem,
-            this._addLocationToolStripMenuItem});
+            this._addLocationToolStripMenuItem,
+            this._rematchingToolStripMenuItem});
             this._previewImageContextMenu.Name = "_previewImageContextMenu";
-            this._previewImageContextMenu.Size = new System.Drawing.Size(183, 48);
+            this._previewImageContextMenu.Size = new System.Drawing.Size(161, 70);
             this._previewImageContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._previewImageContextMenu_Opening);
             // 
             // _removeLocationToolStripMenuItem
             // 
             this._removeLocationToolStripMenuItem.Name = "_removeLocationToolStripMenuItem";
-            this._removeLocationToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
-            this._removeLocationToolStripMenuItem.Text = "remove location...";
+            this._removeLocationToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this._removeLocationToolStripMenuItem.Text = "位置情報削除...";
             this._removeLocationToolStripMenuItem.Click += new System.EventHandler(this._removeLocationToolStripMenuItem_Click);
             // 
             // _addLocationToolStripMenuItem
             // 
             this._addLocationToolStripMenuItem.Name = "_addLocationToolStripMenuItem";
-            this._addLocationToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
-            this._addLocationToolStripMenuItem.Text = "add location";
+            this._addLocationToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this._addLocationToolStripMenuItem.Text = "位置情報追加";
             this._addLocationToolStripMenuItem.Click += new System.EventHandler(this._addLocationToolStripMenuItem_Click);
+            // 
+            // _rematchingToolStripMenuItem
+            // 
+            this._rematchingToolStripMenuItem.Enabled = false;
+            this._rematchingToolStripMenuItem.Name = "_rematchingToolStripMenuItem";
+            this._rematchingToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this._rematchingToolStripMenuItem.Text = "位置情報再検索";
             // 
             // _previewMap
             // 
@@ -247,7 +257,7 @@
             this._previewMap.MinimumSize = new System.Drawing.Size(20, 20);
             this._previewMap.Name = "_previewMap";
             this._previewMap.ScrollBarsEnabled = false;
-            this._previewMap.Size = new System.Drawing.Size(334, 186);
+            this._previewMap.Size = new System.Drawing.Size(379, 186);
             this._previewMap.TabIndex = 0;
             this._previewMap.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._previewMap_DocumentCompleted);
             this._previewMap.SizeChanged += new System.EventHandler(this._previewMap_SizeChanged);
@@ -259,9 +269,9 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(780, 192);
+            this.tabPage2.Size = new System.Drawing.Size(883, 192);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "location source";
+            this.tabPage2.Text = "位置情報元";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // _locationSources
@@ -280,7 +290,7 @@
             this._locationSources.MultiSelect = false;
             this._locationSources.Name = "_locationSources";
             this._locationSources.ShowItemToolTips = true;
-            this._locationSources.Size = new System.Drawing.Size(774, 161);
+            this._locationSources.Size = new System.Drawing.Size(877, 161);
             this._locationSources.TabIndex = 1;
             this._locationSources.UseCompatibleStateImageBehavior = false;
             this._locationSources.View = System.Windows.Forms.View.Details;
@@ -290,26 +300,26 @@
             // columnHeader1
             // 
             this.columnHeader1.DisplayIndex = 3;
-            this.columnHeader1.Text = "name";
-            this.columnHeader1.Width = 306;
+            this.columnHeader1.Text = "名前";
+            this.columnHeader1.Width = 349;
             // 
             // columnHeader2
             // 
             this.columnHeader2.DisplayIndex = 0;
-            this.columnHeader2.Text = "from";
+            this.columnHeader2.Text = "開始時間";
             this.columnHeader2.Width = 136;
             // 
             // columnHeader3
             // 
             this.columnHeader3.DisplayIndex = 1;
-            this.columnHeader3.Text = "to";
+            this.columnHeader3.Text = "終了時間";
             this.columnHeader3.Width = 159;
             // 
             // columnHeader4
             // 
             this.columnHeader4.DisplayIndex = 2;
-            this.columnHeader4.Text = "points";
-            this.columnHeader4.Width = 151;
+            this.columnHeader4.Text = "点数";
+            this.columnHeader4.Width = 96;
             // 
             // _locationContextMenu
             // 
@@ -323,14 +333,14 @@
             this.toolStripSeparator2,
             this._deleteTrackItem});
             this._locationContextMenu.Name = "_locationContextMenu";
-            this._locationContextMenu.Size = new System.Drawing.Size(168, 148);
+            this._locationContextMenu.Size = new System.Drawing.Size(137, 148);
             this._locationContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationContextMenu_Opening);
             // 
             // _renameTarckItem
             // 
             this._renameTarckItem.Name = "_renameTarckItem";
-            this._renameTarckItem.Size = new System.Drawing.Size(167, 22);
-            this._renameTarckItem.Text = "Rename...";
+            this._renameTarckItem.Size = new System.Drawing.Size(136, 22);
+            this._renameTarckItem.Text = "名称変更...";
             this._renameTarckItem.Click += new System.EventHandler(this._renameTarckItem_Click);
             // 
             // _exportTrackItem
@@ -340,8 +350,8 @@
             this._exportCSV,
             this._exportKML});
             this._exportTrackItem.Name = "_exportTrackItem";
-            this._exportTrackItem.Size = new System.Drawing.Size(167, 22);
-            this._exportTrackItem.Text = "Export...";
+            this._exportTrackItem.Size = new System.Drawing.Size(136, 22);
+            this._exportTrackItem.Text = "出力...";
             // 
             // _exportGPX
             // 
@@ -370,39 +380,39 @@
             // 
             this._routePreview.Font = new System.Drawing.Font("メイリオ", 9F, System.Drawing.FontStyle.Bold);
             this._routePreview.Name = "_routePreview";
-            this._routePreview.Size = new System.Drawing.Size(167, 22);
-            this._routePreview.Text = "Route Preview";
+            this._routePreview.Size = new System.Drawing.Size(136, 22);
+            this._routePreview.Text = "道順表示";
             this._routePreview.Click += new System.EventHandler(this._routePreview_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(164, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(133, 6);
             // 
             // _upPriority
             // 
             this._upPriority.Name = "_upPriority";
-            this._upPriority.Size = new System.Drawing.Size(167, 22);
-            this._upPriority.Text = "Up";
+            this._upPriority.Size = new System.Drawing.Size(136, 22);
+            this._upPriority.Text = "上へ";
             this._upPriority.Click += new System.EventHandler(this._upPriority_Click);
             // 
             // _downPriority
             // 
             this._downPriority.Name = "_downPriority";
-            this._downPriority.Size = new System.Drawing.Size(167, 22);
-            this._downPriority.Text = "Down";
+            this._downPriority.Size = new System.Drawing.Size(136, 22);
+            this._downPriority.Text = "下へ";
             this._downPriority.Click += new System.EventHandler(this._downPriority_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(164, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(133, 6);
             // 
             // _deleteTrackItem
             // 
             this._deleteTrackItem.Name = "_deleteTrackItem";
-            this._deleteTrackItem.Size = new System.Drawing.Size(167, 22);
-            this._deleteTrackItem.Text = "Delete...";
+            this._deleteTrackItem.Size = new System.Drawing.Size(136, 22);
+            this._deleteTrackItem.Text = "削除...";
             this._deleteTrackItem.Click += new System.EventHandler(this._deleteTrackItem_Click);
             // 
             // _locationToolbar
@@ -411,7 +421,7 @@
             this._locationToolbar.ImageScalingSize = new System.Drawing.Size(32, 32);
             this._locationToolbar.Location = new System.Drawing.Point(3, 3);
             this._locationToolbar.Name = "_locationToolbar";
-            this._locationToolbar.Size = new System.Drawing.Size(774, 25);
+            this._locationToolbar.Size = new System.Drawing.Size(877, 25);
             this._locationToolbar.TabIndex = 0;
             this._locationToolbar.Text = "toolStrip1";
             // 
@@ -422,35 +432,35 @@
             this.toolStripSeparator3,
             this.removeToolStripMenuItem});
             this._locationToolbarContextMenu.Name = "_locationToolbarContextMenu";
-            this._locationToolbarContextMenu.Size = new System.Drawing.Size(134, 54);
+            this._locationToolbarContextMenu.Size = new System.Drawing.Size(173, 54);
             this._locationToolbarContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationToolbarContextMenu_Opening);
             // 
             // addToolStripMenuItem
             // 
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.addToolStripMenuItem.Text = "add...";
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.addToolStripMenuItem.Text = "プラグイン追加...";
             this.addToolStripMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(130, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(169, 6);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.removeToolStripMenuItem.Text = "remove...";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.removeToolStripMenuItem.Text = "プラグイン削除...";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(788, 521);
+            this.ClientSize = new System.Drawing.Size(891, 521);
             this.Controls.Add(this.panel1);
             this.Name = "MainForm";
-            this.Text = "場所を焼きこむツール";
+            this.Text = "場所を焼きこむツール（パイロット版）";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -512,6 +522,7 @@
         private System.Windows.Forms.ContextMenuStrip _previewImageContextMenu;
         private System.Windows.Forms.ToolStripMenuItem _removeLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem _addLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem _rematchingToolStripMenuItem;
     }
 }
 

@@ -995,11 +995,11 @@ namespace SkyTraqPlugin
                 }
 
                 // リセット開始を通知します
-                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTERT, 0, 1));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTART, 0, 1));
                 // Restartして終了
                 sendRestart();
                 // リセット終了を通知します
-                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTERT, 1, 1));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTART, 1, 1));
 
                 // longitude/latitudeの配列を返す
                 return items;
@@ -1008,7 +1008,7 @@ namespace SkyTraqPlugin
             catch (TimeoutException)
             {
                 // リセット開始を通知します
-                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTERT, 0, 1));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTART, 0, 1));
 
                 try
                 {
@@ -1022,7 +1022,7 @@ namespace SkyTraqPlugin
                 }
 
                 // リセット終了を通知します
-                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTERT, 1, 1));
+                OnRead(new ReadProgressEvent(ReadProgressEvent.READ_PHASE.RESTART, 1, 1));
             }
 
             // 値は返せない

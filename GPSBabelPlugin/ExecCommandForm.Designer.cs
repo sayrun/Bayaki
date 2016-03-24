@@ -60,7 +60,6 @@
             this._execPath.Name = "_execPath";
             this._execPath.Size = new System.Drawing.Size(541, 19);
             this._execPath.TabIndex = 1;
-            this._execPath.Text = "C:\\Program Files\\GPSBabel\\gpsbabel.exe";
             // 
             // _selExecFile
             // 
@@ -78,7 +77,6 @@
             this._parameters.Name = "_parameters";
             this._parameters.Size = new System.Drawing.Size(541, 19);
             this._parameters.TabIndex = 1;
-            this._parameters.Text = "-w -t -i skytraq,erase=0,baud=115200,initbaud=38400,no-output=0 -f COM6";
             // 
             // label2
             // 
@@ -139,6 +137,7 @@
             this.Name = "ExecCommandForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "GPSBabel.exeで一時ファイルを作成して取り込むプラグイン（なぜかCONからリダイレクトできない）";
+            this.Load += new System.EventHandler(this.ExecCommandForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

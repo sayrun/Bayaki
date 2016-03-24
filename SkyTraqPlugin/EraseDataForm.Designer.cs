@@ -41,11 +41,11 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(62, 15);
+            this.label1.Location = new System.Drawing.Point(65, 15);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(25, 12);
+            this.label1.Size = new System.Drawing.Size(33, 12);
             this.label1.TabIndex = 0;
-            this.label1.Text = "port";
+            this.label1.Text = "ポート";
             // 
             // _posrts
             // 
@@ -74,7 +74,7 @@
             this._cancel.Name = "_cancel";
             this._cancel.Size = new System.Drawing.Size(75, 23);
             this._cancel.TabIndex = 2;
-            this._cancel.Text = "cancel";
+            this._cancel.Text = "閉じる";
             this._cancel.UseVisualStyleBackColor = true;
             this._cancel.Click += new System.EventHandler(this._cancel_Click);
             // 

@@ -11,8 +11,6 @@ namespace SkyTraqPlugin
 {
     internal partial class EraseDataForm : Form
     {
-        private const string PORT_AUTO = "Auto";
-
         public EraseDataForm()
         {
             InitializeComponent();
@@ -23,7 +21,7 @@ namespace SkyTraqPlugin
             try
             {
                 _posrts.BeginUpdate();
-                _posrts.Items.Add(PORT_AUTO);
+                _posrts.Items.Add(Properties.Resources.PORT_AUTOSEL);
                 foreach (string portName in System.IO.Ports.SerialPort.GetPortNames())
                 {
                     _posrts.Items.Add(portName);
@@ -35,7 +33,7 @@ namespace SkyTraqPlugin
                 }
                 else
                 {
-                    int index = _posrts.Items.IndexOf(PORT_AUTO);
+                    int index = _posrts.Items.IndexOf(Properties.Resources.PORT_AUTOSEL);
                     _posrts.SelectedIndex = index;
                 }
             }
@@ -83,7 +81,7 @@ namespace SkyTraqPlugin
 
         private void _erase_Click(object sender, EventArgs e)
         {
-            if (DialogResult.OK != MessageBox.Show("Logデータを消去します。\nよろしいですか？", this.Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question))
+            if (DialogResult.OK != MessageBox.Show(Properties.Resources.MSG5, this.Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question))
             {
                 // 実行を中止しますよ
                 return;
@@ -95,7 +93,7 @@ namespace SkyTraqPlugin
             _progress.Value = 0;
 
             string portName = this.PortName;
-            if (PORT_AUTO == portName)
+            if (Properties.Resources.PORT_AUTOSEL == portName)
             {
                 try
                 {
@@ -105,7 +103,7 @@ namespace SkyTraqPlugin
                 catch
                 {
                     _posrts.Items.Remove(portName);
-                    MessageBox.Show("自動でポートを選択できませんでした。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show(Properties.Resources.MSG1, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
             }
@@ -147,13 +145,13 @@ namespace SkyTraqPlugin
 
             if ( result)
             {
-                MessageBox.Show("消去しました", Properties.Resources.Eraser_NAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(Properties.Resources.MSG6, Properties.Resources.Eraser_NAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
                 this.DialogResult = DialogResult.OK;
             }
             else
             {
-                MessageBox.Show("消去できませんでした。\n・ポートがあっていますか？\n・電源はONになっていますか？", Properties.Resources.Eraser_NAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(Properties.Resources.MSG7, Properties.Resources.Eraser_NAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
             _progress.Value = 0;

@@ -144,6 +144,42 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
+        ///   plugin[{0}]でエラーが発生しました。\n\n詳細\n{1} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG2 {
+            get {
+                return ResourceManager.GetString("MSG2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   更新しました に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG3 {
+            get {
+                return ResourceManager.GetString("MSG3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   プラグイン選択 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG4 {
+            get {
+                return ResourceManager.GetString("MSG4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   位置情報を削除しますか？ に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG5 {
+            get {
+                return ResourceManager.GetString("MSG5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Skytraq Downloader に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SkytraqDownloader_NAME {

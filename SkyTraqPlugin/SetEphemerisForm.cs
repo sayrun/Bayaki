@@ -11,7 +11,6 @@ namespace SkyTraqPlugin
 {
     internal partial class SetEphemerisForm : Form
     {
-        private const string PORT_AUTO = "Auto";
         private SkytraqController _port;
 
         public SetEphemerisForm()
@@ -24,7 +23,7 @@ namespace SkyTraqPlugin
             try
             {
                 _posrts.BeginUpdate();
-                _posrts.Items.Add(PORT_AUTO);
+                _posrts.Items.Add(Properties.Resources.PORT_AUTOSEL);
                 foreach (string portName in System.IO.Ports.SerialPort.GetPortNames())
                 {
                     _posrts.Items.Add(portName);
@@ -36,7 +35,7 @@ namespace SkyTraqPlugin
                 }
                 else
                 {
-                    int index = _posrts.Items.IndexOf(PORT_AUTO);
+                    int index = _posrts.Items.IndexOf(Properties.Resources.PORT_AUTOSEL);
                     _posrts.SelectedIndex = index;
                 }
             }
@@ -65,7 +64,7 @@ namespace SkyTraqPlugin
         private void _start_Click(object sender, EventArgs e)
         {
             string portName = this.PortName;
-            if (PORT_AUTO == portName)
+            if (Properties.Resources.PORT_AUTOSEL == portName)
             {
                 try
                 {
@@ -75,7 +74,7 @@ namespace SkyTraqPlugin
                 catch
                 {
                     _posrts.Items.Remove(portName);
-                    MessageBox.Show("自動でポートを選択できませんでした。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show(Properties.Resources.MSG1, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
             }
@@ -108,7 +107,7 @@ namespace SkyTraqPlugin
                 this.Invoke(new SetEphemerisProgressHandler(_port_OnSetEphemeris), new object[] { progress });
                 return;
             }
-            _phase.Text = (progress.Max == progress.Value) ? "完了" : "書き込み中";
+            _phase.Text = (progress.Max == progress.Value) ? Properties.Resources.MSG10 : Properties.Resources.MSG11;
             _progress.Maximum = progress.Max;
             _progress.Value = progress.Value;
         }
@@ -118,13 +117,13 @@ namespace SkyTraqPlugin
             if( null != e.Error)
             {
                 MessageBox.Show(e.Error.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                _phase.Text = "ダウンロード失敗";
+                _phase.Text = Properties.Resources.MSG12;
                 return;
             }
 
             byte[] buffer = e.Result;
 
-            _phase.Text = "ダウンロード完了";
+            _phase.Text = Properties.Resources.MSG13;
 
             _setEphemerisWorker.RunWorkerAsync(buffer);
 
@@ -133,7 +132,7 @@ namespace SkyTraqPlugin
 
         private void Wc_DownloadProgressChanged(object sender, System.Net.DownloadProgressChangedEventArgs e)
         {
-            _phase.Text = "ダウンロード中";
+            _phase.Text = Properties.Resources.MSG14;
             if (0 < e.TotalBytesToReceive)
             {
                 _progress.Maximum = (int)e.TotalBytesToReceive;
@@ -165,12 +164,12 @@ namespace SkyTraqPlugin
 
             if( (bool)e.Result)
             {
-                MessageBox.Show("Ephemerisを書き込みました", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Properties.Resources.MSG8, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 DialogResult = DialogResult.OK;
             }
             else
             {
-                MessageBox.Show("Ephemerisを書き込みできませんでした", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(Properties.Resources.MSG9, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 

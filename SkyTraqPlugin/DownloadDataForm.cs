@@ -11,7 +11,6 @@ namespace SkyTraqPlugin
 {
     internal partial class DownloadDataForm : Form
     {
-        private const string PORT_AUTO = "Auto";
         private SkytraqController _port;
 
         private bykIFv1.TrackItem _item;
@@ -53,7 +52,7 @@ namespace SkyTraqPlugin
             try
             {
                 string portName = this.PortName;
-                if (PORT_AUTO == portName)
+                if (Properties.Resources.PORT_AUTOSEL == portName)
                 {
                     try
                     {
@@ -63,7 +62,7 @@ namespace SkyTraqPlugin
                     catch
                     {
                         _posrts.Items.Remove(portName);
-                        MessageBox.Show("自動でポートを選択できませんでした。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        MessageBox.Show(Properties.Resources.MSG1, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         return;
                     }
                 }
@@ -92,12 +91,12 @@ namespace SkyTraqPlugin
                 if (bs.TotalSectors == bs.FreeSectors)
                 {
                     _download.Enabled = false;
-                    MessageBox.Show("ダウンロードするべきデータがありません。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(Properties.Resources.MSG3, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch(Exception ex)
             {
-                MessageBox.Show("Skytraqの接続に失敗しました\n\n" + ex.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(string.Format(Properties.Resources.MSG4, ex.Message), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -121,7 +120,7 @@ namespace SkyTraqPlugin
             try
             {
                 _posrts.BeginUpdate();
-                _posrts.Items.Add(PORT_AUTO);
+                _posrts.Items.Add(Properties.Resources.PORT_AUTOSEL);
                 foreach (string portName in System.IO.Ports.SerialPort.GetPortNames())
                 {
                     _posrts.Items.Add(portName);
@@ -133,7 +132,7 @@ namespace SkyTraqPlugin
                 }
                 else
                 {
-                    int index = _posrts.Items.IndexOf(PORT_AUTO);
+                    int index = _posrts.Items.IndexOf(Properties.Resources.PORT_AUTOSEL);
                     _posrts.SelectedIndex = index;
                 }
             }
@@ -179,7 +178,7 @@ namespace SkyTraqPlugin
         {
             List<bykIFv1.Point> points = _port.ReadLatLonData();
 
-            bykIFv1.TrackItem item = new bykIFv1.TrackItem("Skytraq Download Data", DateTime.Now);
+            bykIFv1.TrackItem item = new bykIFv1.TrackItem(Properties.Resources.DownloadData_DefaultName, DateTime.Now);
             item.Items = points;
 
             e.Result = item;
@@ -195,7 +194,7 @@ namespace SkyTraqPlugin
                 {
                     _cancel.Enabled = true;
                     _download.Enabled = true;
-                    MessageBox.Show("データはありませんでした。", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(Properties.Resources.MSG3, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     DialogResult = DialogResult.Cancel;
                 }
