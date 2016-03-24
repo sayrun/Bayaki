@@ -136,6 +136,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ExecCommandForm";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "GPSBabel.exeで一時ファイルを作成して取り込むプラグイン（なぜかCONからリダイレクトできない）";
             this.Load += new System.EventHandler(this.ExecCommandForm_Load);
