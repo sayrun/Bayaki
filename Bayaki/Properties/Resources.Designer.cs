@@ -180,6 +180,15 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
+        ///   二重起動はできません。 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG6 {
+            get {
+                return ResourceManager.GetString("MSG6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Skytraq Downloader に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SkytraqDownloader_NAME {

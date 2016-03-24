@@ -361,4 +361,7 @@ function dropMarker() {
   <data name="MSG5" xml:space="preserve">
     <value>位置情報を削除しますか？</value>
   </data>
+  <data name="MSG6" xml:space="preserve">
+    <value>二重起動はできません。</value>
+  </data>
 </root>
