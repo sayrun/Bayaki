@@ -5,8 +5,35 @@
     <Setting Name="GPSBabel_PATH" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Program Files\GPSBabel\gpsbabel.exe</Value>
     </Setting>
-    <Setting Name="GPSBabel_Param" Type="System.String" Scope="User">
+    <Setting Name="GPSBabel_Param0" Type="System.String" Scope="User">
       <Value Profile="(Default)">-w -t -i skytraq,erase=0,baud=115200,initbaud=38400,no-output=0 -f COM6</Value>
+    </Setting>
+    <Setting Name="GPSBabel_Param1" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GPSBabel_Param2" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GPSBabel_Param3" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GPSBabel_Param4" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GPSBabel_Param5" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GPSBabel_Param6" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GPSBabel_Param7" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GPSBabel_Param8" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GPSBabel_Param9" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

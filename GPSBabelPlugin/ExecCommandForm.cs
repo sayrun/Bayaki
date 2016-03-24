@@ -53,6 +53,7 @@ namespace GPSBabelPlugin
 
                 this.UseWaitCursor = true;
 
+                // 受け渡し用の一時ファイルを作成します
                 string tempFileName = System.IO.Path.GetTempFileName();
 
                 System.Diagnostics.Process p = new System.Diagnostics.Process();
@@ -92,9 +93,10 @@ namespace GPSBabelPlugin
                     System.IO.File.Delete(tempFileName);
                 }
 
-                // 設定を更新
+                // 成功していたら設定を反映させます。
+                RollParamList(_parameters.Text);
                 Properties.Settings.Default.GPSBabel_PATH = _execPath.Text;
-                Properties.Settings.Default.GPSBabel_Param = _parameters.Text;
+                Properties.Settings.Default.GPSBabel_Param0 = _parameters.Text;
                 Properties.Settings.Default.Save();
 
                 DialogResult = DialogResult.OK;
@@ -119,7 +121,51 @@ namespace GPSBabelPlugin
         private void ExecCommandForm_Load(object sender, EventArgs e)
         {
             _execPath.Text = Properties.Settings.Default.GPSBabel_PATH;
-            _parameters.Text = Properties.Settings.Default.GPSBabel_Param;
+
+            for (int index = 0; index < 10; ++index)
+            {
+                string propName = string.Format("GPSBabel_Param{0}", index);
+
+                string propValue = Properties.Settings.Default[propName] as string;
+
+                if (null == propValue) continue;
+                if (0 >= propValue.Length) continue;
+
+                _parameters.Items.Add(propValue);
+            }
+
+            _parameters.SelectedIndex = 0;
+        }
+
+        private void RollParamList( string param)
+        {
+            if (0 >= param.Length) return;
+
+            int findIndex = -1;
+            for (int index = 0; index < 10; ++index)
+            {
+                string propName = string.Format("GPSBabel_Param{0}", index);
+
+                string propValue = Properties.Settings.Default[propName] as string;
+
+                findIndex = index;
+                if (param == propValue)
+                {
+                    // 最初の項目が一致するなら更新は不要です
+                    if (0 == index) return;
+                    
+                    break;
+                }
+            }
+            // 途中が一致するなら途中の文字を先頭に移動するため、各行をずらします。
+            for (int jndex = (findIndex - 1); jndex >= 0; --jndex)
+            {
+                string propName = string.Format("GPSBabel_Param{0}", jndex);
+                string propValue = Properties.Settings.Default[propName] as string;
+
+                propName = string.Format("GPSBabel_Param{0}", jndex + 1);
+                Properties.Settings.Default[propName] = propValue;
+            }
         }
     }
 }

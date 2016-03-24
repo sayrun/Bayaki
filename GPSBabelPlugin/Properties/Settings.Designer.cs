@@ -38,12 +38,120 @@ namespace GPSBabelPlugin.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("-w -t -i skytraq,erase=0,baud=115200,initbaud=38400,no-output=0 -f COM6")]
-        public string GPSBabel_Param {
+        public string GPSBabel_Param0 {
             get {
-                return ((string)(this["GPSBabel_Param"]));
+                return ((string)(this["GPSBabel_Param0"]));
             }
             set {
-                this["GPSBabel_Param"] = value;
+                this["GPSBabel_Param0"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GPSBabel_Param1 {
+            get {
+                return ((string)(this["GPSBabel_Param1"]));
+            }
+            set {
+                this["GPSBabel_Param1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GPSBabel_Param2 {
+            get {
+                return ((string)(this["GPSBabel_Param2"]));
+            }
+            set {
+                this["GPSBabel_Param2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GPSBabel_Param3 {
+            get {
+                return ((string)(this["GPSBabel_Param3"]));
+            }
+            set {
+                this["GPSBabel_Param3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GPSBabel_Param4 {
+            get {
+                return ((string)(this["GPSBabel_Param4"]));
+            }
+            set {
+                this["GPSBabel_Param4"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GPSBabel_Param5 {
+            get {
+                return ((string)(this["GPSBabel_Param5"]));
+            }
+            set {
+                this["GPSBabel_Param5"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GPSBabel_Param6 {
+            get {
+                return ((string)(this["GPSBabel_Param6"]));
+            }
+            set {
+                this["GPSBabel_Param6"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GPSBabel_Param7 {
+            get {
+                return ((string)(this["GPSBabel_Param7"]));
+            }
+            set {
+                this["GPSBabel_Param7"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GPSBabel_Param8 {
+            get {
+                return ((string)(this["GPSBabel_Param8"]));
+            }
+            set {
+                this["GPSBabel_Param8"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GPSBabel_Param9 {
+            get {
+                return ((string)(this["GPSBabel_Param9"]));
+            }
+            set {
+                this["GPSBabel_Param9"] = value;
             }
         }
     }
