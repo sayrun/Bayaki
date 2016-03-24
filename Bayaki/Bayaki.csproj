@@ -73,6 +73,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MapControl.cs" />
     <Compile Include="NowProcessingForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -92,7 +93,6 @@
       <DependentUpon>TrackPointPreviewForm.cs</DependentUpon>
     </Compile>
     <Compile Include="UpdateJpegFile.cs" />
-    <Compile Include="MapControl.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
