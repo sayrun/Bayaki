@@ -189,6 +189,24 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
+        ///   {0}(記録開始) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG7 {
+            get {
+                return ResourceManager.GetString("MSG7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   {0}(記録終了) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG8 {
+            get {
+                return ResourceManager.GetString("MSG8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Skytraq Downloader に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SkytraqDownloader_NAME {

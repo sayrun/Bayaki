@@ -28,27 +28,27 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this._routePreview = new System.Windows.Forms.WebBrowser();
+            this._mapView = new System.Windows.Forms.WebBrowser();
             this.SuspendLayout();
             // 
-            // _routePreview
+            // _mapView
             // 
-            this._routePreview.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._routePreview.Location = new System.Drawing.Point(0, 0);
-            this._routePreview.MinimumSize = new System.Drawing.Size(20, 20);
-            this._routePreview.Name = "_routePreview";
-            this._routePreview.ScrollBarsEnabled = false;
-            this._routePreview.Size = new System.Drawing.Size(893, 538);
-            this._routePreview.TabIndex = 0;
-            this._routePreview.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._routePreview_DocumentCompleted);
-            this._routePreview.SizeChanged += new System.EventHandler(this._routePreview_SizeChanged);
+            this._mapView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._mapView.Location = new System.Drawing.Point(0, 0);
+            this._mapView.MinimumSize = new System.Drawing.Size(20, 20);
+            this._mapView.Name = "_mapView";
+            this._mapView.ScrollBarsEnabled = false;
+            this._mapView.Size = new System.Drawing.Size(893, 538);
+            this._mapView.TabIndex = 0;
+            this._mapView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._routePreview_DocumentCompleted);
+            this._mapView.SizeChanged += new System.EventHandler(this._routePreview_SizeChanged);
             // 
             // TrackPointPreviewForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(893, 538);
-            this.Controls.Add(this._routePreview);
+            this.Controls.Add(this._mapView);
             this.Name = "TrackPointPreviewForm";
             this.Text = "TrackPointPreviewForm";
             this.Load += new System.EventHandler(this.TrackPointPreviewForm_Load);
@@ -58,6 +58,6 @@
 
         #endregion
 
-        private System.Windows.Forms.WebBrowser _routePreview;
+        private System.Windows.Forms.WebBrowser _mapView;
     }
 }

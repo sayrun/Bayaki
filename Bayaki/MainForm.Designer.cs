@@ -43,7 +43,7 @@
             this._removeLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._addLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._rematchingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._previewMap = new System.Windows.Forms.WebBrowser();
+            this._mapView = new System.Windows.Forms.WebBrowser();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this._locationSources = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -201,7 +201,7 @@
             // 
             // splitContainer2.Panel2
             // 
-            this.splitContainer2.Panel2.Controls.Add(this._previewMap);
+            this.splitContainer2.Panel2.Controls.Add(this._mapView);
             this.splitContainer2.Size = new System.Drawing.Size(877, 186);
             this.splitContainer2.SplitterDistance = 494;
             this.splitContainer2.TabIndex = 0;
@@ -224,20 +224,20 @@
             this._addLocationToolStripMenuItem,
             this._rematchingToolStripMenuItem});
             this._previewImageContextMenu.Name = "_previewImageContextMenu";
-            this._previewImageContextMenu.Size = new System.Drawing.Size(161, 70);
+            this._previewImageContextMenu.Size = new System.Drawing.Size(159, 70);
             this._previewImageContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._previewImageContextMenu_Opening);
             // 
             // _removeLocationToolStripMenuItem
             // 
             this._removeLocationToolStripMenuItem.Name = "_removeLocationToolStripMenuItem";
-            this._removeLocationToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this._removeLocationToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this._removeLocationToolStripMenuItem.Text = "位置情報削除...";
             this._removeLocationToolStripMenuItem.Click += new System.EventHandler(this._removeLocationToolStripMenuItem_Click);
             // 
             // _addLocationToolStripMenuItem
             // 
             this._addLocationToolStripMenuItem.Name = "_addLocationToolStripMenuItem";
-            this._addLocationToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this._addLocationToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this._addLocationToolStripMenuItem.Text = "位置情報追加";
             this._addLocationToolStripMenuItem.Click += new System.EventHandler(this._addLocationToolStripMenuItem_Click);
             // 
@@ -245,22 +245,22 @@
             // 
             this._rematchingToolStripMenuItem.Enabled = false;
             this._rematchingToolStripMenuItem.Name = "_rematchingToolStripMenuItem";
-            this._rematchingToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this._rematchingToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this._rematchingToolStripMenuItem.Text = "位置情報再検索";
             // 
-            // _previewMap
+            // _mapView
             // 
-            this._previewMap.AllowWebBrowserDrop = false;
-            this._previewMap.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._previewMap.IsWebBrowserContextMenuEnabled = false;
-            this._previewMap.Location = new System.Drawing.Point(0, 0);
-            this._previewMap.MinimumSize = new System.Drawing.Size(20, 20);
-            this._previewMap.Name = "_previewMap";
-            this._previewMap.ScrollBarsEnabled = false;
-            this._previewMap.Size = new System.Drawing.Size(379, 186);
-            this._previewMap.TabIndex = 0;
-            this._previewMap.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._previewMap_DocumentCompleted);
-            this._previewMap.SizeChanged += new System.EventHandler(this._previewMap_SizeChanged);
+            this._mapView.AllowWebBrowserDrop = false;
+            this._mapView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._mapView.IsWebBrowserContextMenuEnabled = false;
+            this._mapView.Location = new System.Drawing.Point(0, 0);
+            this._mapView.MinimumSize = new System.Drawing.Size(20, 20);
+            this._mapView.Name = "_mapView";
+            this._mapView.ScrollBarsEnabled = false;
+            this._mapView.Size = new System.Drawing.Size(379, 186);
+            this._mapView.TabIndex = 0;
+            this._mapView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._previewMap_DocumentCompleted);
+            this._mapView.SizeChanged += new System.EventHandler(this._previewMap_SizeChanged);
             // 
             // tabPage2
             // 
@@ -333,13 +333,13 @@
             this.toolStripSeparator2,
             this._deleteTrackItem});
             this._locationContextMenu.Name = "_locationContextMenu";
-            this._locationContextMenu.Size = new System.Drawing.Size(137, 148);
+            this._locationContextMenu.Size = new System.Drawing.Size(132, 148);
             this._locationContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationContextMenu_Opening);
             // 
             // _renameTarckItem
             // 
             this._renameTarckItem.Name = "_renameTarckItem";
-            this._renameTarckItem.Size = new System.Drawing.Size(136, 22);
+            this._renameTarckItem.Size = new System.Drawing.Size(131, 22);
             this._renameTarckItem.Text = "名称変更...";
             this._renameTarckItem.Click += new System.EventHandler(this._renameTarckItem_Click);
             // 
@@ -350,13 +350,13 @@
             this._exportCSV,
             this._exportKML});
             this._exportTrackItem.Name = "_exportTrackItem";
-            this._exportTrackItem.Size = new System.Drawing.Size(136, 22);
+            this._exportTrackItem.Size = new System.Drawing.Size(131, 22);
             this._exportTrackItem.Text = "出力...";
             // 
             // _exportGPX
             // 
             this._exportGPX.Name = "_exportGPX";
-            this._exportGPX.Size = new System.Drawing.Size(101, 22);
+            this._exportGPX.Size = new System.Drawing.Size(98, 22);
             this._exportGPX.Text = "GPX";
             this._exportGPX.Click += new System.EventHandler(this._export_Click);
             // 
@@ -364,7 +364,7 @@
             // 
             this._exportCSV.Enabled = false;
             this._exportCSV.Name = "_exportCSV";
-            this._exportCSV.Size = new System.Drawing.Size(101, 22);
+            this._exportCSV.Size = new System.Drawing.Size(98, 22);
             this._exportCSV.Text = "CSV";
             this._exportCSV.Click += new System.EventHandler(this._export_Click);
             // 
@@ -372,7 +372,7 @@
             // 
             this._exportKML.Enabled = false;
             this._exportKML.Name = "_exportKML";
-            this._exportKML.Size = new System.Drawing.Size(101, 22);
+            this._exportKML.Size = new System.Drawing.Size(98, 22);
             this._exportKML.Text = "KML";
             this._exportKML.Click += new System.EventHandler(this._export_Click);
             // 
@@ -380,38 +380,38 @@
             // 
             this._routePreview.Font = new System.Drawing.Font("メイリオ", 9F, System.Drawing.FontStyle.Bold);
             this._routePreview.Name = "_routePreview";
-            this._routePreview.Size = new System.Drawing.Size(136, 22);
+            this._routePreview.Size = new System.Drawing.Size(131, 22);
             this._routePreview.Text = "道順表示";
             this._routePreview.Click += new System.EventHandler(this._routePreview_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(133, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(128, 6);
             // 
             // _upPriority
             // 
             this._upPriority.Name = "_upPriority";
-            this._upPriority.Size = new System.Drawing.Size(136, 22);
+            this._upPriority.Size = new System.Drawing.Size(131, 22);
             this._upPriority.Text = "上へ";
             this._upPriority.Click += new System.EventHandler(this._upPriority_Click);
             // 
             // _downPriority
             // 
             this._downPriority.Name = "_downPriority";
-            this._downPriority.Size = new System.Drawing.Size(136, 22);
+            this._downPriority.Size = new System.Drawing.Size(131, 22);
             this._downPriority.Text = "下へ";
             this._downPriority.Click += new System.EventHandler(this._downPriority_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(133, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(128, 6);
             // 
             // _deleteTrackItem
             // 
             this._deleteTrackItem.Name = "_deleteTrackItem";
-            this._deleteTrackItem.Size = new System.Drawing.Size(136, 22);
+            this._deleteTrackItem.Size = new System.Drawing.Size(131, 22);
             this._deleteTrackItem.Text = "削除...";
             this._deleteTrackItem.Click += new System.EventHandler(this._deleteTrackItem_Click);
             // 
@@ -432,25 +432,25 @@
             this.toolStripSeparator3,
             this.removeToolStripMenuItem});
             this._locationToolbarContextMenu.Name = "_locationToolbarContextMenu";
-            this._locationToolbarContextMenu.Size = new System.Drawing.Size(173, 54);
+            this._locationToolbarContextMenu.Size = new System.Drawing.Size(151, 54);
             this._locationToolbarContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationToolbarContextMenu_Opening);
             // 
             // addToolStripMenuItem
             // 
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.addToolStripMenuItem.Text = "プラグイン追加...";
             this.addToolStripMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(169, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(147, 6);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.removeToolStripMenuItem.Text = "プラグイン削除...";
             // 
             // MainForm
@@ -499,7 +499,7 @@
         private System.Windows.Forms.ColumnHeader columnHeader4;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.PictureBox _previewImage;
-        private System.Windows.Forms.WebBrowser _previewMap;
+        private System.Windows.Forms.WebBrowser _mapView;
         private System.Windows.Forms.Label _dropCover;
         private System.Windows.Forms.ImageList _targetsImage;
         private System.Windows.Forms.ContextMenuStrip _locationContextMenu;

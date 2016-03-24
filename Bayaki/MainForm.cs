@@ -21,7 +21,7 @@ namespace Bayaki
         private List<TrackItemSummary> _locations;
         private List<JPEGFileItem> _images;
         private List<string> _pluginPath;
-        private WebBrowserObserver _observer;
+        private MapControl _previewMap;
 
         private Color TRANS_COLOR = Color.White;
 
@@ -59,11 +59,10 @@ namespace Bayaki
             // ツールバーにGPS情報取得プラグインを追加する
             AddToolbar(new GPXLoaderv1());
             AddToolbar(new KMLLoaderv1());
- 
+
             // 地図情報をJavascriptからもらう        
-            _observer = new WebBrowserObserver();
-            _observer.OnMakerDrag += _observer_OnMakerDrag;
-            _previewMap.ObjectForScripting = _observer;
+            _previewMap = new MapControl(_mapView);
+            _previewMap.OnMakerDrag += _observer_OnMakerDrag;
 
             // 自分自身のAssemblyを取得
             System.Reflection.Assembly asm = System.Reflection.Assembly.GetExecutingAssembly();
@@ -130,13 +129,6 @@ namespace Bayaki
         private void Initialize()
         {
             TrackItemSummary.SavePath = _workPath;
-#if _MAP_YAHOO
-            _previewMap.DocumentText = Properties.Resources.yahoomapsHTML;
-#else
-#if _MAP_GOOGLE
-            _previewMap.DocumentText = Properties.Resources.googlemapsHTML;
-#endif
-#endif
 
             UpdateLocationList();
         }
@@ -431,7 +423,7 @@ namespace Bayaki
             if (0 >= lv.SelectedItems.Count)
             {
                 _previewImage.Image = null;
-                _previewMap.Document.InvokeScript("resetMarker");
+                _previewMap.resetMarker();
                 return;
             }
 
@@ -463,17 +455,17 @@ namespace Bayaki
 
             if (null != jpegItem.NewLocation)
             {
-                _previewMap.Document.InvokeScript("movePos", new object[] { jpegItem.NewLocation.Latitude, jpegItem.NewLocation.Longitude });
+                _previewMap.movePos(jpegItem.NewLocation.Latitude, jpegItem.NewLocation.Longitude);
             }
             else
             {
                 if (null != jpegItem.CurrentLocation)
                 {
-                    _previewMap.Document.InvokeScript("movePos", new object[] { jpegItem.CurrentLocation.Latitude, jpegItem.CurrentLocation.Longitude });
+                    _previewMap.movePos(jpegItem.CurrentLocation.Latitude, jpegItem.CurrentLocation.Longitude);
                 }
                 else
                 {
-                    _previewMap.Document.InvokeScript("resetMarker");
+                    _previewMap.resetMarker();
                 }
             }
         }
@@ -749,13 +741,13 @@ namespace Bayaki
 
         private void _previewMap_SizeChanged(object sender, EventArgs e)
         {
-            _previewMap.Document.InvokeScript("resizeMap");
+            _previewMap.resizeMap();
         }
 
         private void _previewMap_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             // 初期化してあげます
-            _previewMap.Document.InvokeScript("Initialize");
+            _previewMap.Initialize();
         }
 
         private void _previewImageContextMenu_Opening(object sender, CancelEventArgs e)
@@ -804,7 +796,7 @@ namespace Bayaki
 
                 jpegItem.RemoveLocation();
 
-                _previewMap.Document.InvokeScript("resetMarker");
+                _previewMap.resetMarker();
 
                 item.Checked = true;
                 item.ForeColor = Color.Black;
@@ -813,7 +805,7 @@ namespace Bayaki
 
         private void _addLocationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _previewMap.Document.InvokeScript("dropMarker");
+            _previewMap.dropMarker();
         }
 
         private void _locationContextMenu_Opening(object sender, CancelEventArgs e)

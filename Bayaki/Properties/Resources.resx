@@ -364,4 +364,10 @@ function dropMarker() {
   <data name="MSG6" xml:space="preserve">
     <value>二重起動はできません。</value>
   </data>
+  <data name="MSG7" xml:space="preserve">
+    <value>{0}(記録開始)</value>
+  </data>
+  <data name="MSG8" xml:space="preserve">
+    <value>{0}(記録終了)</value>
+  </data>
 </root>
