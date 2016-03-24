@@ -32,6 +32,9 @@ namespace MapControlLibrary
             base.ObjectForScripting = this;
         }
 
+        /// <summary>
+        /// マップサービスの提供元を選択
+        /// </summary>
         public MapProvider Provider
         {
             get
