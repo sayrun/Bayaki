@@ -175,6 +175,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SetEphemerisForm";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "エフェメリス更新";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SetEphemerisForm_FormClosed);

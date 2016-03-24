@@ -223,6 +223,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ConfiurationForm";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "設定変更";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ConfiurationForm_FormClosed);
