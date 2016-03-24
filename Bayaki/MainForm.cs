@@ -64,6 +64,13 @@ namespace Bayaki
             _observer = new WebBrowserObserver();
             _observer.OnMakerDrag += _observer_OnMakerDrag;
             _previewMap.ObjectForScripting = _observer;
+
+            // 自分自身のAssemblyを取得
+            System.Reflection.Assembly asm = System.Reflection.Assembly.GetExecutingAssembly();
+            // バージョンの取得
+            System.Version ver = asm.GetName().Version;
+            // バージョン番号を表示
+            this.Text = string.Format("{0} - Ver.{1}", this.Text, ver.ToString());
         }
 
         private void _observer_OnMakerDrag(double lat, double lon)
@@ -502,6 +509,9 @@ namespace Bayaki
 
             _locations.Remove(summary);
             _locations.Insert(index - 1, summary);
+
+            UpdateLocationList();
+            SerializeLocationList();
         }
 
         private void _downPriority_Click(object sender, EventArgs e)
@@ -514,10 +524,13 @@ namespace Bayaki
             if (null == summary) return;
 
             int index = _locations.IndexOf(summary);
-            if (_locations.Count >= index) return;
+            if (_locations.Count <= index) return;
 
             _locations.Remove(summary);
             _locations.Insert(index + 1, summary);
+
+            UpdateLocationList();
+            SerializeLocationList();
         }
 
         private void _update_Click(object sender, EventArgs e)
