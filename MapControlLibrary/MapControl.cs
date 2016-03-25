@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Data;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MapControlLibrary
@@ -24,39 +23,39 @@ namespace MapControlLibrary
         };
 
         private MapProvider _provider;
+        private bool _documentComplated;
 
         public MapControl()
         {
             InitializeComponent();
 
             base.ObjectForScripting = this;
+            _documentComplated = false;
         }
 
-        /// <summary>
-        /// マップサービスの提供元を選択
-        /// </summary>
+        public void Show( MapProvider provider, string key)
+        {
+            _documentComplated = false;
+            _provider = provider;
+            switch (_provider)
+            {
+                case MapProvider.GOOGLE:
+                    base.DocumentText = Properties.Resources.googlemapsHTML.Replace( "[[KEY]]", key);
+                    break;
+                case MapProvider.YAHOO:
+                    base.DocumentText = Properties.Resources.yahoomapsHTML.Replace("[[KEY]]", key);
+                    break;
+                default:
+                    new Exception("不正なプロバイダです");
+                    return;
+            }
+        }
+
         public MapProvider Provider
         {
             get
             {
                 return _provider;
-            }
-            set
-            {
-                _provider = value;
-
-                switch (_provider)
-                {
-                    case MapProvider.GOOGLE:
-                        base.DocumentText = Properties.Resources.googlemapsHTML;
-                        break;
-                    case MapProvider.YAHOO:
-                        base.DocumentText = Properties.Resources.yahoomapsHTML;
-                        break;
-                    default:
-                        new Exception("不正なプロバイダです");
-                        return;
-                }
             }
         }
 
@@ -86,6 +85,7 @@ namespace MapControlLibrary
         public void Initialize()
         {
             this.Document.InvokeScript("Initialize");
+            _documentComplated = true;
         }
 
         public void dropMarker()
@@ -122,6 +122,22 @@ namespace MapControlLibrary
         public void drawPolyline()
         {
             this.Document.InvokeScript("drawPolyline");
+        }
+
+        protected override void OnDocumentCompleted(WebBrowserDocumentCompletedEventArgs e)
+        {
+            this.Initialize();
+
+            base.OnDocumentCompleted(e);
+        }
+
+        protected override void OnRegionChanged(EventArgs e)
+        {
+            if (_documentComplated)
+            {
+                this.resizeMap();
+            }
+            base.OnRegionChanged(e);
         }
     }
 }

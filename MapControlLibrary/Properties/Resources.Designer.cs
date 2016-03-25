@@ -62,7 +62,7 @@ namespace MapControlLibrary.Properties {
         
         /// <summary>
         ///   &lt;html&gt;
-        ///&lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.google.com/maps/api/js?key=AIzaSyDlepDvnD6x9Fkm-5l9IfqiH12kZiiO78g&amp;sensor=false&amp;v=3.22&quot;&gt;&lt;/script&gt;
+        ///&lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.google.com/maps/api/js?key=[[KEY]]&amp;sensor=false&amp;v=3.22&quot;&gt;&lt;/script&gt;
         ///&lt;script type=&quot;text/javascript&quot;&gt;
         ///var map;
         ///var marker = null;
@@ -78,7 +78,9 @@ namespace MapControlLibrary.Properties {
         ///			zoom: 14,
         ///			center: latlng,
         ///			streetViewControl: false,
-        ///			mapTypeId: google.maps.MapTypeId.ROADMAP        /// [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///			mapTypeId: google.maps.MapTypeId.ROADMAP
+        ///		};
+        ///	map = new google.maps.Ma [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string googlemapsHTML {
             get {
@@ -88,7 +90,7 @@ namespace MapControlLibrary.Properties {
         
         /// <summary>
         ///   &lt;html&gt;
-        ///&lt;script src=&quot;http://js.api.olp.yahooapis.jp/OpenLocalPlatform/V1/jsapi?appid=dj0zaiZpPUpJRmx2aEp4RUwyMyZzPWNvbnN1bWVyc2VjcmV0Jng9MDM-&quot; type=&quot;text/javascript&quot;  charset=&quot;UTF-8&quot; &gt;&lt;/script&gt;
+        ///&lt;script src=&quot;http://js.api.olp.yahooapis.jp/OpenLocalPlatform/V1/jsapi?appid=[[KEY]]&quot; type=&quot;text/javascript&quot;  charset=&quot;UTF-8&quot; &gt;&lt;/script&gt;
         ///&lt;script type=&quot;text/javascript&quot;&gt;
         ///var map;
         ///var marker = null;
@@ -100,7 +102,10 @@ namespace MapControlLibrary.Properties {
         ///    map = new Y.Map(&quot;Ymap&quot;);
         ///    map.addControl( new Y.SliderZoomControl() );
         ///    map.addControl( new Y.LayerSetControl() );
-        ///    map.drawMap(new Y.LatLng(34.784167, 135 [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///    map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
+        ///}
+        ///
+        ///functio [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string yahoomapsHTML {
             get {
