@@ -37,12 +37,10 @@
             this._mapView.Location = new System.Drawing.Point(0, 0);
             this._mapView.MinimumSize = new System.Drawing.Size(20, 20);
             this._mapView.Name = "_mapView";
-            this._mapView.Provider = MapControlLibrary.MapControl.MapProvider.YAHOO;
             this._mapView.ScrollBarsEnabled = false;
             this._mapView.Size = new System.Drawing.Size(893, 538);
             this._mapView.TabIndex = 0;
-            this._mapView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._routePreview_DocumentCompleted);
-            this._mapView.SizeChanged += new System.EventHandler(this._routePreview_SizeChanged);
+            this._mapView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._mapView_DocumentCompleted);
             // 
             // TrackPointPreviewForm
             // 

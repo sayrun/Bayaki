@@ -114,7 +114,6 @@ namespace Bayaki
                 // 保存すべきものがない場合削除します
                 File.Delete(plugins);
             }
-
         }
 
         protected override void OnLoad(EventArgs e)
@@ -127,6 +126,14 @@ namespace Bayaki
         private void Initialize()
         {
             TrackItemSummary.SavePath = _workPath;
+
+#if _MAP_GOOGLE
+            _mapView.Show(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
+#else
+#if _MAP_YAHOO
+            _mapView.Show(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
+#endif
+#endif
 
             UpdateLocationList();
         }
@@ -735,17 +742,6 @@ namespace Bayaki
             TrackPointPreviewForm tpf = new TrackPointPreviewForm(trackItem);
 
             tpf.Show(this);
-        }
-
-        private void _previewMap_SizeChanged(object sender, EventArgs e)
-        {
-            _mapView.resizeMap();
-        }
-
-        private void _previewMap_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-        {
-            // 初期化してあげます
-            _mapView.Initialize();
         }
 
         private void _previewImageContextMenu_Opening(object sender, CancelEventArgs e)

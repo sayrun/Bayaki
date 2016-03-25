@@ -24,12 +24,19 @@ namespace Bayaki
         private void TrackPointPreviewForm_Load(object sender, EventArgs e)
         {
             this.Text = _trackItem.Name;
+
+#if _MAP_GOOGLE
+            _mapView.Show(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
+#else
+#if _MAP_YAHOO
+            _mapView.Show(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
+#endif
+#endif
         }
 
-        private void _routePreview_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        private void _mapView_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             // 初期化してあげます
-            _mapView.Initialize();
             _mapView.clearPoint();
 
             // パス情報を追加していきます
@@ -61,11 +68,6 @@ namespace Bayaki
 
             // 描画を実行します。
             _mapView.drawPolyline();
-        }
-
-        private void _routePreview_SizeChanged(object sender, EventArgs e)
-        {
-            _mapView.resizeMap();
         }
     }
 }

@@ -90,6 +90,24 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
+        ///   AIzaSyDlepDvnD6x9Fkm-5l9IfqiH12kZiiO78g に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string KEY_GOOGLE {
+            get {
+                return ResourceManager.GetString("KEY_GOOGLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   dj0zaiZpPUpJRmx2aEp4RUwyMyZzPWNvbnN1bWVyc2VjcmV0Jng9MDM- に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string KEY_YAHOO {
+            get {
+                return ResourceManager.GetString("KEY_YAHOO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   型 System.Drawing.Bitmap のローカライズされたリソースを検索します。
         /// </summary>
         internal static System.Drawing.Bitmap KMLLoader_ICON {

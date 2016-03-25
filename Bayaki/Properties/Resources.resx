@@ -160,4 +160,10 @@
   <data name="MSG8" xml:space="preserve">
     <value>{0}(記録終了)</value>
   </data>
+  <data name="KEY_GOOGLE" xml:space="preserve">
+    <value>AIzaSyDlepDvnD6x9Fkm-5l9IfqiH12kZiiO78g</value>
+  </data>
+  <data name="KEY_YAHOO" xml:space="preserve">
+    <value>dj0zaiZpPUpJRmx2aEp4RUwyMyZzPWNvbnN1bWVyc2VjcmV0Jng9MDM-</value>
+  </data>
 </root>
