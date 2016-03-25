@@ -30,6 +30,8 @@ namespace Bayaki
 #else
 #if _MAP_YAHOO
             _mapView.Show(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
+#else
+#error      コンパイルオプションとして対象のマッププロバイダを設定してください。
 #endif
 #endif
         }
