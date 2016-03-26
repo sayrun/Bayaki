@@ -16,7 +16,7 @@ namespace Bayaki
         public readonly DateTime To;
         public readonly int PointCount;
         public readonly string Description;
-        public string Name;
+        public string _name;
 
         private string _saveFileName;
 
@@ -41,10 +41,42 @@ namespace Bayaki
 
             Description = track.Description;
 
-            Name = track.Name;
+            _name = track.Name;
             _item = track;
 
             _saveFileName = string.Empty;
+        }
+
+        public string Name
+        {
+            get
+            {
+                return _name;
+            }
+            set
+            {
+                if (this._name != value)
+                {
+                    this._name = value;
+
+                    bykIFv1.TrackItem item = this.TrackItem;
+                    item.Name = value;
+
+                    // ファイル名が設定されているなら更新が必要
+                    if (0  < _saveFileName.Length)
+                    {
+                        // 名前を更新します。
+                        using (Stream stream = new FileStream(Path.Combine(_savePath, _saveFileName), FileMode.Open))
+                        {
+                            using (TrackItemWriter tiw = new TrackItemWriter(stream))
+                            {
+                                // 保存します
+                                tiw.Write(_item);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void SafeTrackItem()
@@ -99,7 +131,7 @@ namespace Bayaki
 
             Description = track.Description;
 
-            Name = track.Name;
+            _name = track.Name;
             _item = track;
 
             _saveFileName = filePath;
@@ -144,7 +176,7 @@ namespace Bayaki
             PointCount = info.GetInt32("PointCount");
             From = info.GetDateTime("From");
             To = info.GetDateTime("To");
-            Name = info.GetString("Name");
+            _name = info.GetString("Name");
             Description = info.GetString("Description");
             _saveFileName = info.GetString("saveFileName");
         }
@@ -161,7 +193,7 @@ namespace Bayaki
             info.AddValue("PointCount", PointCount);
             info.AddValue("From", From);
             info.AddValue("To", To);
-            info.AddValue("Name", Name);
+            info.AddValue("Name", _name);
             info.AddValue("Description", Description);
             info.AddValue("saveFileName", _saveFileName);
         }
@@ -193,7 +225,7 @@ namespace Bayaki
                     _item = tir.Read();
 
                     // 変更された名前を設定する
-                    _item.Name = this.Name;
+                    _item.Name = this._name;
                 }
             }
         }
@@ -256,7 +288,7 @@ namespace Bayaki
 
         public ListViewItem GetListViewItem()
         {
-            ListViewItem viewItem = new ListViewItem(Name);
+            ListViewItem viewItem = new ListViewItem(_name);
             viewItem.SubItems.Add(From.ToString("yyyy/MM/dd HH:mm:ss"));
             viewItem.SubItems.Add(To.ToString("yyyy/MM/dd HH:mm:ss"));
             viewItem.SubItems.Add(PointCount.ToString());

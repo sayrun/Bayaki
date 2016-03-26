@@ -18,13 +18,12 @@ namespace Bayaki
     public partial class MainForm : Form
     {
         private string _workPath;
-        private List<TrackItemSummary> _locations;
         private List<JPEGFileItem> _images;
         private List<string> _pluginPath;
+        private TrackItemBag _trackItemBag;
 
         private Color TRANS_COLOR = Color.White;
 
-        private const int MAX_TIMEDIFF = (60 * 20); // 根拠ないけど、20分以上差異があれば採用しない
 
         private const string DIRECTORY_DATAFOLDER = "Bayaki Folder";
 
@@ -50,9 +49,9 @@ namespace Bayaki
 
             // データ保存用フォルダを作成
             _workPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), DIRECTORY_DATAFOLDER);
+            _trackItemBag = new TrackItemBag(_workPath);
             TrackItemSummary.SavePath = _workPath;
 
-            _locations = null;
             _images = new List<JPEGFileItem>();
             _pluginPath = new List<string>();
 
@@ -134,9 +133,8 @@ namespace Bayaki
                 _locationSources.BeginUpdate();
                 _locationSources.Items.Clear();
 
-                foreach( TrackItemSummary track in _locations)
+                foreach(ListViewItem viewItem in _trackItemBag.GetListViewItems())
                 {
-                    ListViewItem viewItem = track.GetListViewItem();
                     _locationSources.Items.Add(viewItem);
                 }
             }
@@ -173,13 +171,15 @@ namespace Bayaki
                 System.Diagnostics.Debug.Print(string.Format("create:{1} name:{0}", track.Name, track.CreateTime));
 
                 TrackItemSummary summary = new TrackItemSummary(track);
-                _locations.Add(summary);
+                _trackItemBag.AddItem(summary);
                 blNewTracks = true;
             }
 
             if (blNewTracks)
             {
-                SerializeLocationList();
+                // データが変化したので保存します。
+                _trackItemBag.Save();
+                // 画面を更新します
                 UpdateLocationList();
 
                 // 読み込んでいるイメージに対して再度位置情報のマッチングを実施する
@@ -194,7 +194,7 @@ namespace Bayaki
                 JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
                 if (null == jpegItem) continue;
 
-                jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
+                jpegItem.NewLocation = _trackItemBag.FindPoint(jpegItem.DateTimeOriginal);
                 if( null != jpegItem.NewLocation)
                 {
                     item.Checked = true;
@@ -209,27 +209,6 @@ namespace Bayaki
                     }
                 }
             }
-        }
-
-        private void SerializeLocationList()
-        {
-            // 新しいリストが追加されたので、保存します。
-            string locations = System.IO.Path.Combine(_workPath, "BayakiSummary.dat");
-
-            if (0 < _locations.Count)
-            {
-                using (var stream = new FileStream(locations, FileMode.Create))
-                {
-                    BinaryFormatter bf = new BinaryFormatter();
-                    bf.Serialize(stream, _locations);
-                }
-            }
-            else
-            {
-                // 保存すべきものがない場合削除します
-                File.Delete(locations);
-            }
-
         }
 
         private void _dropCover_DragEnter(object sender, DragEventArgs e)
@@ -251,46 +230,6 @@ namespace Bayaki
                         }
                     }
                 }
-            }
-        }
-
-        private bykIFv1.Point FindPoint(DateTime dt)
-        {
-
-            List<bykIFv1.Point> points = new List<bykIFv1.Point>();
-            // 総当たりで位置情報を取得
-            foreach (TrackItemSummary summary in _locations)
-            {
-                if (summary.IsContein(dt))
-                {
-                    points.Add(summary.GetPoint(dt));
-                }
-            }
-
-            if( 1 == points.Count)
-            {
-                return points[0];
-            }
-            else
-            {
-                // 比較用にUTCにする
-                DateTime utcdt = dt.Subtract(System.TimeZoneInfo.Local.GetUtcOffset(dt));
-                // 複数の結果が得られたら、より時間の小さいほう
-                bykIFv1.Point result = null;
-                double diff = 0;
-                double diffOld = double.MaxValue;
-                foreach(bykIFv1.Point pnt in points)
-                {
-                    TimeSpan s = pnt.Time - utcdt;
-                    diff = Math.Abs(s.TotalSeconds);
-                    if (diff >= MAX_TIMEDIFF) continue;
-                    if( diffOld > diff)
-                    {
-                        result = pnt;
-                        diffOld = diff;
-                    }
-                }
-                return result;
             }
         }
 
@@ -337,7 +276,7 @@ namespace Bayaki
                         JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
                         if (null != jpegItem)
                         {
-                            jpegItem.NewLocation = FindPoint(jpegItem.DateTimeOriginal);
+                            jpegItem.NewLocation = _trackItemBag.FindPoint(jpegItem.DateTimeOriginal);
                             if (null != jpegItem.NewLocation)
                             {
                                 item.Checked = true;
@@ -465,10 +404,9 @@ namespace Bayaki
                 if (null == summary) continue;
 
                 _locationSources.Items.Remove(item);
-                _locations.Remove(summary);
-                summary.Remove();
+                _trackItemBag.RemoveItem(summary);
             }
-            SerializeLocationList();
+            _trackItemBag.Save();
         }
 
         private void _upPriority_Click(object sender, EventArgs e)
@@ -480,14 +418,10 @@ namespace Bayaki
 
             if (null == summary) return;
 
-            int index = _locations.IndexOf(summary);
-            if (0 >= index) return;
+            _trackItemBag.Up(summary);
 
-            _locations.Remove(summary);
-            _locations.Insert(index - 1, summary);
-
+            _trackItemBag.Save();
             UpdateLocationList();
-            SerializeLocationList();
         }
 
         private void _downPriority_Click(object sender, EventArgs e)
@@ -499,14 +433,10 @@ namespace Bayaki
 
             if (null == summary) return;
 
-            int index = _locations.IndexOf(summary);
-            if (_locations.Count <= index) return;
+            _trackItemBag.Down(summary);
 
-            _locations.Remove(summary);
-            _locations.Insert(index + 1, summary);
-
+            _trackItemBag.Save();
             UpdateLocationList();
-            SerializeLocationList();
         }
 
         private void _update_Click(object sender, EventArgs e)
@@ -713,7 +643,8 @@ namespace Bayaki
                     return;
                 }
                 trackItem.Name = e.Label;
-                SerializeLocationList();
+
+                _trackItemBag.Save();
 
             }
         }
@@ -824,38 +755,18 @@ namespace Bayaki
                 System.IO.Directory.CreateDirectory(_workPath);
             }
 
-            // 場所情報のサマリーを取得する
-            string locations = System.IO.Path.Combine(_workPath, "BayakiSummary.dat");
-            if (File.Exists(locations))
+            try
             {
-                try
-                {
-                    using (var stream = new FileStream(locations, FileMode.Open))
-                    {
-                        BinaryFormatter bf = new BinaryFormatter();
-                        _locations = bf.Deserialize(stream) as List<TrackItemSummary>;
-                    }
-                }
-                catch( Exception ex)
-                {
-                    MessageBox.Show(string.Format(Properties.Resources.MSG10, ex.Message), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Application.Exit();
-                    return;
-                }
+                // 場所情報のサマリーを取得する
+                _trackItemBag.Load();
             }
-            else
+            catch( Exception ex)
             {
-                // ファイルがないけど、リカバリーを試みよう
-                _locations = TrackItemSummary.RecoveryRead();
-                if (0 < _locations.Count)
-                {
-                    SerializeLocationList();
-                }
+                MessageBox.Show(string.Format(Properties.Resources.MSG10, ex.Message), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Application.Exit();
+                return;
             }
-            if (null == _locations)
-            {
-                _locations = new List<TrackItemSummary>();
-            }
+            // 表示する
             UpdateLocationList();
 
             // プラグインの情報を読み出し
@@ -881,7 +792,7 @@ namespace Bayaki
                 catch
                 {
                     // 読み出せないよ？
-                    File.Delete(locations);
+                    File.Delete(plugins);
                 }
             }
         }
