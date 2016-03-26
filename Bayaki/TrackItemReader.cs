@@ -49,7 +49,7 @@ namespace Bayaki
                             DateTime dt;
                             if (DateTime.TryParse(sTime, out dt))
                             {
-                                createTime = dt;
+                                createTime = dt.ToUniversalTime();
                             }
                         }
                         else if (0 == string.Compare(_xmlReader.Name, "name", true))
