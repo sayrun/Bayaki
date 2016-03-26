@@ -169,4 +169,7 @@
   <data name="MSG9" xml:space="preserve">
     <value>選択されたプラグインはインストール済みです。</value>
   </data>
+  <data name="MSG10" xml:space="preserve">
+    <value>位置情報元の保存ファイルを読み込めませんでした。\n再起動して解決しない場合はマイドキュメント フォルダにある「Bayaki Folder\BayakiSummary.dat」を削除してから再起動してみてください。。\n\n理由：\n{0}</value>
+  </data>
 </root>

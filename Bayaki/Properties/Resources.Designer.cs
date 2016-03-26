@@ -136,6 +136,15 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
+        ///   位置情報元の保存ファイルを読み込めませんでした。\n再起動して解決しない場合はマイドキュメント フォルダにある「Bayaki Folder\BayakiSummary.dat」を削除してから再起動してみてください。。\n\n理由：\n{0} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG10 {
+            get {
+                return ResourceManager.GetString("MSG10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   plugin[{0}]でエラーが発生しました。\n\n詳細\n{1} に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string MSG2 {

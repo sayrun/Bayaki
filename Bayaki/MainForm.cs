@@ -50,6 +50,7 @@ namespace Bayaki
 
             // データ保存用フォルダを作成
             _workPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), DIRECTORY_DATAFOLDER);
+            TrackItemSummary.SavePath = _workPath;
 
             _locations = null;
             _images = new List<JPEGFileItem>();
@@ -114,30 +115,6 @@ namespace Bayaki
                 // 保存すべきものがない場合削除します
                 File.Delete(plugins);
             }
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            TrackItemSummary.SavePath = _workPath;
-
-#if _MAP_GOOGLE
-            _mapView.Show(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
-#else
-#if _MAP_YAHOO
-            _mapView.Show(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
-#else
-#error      コンパイルオプションとして対象のマッププロバイダを設定してください。
-#endif
-#endif
-
-            UpdateLocationList();
         }
 
         private void AddToolbar( bykIFv1.PlugInInterface plugin)
@@ -831,8 +808,18 @@ namespace Bayaki
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+#if _MAP_GOOGLE
+            _mapView.Show(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
+#else
+#if _MAP_YAHOO
+            _mapView.Show(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
+#else
+#error      コンパイルオプションとして対象のマッププロバイダを設定してください。
+#endif
+#endif
+
             // 保存先フォルダがないなら作る
-            if( !System.IO.Directory.Exists(_workPath))
+            if ( !System.IO.Directory.Exists(_workPath))
             {
                 System.IO.Directory.CreateDirectory(_workPath);
             }
@@ -849,16 +836,27 @@ namespace Bayaki
                         _locations = bf.Deserialize(stream) as List<TrackItemSummary>;
                     }
                 }
-                catch
+                catch( Exception ex)
                 {
-                    // 読み出せないよ？
-                    File.Delete(locations);
+                    MessageBox.Show(string.Format(Properties.Resources.MSG10, ex.Message), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Application.Exit();
+                    return;
+                }
+            }
+            else
+            {
+                // ファイルがないけど、リカバリーを試みよう
+                _locations = TrackItemSummary.RecoveryRead();
+                if (0 < _locations.Count)
+                {
+                    SerializeLocationList();
                 }
             }
             if (null == _locations)
             {
                 _locations = new List<TrackItemSummary>();
             }
+            UpdateLocationList();
 
             // プラグインの情報を読み出し
             string plugins = System.IO.Path.Combine(_workPath, "BayakiPlugins.dat");

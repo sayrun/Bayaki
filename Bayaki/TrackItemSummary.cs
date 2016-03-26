@@ -79,6 +79,65 @@ namespace Bayaki
             }
         }
 
+        /// <summary>
+        /// リカバリー用コンストラクタ
+        /// </summary>
+        /// <param name="track">リカバリーデータ</param>
+        /// <param name="filePath">リカバリー元のファイル</param>
+        private TrackItemSummary(bykIFv1.TrackItem track, string filePath)
+        {
+            track.Normalize();
+
+            PointCount = track.Items.Count;
+            From = track.Items[0].Time;
+            TimeSpan span = System.TimeZoneInfo.Local.GetUtcOffset(From);
+            From = From.Add(span);
+
+            To = track.Items[PointCount - 1].Time;
+            span = System.TimeZoneInfo.Local.GetUtcOffset(To);
+            To = To.Add(span);
+
+            Description = track.Description;
+
+            Name = track.Name;
+            _item = track;
+
+            _saveFileName = filePath;
+        }
+
+        /// <summary>
+        /// 保存されたファイルからSummaryを生成してみる
+        /// </summary>
+        /// <returns></returns>
+        public static List<TrackItemSummary> RecoveryRead()
+        {
+            List<TrackItemSummary> result = new List<TrackItemSummary>();
+
+            DirectoryInfo di = new DirectoryInfo(_savePath);
+            foreach (FileInfo fi in di.GetFiles("TrackItem*.dat"))
+            {
+                try
+                {
+                    using (TrackItemReader tir = new TrackItemReader(fi.FullName))
+                    {
+                        bykIFv1.TrackItem item = tir.Read();
+                        if (null != item)
+                        {
+                            TrackItemSummary summary = new TrackItemSummary(item, fi.FullName);
+
+                            result.Add(summary);
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    // 読み込みでエラーが発生する可能性は、この場合では無視する。
+                    System.Diagnostics.Debug.Print(ex.Message);
+                }
+            }
+            return result;
+        }
+
         public TrackItemSummary(SerializationInfo info, StreamingContext context)
         {
             int version = info.GetInt32("Version");
