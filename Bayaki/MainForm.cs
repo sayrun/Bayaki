@@ -571,6 +571,16 @@ namespace Bayaki
 
         private void LoadPlugin( string filePath)
         {
+            // 同じファイルは登録させない
+            foreach( string currentPlugin in _pluginPath)
+            {
+                if( 0 == string.Compare(currentPlugin, filePath, true))
+                {
+                    MessageBox.Show(Properties.Resources.MSG9, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+            }
+
             bykIFv1.PlugInInterface plugin;
             Assembly asm = Assembly.LoadFrom(filePath);
             AssemblyTitleAttribute asmttl = asm.GetCustomAttributes(typeof(AssemblyTitleAttribute), true).Single() as AssemblyTitleAttribute;

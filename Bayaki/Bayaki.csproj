@@ -150,6 +150,30 @@
   <ItemGroup>
     <None Include="Resources\KMLLoader_ICON.bmp" />
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="HelpHTML\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="HelpHTML\IMG\image01.png" />
+    <None Include="HelpHTML\IMG\image02.png" />
+    <None Include="HelpHTML\IMG\image03.png" />
+    <None Include="HelpHTML\IMG\image04.png" />
+    <None Include="HelpHTML\IMG\image05.png" />
+    <None Include="HelpHTML\IMG\image06.png" />
+    <None Include="HelpHTML\IMG\image07.png" />
+    <None Include="HelpHTML\IMG\image08.png" />
+    <None Include="HelpHTML\IMG\image09.png" />
+    <None Include="HelpHTML\IMG\image10.png" />
+    <None Include="HelpHTML\IMG\image11.png" />
+    <None Include="HelpHTML\IMG\image12.png" />
+    <None Include="HelpHTML\IMG\image13.png" />
+    <None Include="HelpHTML\IMG\image14.png" />
+    <None Include="HelpHTML\IMG\image15.png" />
+    <None Include="HelpHTML\IMG\image16.png" />
+    <None Include="HelpHTML\IMG\image17.png" />
+    <None Include="HelpHTML\IMG\image18.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

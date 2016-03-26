@@ -199,6 +199,15 @@ namespace Bayaki.Properties {
         }
         
         /// <summary>
+        ///   選択されたプラグインはインストール済みです。 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MSG9 {
+            get {
+                return ResourceManager.GetString("MSG9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Skytraq Downloader に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SkytraqDownloader_NAME {

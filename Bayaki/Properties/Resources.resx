@@ -166,4 +166,7 @@
   <data name="KEY_YAHOO" xml:space="preserve">
     <value>dj0zaiZpPUpJRmx2aEp4RUwyMyZzPWNvbnN1bWVyc2VjcmV0Jng9MDM-</value>
   </data>
+  <data name="MSG9" xml:space="preserve">
+    <value>選択されたプラグインはインストール済みです。</value>
+  </data>
 </root>
