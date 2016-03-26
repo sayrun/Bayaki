@@ -58,7 +58,6 @@ namespace Bayaki
                 if (this._name != value)
                 {
                     this._name = value;
-
                     bykIFv1.TrackItem item = this.TrackItem;
                     item.Name = value;
 
@@ -68,6 +67,8 @@ namespace Bayaki
                         // 名前を更新します。
                         using (Stream stream = new FileStream(Path.Combine(_savePath, _saveFileName), FileMode.Open))
                         {
+                            stream.SetLength(0);
+                            stream.Flush();
                             using (TrackItemWriter tiw = new TrackItemWriter(stream))
                             {
                                 // 保存します
@@ -92,6 +93,8 @@ namespace Bayaki
                     string savePath = Path.Combine(_savePath, fileName);
                     using (Stream stream = new FileStream(Path.Combine(_savePath, fileName), FileMode.CreateNew))
                     {
+                        stream.SetLength(0);
+                        stream.Flush();
                         using (TrackItemWriter tiw = new TrackItemWriter(stream))
                         {
                             // 保存します
@@ -116,7 +119,7 @@ namespace Bayaki
         /// </summary>
         /// <param name="track">リカバリーデータ</param>
         /// <param name="filePath">リカバリー元のファイル</param>
-        private TrackItemSummary(bykIFv1.TrackItem track, string filePath)
+        public TrackItemSummary(bykIFv1.TrackItem track, string filePath)
         {
             track.Normalize();
 
@@ -135,39 +138,6 @@ namespace Bayaki
             _item = track;
 
             _saveFileName = filePath;
-        }
-
-        /// <summary>
-        /// 保存されたファイルからSummaryを生成してみる
-        /// </summary>
-        /// <returns></returns>
-        public static List<TrackItemSummary> RecoveryRead()
-        {
-            List<TrackItemSummary> result = new List<TrackItemSummary>();
-
-            DirectoryInfo di = new DirectoryInfo(_savePath);
-            foreach (FileInfo fi in di.GetFiles("TrackItem*.dat"))
-            {
-                try
-                {
-                    using (TrackItemReader tir = new TrackItemReader(fi.FullName))
-                    {
-                        bykIFv1.TrackItem item = tir.Read();
-                        if (null != item)
-                        {
-                            TrackItemSummary summary = new TrackItemSummary(item, fi.FullName);
-
-                            result.Add(summary);
-                        }
-                    }
-                }
-                catch(Exception ex)
-                {
-                    // 読み込みでエラーが発生する可能性は、この場合では無視する。
-                    System.Diagnostics.Debug.Print(ex.Message);
-                }
-            }
-            return result;
         }
 
         public TrackItemSummary(SerializationInfo info, StreamingContext context)

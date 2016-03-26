@@ -54,7 +54,29 @@ namespace Bayaki
             else
             {
                 // ファイルがないけど、リカバリーを試みよう
-                _locations = TrackItemSummary.RecoveryRead();
+                DirectoryInfo di = new DirectoryInfo(_savePath);
+                foreach (FileInfo fi in di.GetFiles("TrackItem*.dat"))
+                {
+                    try
+                    {
+                        using (TrackItemReader tir = new TrackItemReader(fi.FullName))
+                        {
+                            bykIFv1.TrackItem item = tir.Read();
+                            if (null != item)
+                            {
+                                TrackItemSummary summary = new TrackItemSummary(item, fi.FullName);
+
+                                _locations.Add(summary);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // 読み込みでエラーが発生する可能性は、この場合では無視する。
+                        System.Diagnostics.Debug.Print(ex.Message);
+                    }
+                }
+
                 if (0 < _locations.Count)
                 {
                     Save();
