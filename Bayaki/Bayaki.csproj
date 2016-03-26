@@ -150,7 +150,9 @@
   <ItemGroup>
     <None Include="Resources\KMLLoader_ICON.bmp" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="HelpHTML\help.css" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="HelpHTML\index.html" />
   </ItemGroup>
