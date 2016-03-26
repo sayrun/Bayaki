@@ -131,13 +131,13 @@ namespace MapControlLibrary
             base.OnDocumentCompleted(e);
         }
 
-        protected override void OnRegionChanged(EventArgs e)
+        protected override void OnResize(EventArgs e)
         {
             if (_documentComplated)
             {
                 this.resizeMap();
             }
-            base.OnRegionChanged(e);
+            base.OnResize(e);
         }
     }
 }
