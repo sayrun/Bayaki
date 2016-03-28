@@ -113,12 +113,12 @@ namespace Bayaki
                             _xmlWriter.WriteAttributeString("lat", point.Latitude.ToString("0.######"));
                             _xmlWriter.WriteAttributeString("lon", point.Longitude.ToString("0.######"));
 
-                            if (double.NaN != point.Altitude)
+                            if (!double.IsNaN( point.Altitude))
                             {
                                 _xmlWriter.WriteElementString("ele", point.Altitude.ToString());
                             }
                             _xmlWriter.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                            if (double.NaN != point.Speed)
+                            if (!double.IsNaN( point.Speed))
                             {
                                 _xmlWriter.WriteElementString("speed", point.Speed.ToString("0.######"));
                             }
@@ -140,12 +140,12 @@ namespace Bayaki
                                 _xmlWriter.WriteAttributeString("lat", point.Latitude.ToString("0.######"));
                                 _xmlWriter.WriteAttributeString("lon", point.Longitude.ToString("0.######"));
 
-                                if (double.NaN != point.Altitude)
+                                if (!double.IsNaN( point.Altitude))
                                 {
                                     _xmlWriter.WriteElementString("ele", point.Altitude.ToString());
                                 }
                                 _xmlWriter.WriteElementString("time", point.Time.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                                if (double.NaN != point.Speed)
+                                if (!double.IsNaN( point.Speed))
                                 {
                                     _xmlWriter.WriteElementString("speed", point.Speed.ToString("0.######"));
                                 }
