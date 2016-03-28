@@ -48,6 +48,7 @@
             this._bufferStatus.Location = new System.Drawing.Point(74, 43);
             this._bufferStatus.Name = "_bufferStatus";
             this._bufferStatus.Size = new System.Drawing.Size(352, 23);
+            this._bufferStatus.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this._bufferStatus.TabIndex = 8;
             // 
             // _cancel
