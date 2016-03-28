@@ -132,9 +132,13 @@ namespace Bayaki
             List<bykIFv1.Point> points = new List<bykIFv1.Point>();
             foreach (TrackItemSummary summary in _locations)
             {
-                if (summary.IsContein(localTime))
+                if (summary.IsContein(localTime, MAX_TIMEDIFF))
                 {
-                    points.Add(summary.GetPoint(localTime));
+                    bykIFv1.Point point = summary.GetPoint(localTime, MAX_TIMEDIFF);
+                    if (null != point)
+                    {
+                        points.Add(point);
+                    }
                 }
             }
 

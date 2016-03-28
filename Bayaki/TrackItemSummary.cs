@@ -180,9 +180,9 @@ namespace Bayaki
             }
         }
 
-        public bool IsContein(DateTime targetDate)
+        public bool IsContein(DateTime targetDate, double margineSeconds)
         {
-            return (From <= targetDate && To >= targetDate);
+            return (From.AddSeconds(-1 * margineSeconds) <= targetDate && To.AddSeconds(margineSeconds) >= targetDate);
         }
 
         private void RestoreTrackItem()
@@ -209,10 +209,10 @@ namespace Bayaki
             }
         }
 
-        public bykIFv1.Point GetPoint(DateTime targetDate)
+        public bykIFv1.Point GetPoint(DateTime targetDate, double margineSeconds)
         {
             // 含まれない場合NULLを返すよ
-            if (!IsContein(targetDate)) return null;
+            if (!IsContein(targetDate, margineSeconds)) return null;
 
             // 読み込まれていない場合読み込む
             RestoreTrackItem();
@@ -240,19 +240,43 @@ namespace Bayaki
                         TimeSpan s2 = pnt.Time - utcTime;
                         if( s1 < s2)
                         {
-                            return orless;
+                            if( s1.TotalSeconds <= margineSeconds)
+                            {
+                                return orless;
+                            }
                         }
                         else
                         {
-                            return pnt;
+                            if (s2.TotalSeconds <= margineSeconds)
+                            {
+                                return pnt;
+                            }
                         }
                     }
                     else
                     {
-                        return pnt;
+                        TimeSpan s2 = pnt.Time - utcTime;
+                        if (s2.TotalSeconds <= margineSeconds)
+                        {
+                            return pnt;
+                        }
                     }
+                    break;
                 }
             }
+
+            // 最終の点よりも少しあとを再処理する
+            if (2 < _item.Items.Count)
+            {
+                bykIFv1.Point ormore = _item.Items[_item.Items.Count - 1];
+
+                TimeSpan s3 = utcTime - ormore.Time;
+                if (s3.TotalSeconds <= margineSeconds)
+                {
+                    return ormore;
+                }
+            }
+
             return null;
         }
 
