@@ -38,6 +38,14 @@ namespace Bayaki
             _remove = false;
         }
 
+        public bool IsRemoveLocation
+        {
+            get
+            {
+                return _remove;
+            }
+        }
+
         public Image ThumNail
         {
             get
@@ -81,17 +89,38 @@ namespace Bayaki
             }
         }
 
+        public bool IsModifed
+        {
+            get
+            {
+                if (_remove) return true;
+                if (null != _newLocation) return true;
+                return false;
+            }
+        }
+
         public void RemoveLocation()
         {
             _remove = true;
             _newLocation = null;
         }
 
+        public bykIFv1.Point DisplayLocation
+        {
+            get
+            {
+                if (_remove) return null;
+                if (null != _newLocation) return _newLocation;
+                if (null != _currentLocation) return _currentLocation;
+                return null;
+            }
+        }
+
         public bykIFv1.Point CurrentLocation
         {
             get
             {
-                return _remove ? null : _currentLocation;
+                return _currentLocation;
             }
         }
 

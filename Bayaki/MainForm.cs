@@ -376,20 +376,13 @@ namespace Bayaki
                     break;
             }
 
-            if (null != jpegItem.NewLocation)
+            if (null != jpegItem.DisplayLocation)
             {
-                _mapView.movePos(jpegItem.NewLocation.Latitude, jpegItem.NewLocation.Longitude);
+                _mapView.movePos(jpegItem.DisplayLocation.Latitude, jpegItem.DisplayLocation.Longitude);
             }
             else
             {
-                if (null != jpegItem.CurrentLocation)
-                {
-                    _mapView.movePos(jpegItem.CurrentLocation.Latitude, jpegItem.CurrentLocation.Longitude);
-                }
-                else
-                {
-                    _mapView.resetMarker();
-                }
+                _mapView.resetMarker();
             }
         }
 
@@ -800,6 +793,34 @@ namespace Bayaki
         private void _targets_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
             _update.Enabled = (0 < _targets.CheckedItems.Count);
+        }
+
+        private void _clearSel_Click(object sender, EventArgs e)
+        {
+            foreach( ListViewItem item in _targets.Items)
+            {
+                item.Checked = false;
+            }
+        }
+
+        private void _allSel_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem item in _targets.Items)
+            {
+                item.Checked = true;
+            }
+        }
+
+        private void _targetsSel_Click(object sender, EventArgs e)
+        {
+            JPEGFileItem jpegItem = null;
+            foreach (ListViewItem item in _targets.Items)
+            {
+                jpegItem = item.Tag as JPEGFileItem;
+                if (null == jpegItem) continue;
+
+                item.Checked = (jpegItem.IsModifed);
+            }
         }
     }
 }

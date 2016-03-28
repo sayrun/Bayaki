@@ -98,7 +98,7 @@ namespace Bayaki
         {
             get
             {
-                if (double.NaN == _point.Altitude) return null;
+                if (double.IsNaN( _point.Altitude)) return null;
 
                 double elevation = Math.Abs(_point.Altitude);
 
