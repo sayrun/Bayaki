@@ -12,6 +12,8 @@ namespace Bayaki
     [Serializable]
     class TrackItemSummary : ISerializable
     {
+        public readonly UInt32 ID;
+
         public readonly DateTime From;
         public readonly DateTime To;
         public readonly int PointCount;
@@ -21,6 +23,7 @@ namespace Bayaki
         private string _saveFileName;
 
         private static string _savePath;
+        private static UInt32 IDseed = 0;
 
         private const int DATA_VERSION = 0x0100;
 
@@ -29,6 +32,8 @@ namespace Bayaki
         public TrackItemSummary( bykIFv1.TrackItem track)
         {
             track.Normalize();
+
+            ID = GenerateID();
 
             PointCount = track.Items.Count;
             From = track.Items[0].Time;
@@ -45,6 +50,18 @@ namespace Bayaki
             _item = track;
 
             _saveFileName = string.Empty;
+        }
+
+        /// <summary>
+        /// 処理用の管理IDを生成する
+        /// ここでは、起動中に有効であることが分かればよいから、生成は連番で。
+        /// </summary>
+        /// <returns></returns>
+        private static UInt32 GenerateID()
+        {
+            ++IDseed;
+
+            return IDseed;
         }
 
         public string Name
@@ -80,7 +97,7 @@ namespace Bayaki
             }
         }
 
-        private void SafeTrackItem()
+        private void SaveTrackItem()
         {
             // ファイルを作成してみて保存パス名を決める
             _saveFileName = string.Empty;
@@ -142,6 +159,8 @@ namespace Bayaki
 
         public TrackItemSummary(SerializationInfo info, StreamingContext context)
         {
+            ID = GenerateID();
+
             int version = info.GetInt32("Version");
             PointCount = info.GetInt32("PointCount");
             From = info.GetDateTime("From");
@@ -156,7 +175,7 @@ namespace Bayaki
             // 持っているデータを保存します
             if (0 >= _saveFileName.Length && null != _item)
             {
-                SafeTrackItem();
+                SaveTrackItem();
             }
 
             info.AddValue("Version", DATA_VERSION);
@@ -189,13 +208,10 @@ namespace Bayaki
         {
             if (null == _item)
             {
-                string locations = System.IO.Path.Combine(_savePath, _saveFileName);
-                using (TrackItemReader tir = new TrackItemReader(locations))
+                string filePath = System.IO.Path.Combine(_savePath, _saveFileName);
+                using (TrackItemReader tir = new TrackItemReader(filePath))
                 {
                     _item = tir.Read();
-
-                    // 変更された名前を設定する
-                    _item.Name = this._name;
                 }
             }
         }
@@ -278,21 +294,6 @@ namespace Bayaki
             }
 
             return null;
-        }
-
-        public ListViewItem GetListViewItem()
-        {
-            ListViewItem viewItem = new ListViewItem(_name);
-            viewItem.SubItems.Add(From.ToString("yyyy/MM/dd HH:mm:ss"));
-            viewItem.SubItems.Add(To.ToString("yyyy/MM/dd HH:mm:ss"));
-            viewItem.SubItems.Add(PointCount.ToString());
-            if ( null != Description && 0 <= Description.Length)
-            {
-                viewItem.ToolTipText = Description;
-            }
-            viewItem.Tag = this;
-
-            return viewItem;
         }
 
         public void Remove()
