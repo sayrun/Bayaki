@@ -154,6 +154,8 @@ namespace Bayaki
                     _locations.Insert(index + 1, item);
 
                     OnChanged(this);
+
+                    break;
                 }
             }
         }
