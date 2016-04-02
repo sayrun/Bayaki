@@ -101,7 +101,14 @@ namespace Bayaki
         public UInt32 AddItem(bykIFv1.TrackItem track)
         {
             TrackItemSummary tiSum = new TrackItemSummary(track);
-            _locations.Add(tiSum);
+            if (0 == _locations.Count)
+            {
+                _locations.Add(tiSum);
+            }
+            else
+            {
+                _locations.Insert(0, tiSum);
+            }
             OnChanged(this);
 
             return tiSum.ID;
