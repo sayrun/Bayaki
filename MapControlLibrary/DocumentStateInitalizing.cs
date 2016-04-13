@@ -154,6 +154,7 @@ namespace MapControlLibrary
 
         public IDocumentState resizeMap()
         {
+            // 読み込み前なら、リサイズは処理しないでよい
             _request.Enqueue(new resizeMapRequest());
 
             return this;

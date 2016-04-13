@@ -87,6 +87,8 @@ namespace MapControlLibrary
 
         public IDocumentState resizeMap()
         {
+            // 読み込み前なら、リサイズは処理しないでよい
+            /*
             IDocumentState result = new DocumentStateInitalizing(_parent);
 
             _parent._Start();
@@ -94,6 +96,9 @@ namespace MapControlLibrary
             result.resizeMap();
 
             return result;
+            */
+
+            return this;
         }
     }
 }

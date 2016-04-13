@@ -26,7 +26,6 @@ namespace MapControlLibrary
 
         private MapProvider _provider;
         private string _key;
-        private bool _documentComplated;
 
         public MapControl()
         {
@@ -35,7 +34,6 @@ namespace MapControlLibrary
             _proxy = new DocumentStateNotInitialized(this);
 
             base.ObjectForScripting = this;
-            _documentComplated = false;
         }
 
         public void SetProvider(MapProvider provider, string key)
@@ -118,7 +116,6 @@ namespace MapControlLibrary
         internal void _Initialize()
         {
             this.Document.InvokeScript("Initialize");
-            _documentComplated = true;
         }
 
         public void dropMarker()
@@ -201,9 +198,9 @@ namespace MapControlLibrary
 
         protected override void OnResize(EventArgs e)
         {
-            if (_documentComplated)
+            lock (_proxy)
             {
-                this.resizeMap();
+                _proxy = _proxy.resizeMap();
             }
             base.OnResize(e);
         }
