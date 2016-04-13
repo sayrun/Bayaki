@@ -724,7 +724,6 @@ namespace Bayaki
                 trackItem.Name = e.Label;
 
                 _trackItemBag.Save();
-
             }
         }
 
@@ -819,10 +818,10 @@ namespace Bayaki
         private void MainForm_Load(object sender, EventArgs e)
         {
 #if _MAP_GOOGLE
-            _mapView.Show(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
+            _mapView.SetProvider(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
 #else
 #if _MAP_YAHOO
-            _mapView.Show(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
+            _mapView.SetProvider(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
 #else
 #error      コンパイルオプションとして対象のマッププロバイダを設定してください。
 #endif

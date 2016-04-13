@@ -83,7 +83,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrackItemBag.cs" />
+    <Compile Include="TrackItemCacheModified.cs" />
     <Compile Include="TrackItemReader.cs" />
+    <Compile Include="ITrackItemCache.cs" />
+    <Compile Include="TrackItemCacheLoaded.cs" />
+    <Compile Include="TrackItemCacheNotLoaded.cs" />
+    <Compile Include="TrackItemCacheNotYetSaved.cs" />
     <Compile Include="TrackItemWriter.cs" />
     <Compile Include="TrackItemSummary.cs" />
     <Compile Include="TrackPointPreviewForm.cs">

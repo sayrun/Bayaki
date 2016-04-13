@@ -27,7 +27,7 @@ namespace Bayaki
 
         private const int DATA_VERSION = 0x0100;
 
-        bykIFv1.TrackItem _item;
+        ITrackItemCache _trackItemProxy;
 
         public TrackItemSummary( bykIFv1.TrackItem track)
         {
@@ -47,7 +47,7 @@ namespace Bayaki
             Description = track.Description;
 
             _name = track.Name;
-            _item = track;
+            _trackItemProxy = new TrackItemCacheNotYetSaved( track);
 
             _saveFileName = string.Empty;
         }
@@ -75,58 +75,11 @@ namespace Bayaki
                 if (this._name != value)
                 {
                     this._name = value;
-                    bykIFv1.TrackItem item = this.TrackItem;
+
+                    bykIFv1.TrackItem item = _trackItemProxy.GetTrackItem(out _trackItemProxy);
                     item.Name = value;
 
-                    // ファイル名が設定されているなら更新が必要
-                    if (0  < _saveFileName.Length)
-                    {
-                        // 名前を更新します。
-                        using (Stream stream = new FileStream(Path.Combine(_savePath, _saveFileName), FileMode.Open))
-                        {
-                            stream.SetLength(0);
-                            stream.Flush();
-                            using (TrackItemWriter tiw = new TrackItemWriter(stream))
-                            {
-                                // 保存します
-                                tiw.Write(_item);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private void SaveTrackItem()
-        {
-            // ファイルを作成してみて保存パス名を決める
-            _saveFileName = string.Empty;
-            string fileName = string.Empty;
-            for (int index = 1; index < int.MaxValue; ++index)
-            {
-                fileName = string.Format("TrackItem{0:D4}.dat", index);
-                try
-                {
-                    string savePath = Path.Combine(_savePath, fileName);
-                    using (Stream stream = new FileStream(Path.Combine(_savePath, fileName), FileMode.CreateNew))
-                    {
-                        stream.SetLength(0);
-                        stream.Flush();
-                        using (TrackItemWriter tiw = new TrackItemWriter(stream))
-                        {
-                            // 保存します
-                            tiw.Write(_item);
-
-                            // ファイルが作成できたからこれをファイル名にします。
-                            _saveFileName = fileName;
-                            break;
-                        }
-                    }
-                }
-                catch (IOException)
-                {
-                    // ファイル名が作成できないみたいだらから
-                    continue;
+                    _trackItemProxy.UpdateTrackItem(out _trackItemProxy, _savePath);
                 }
             }
         }
@@ -152,7 +105,7 @@ namespace Bayaki
             Description = track.Description;
 
             _name = track.Name;
-            _item = track;
+            _trackItemProxy = new TrackItemCacheLoaded(track, filePath);
 
             _saveFileName = filePath;
         }
@@ -168,15 +121,14 @@ namespace Bayaki
             _name = info.GetString("Name");
             Description = info.GetString("Description");
             _saveFileName = info.GetString("saveFileName");
+
+            _trackItemProxy = new TrackItemCacheNotLoaded(_savePath, _saveFileName);
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             // 持っているデータを保存します
-            if (0 >= _saveFileName.Length && null != _item)
-            {
-                SaveTrackItem();
-            }
+            _saveFileName = _trackItemProxy.SaveTrackItem(out _trackItemProxy, _savePath);
 
             info.AddValue("Version", DATA_VERSION);
             info.AddValue("PointCount", PointCount);
@@ -204,24 +156,13 @@ namespace Bayaki
             return (From.AddSeconds(-1 * margineSeconds) <= targetDate && To.AddSeconds(margineSeconds) >= targetDate);
         }
 
-        private void RestoreTrackItem()
-        {
-            if (null == _item)
-            {
-                string filePath = System.IO.Path.Combine(_savePath, _saveFileName);
-                using (TrackItemReader tir = new TrackItemReader(filePath))
-                {
-                    _item = tir.Read();
-                }
-            }
-        }
-
         public bykIFv1.TrackItem TrackItem
         {
             get
             {
-                RestoreTrackItem();
-                return _item;
+                bykIFv1.TrackItem result = _trackItemProxy.GetTrackItem(out _trackItemProxy);
+
+                return result;
             }
         }
 
@@ -230,14 +171,12 @@ namespace Bayaki
             // 含まれない場合NULLを返すよ
             if (!IsContein(targetDate, margineSeconds)) return null;
 
-            // 読み込まれていない場合読み込む
-            RestoreTrackItem();
-
             // 指定された時間をUTCに変換する
             TimeSpan diff = System.TimeZoneInfo.Local.GetUtcOffset(targetDate);
             DateTime utcTime = targetDate.Subtract(diff);
             bykIFv1.Point orless = null;
-            foreach ( bykIFv1.Point pnt in _item.Items)
+            bykIFv1.TrackItem trackItem = _trackItemProxy.GetTrackItem(out _trackItemProxy);
+            foreach ( bykIFv1.Point pnt in trackItem.Items)
             {
                 if(utcTime > pnt.Time)
                 {
@@ -282,9 +221,9 @@ namespace Bayaki
             }
 
             // 最終の点よりも少しあとを再処理する
-            if (2 < _item.Items.Count)
+            if (2 < trackItem.Items.Count)
             {
-                bykIFv1.Point ormore = _item.Items[_item.Items.Count - 1];
+                bykIFv1.Point ormore = trackItem.Items[trackItem.Items.Count - 1];
 
                 TimeSpan s3 = utcTime - ormore.Time;
                 if (s3.TotalSeconds <= margineSeconds)
