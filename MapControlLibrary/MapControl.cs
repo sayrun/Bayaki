@@ -14,6 +14,8 @@ namespace MapControlLibrary
     [System.Runtime.InteropServices.ComVisible(true)]
     public partial class MapControl: WebBrowser
     {
+        private IDocumentState _proxy;
+
         public event NotifyMakerDrag OnMakerDrag;
 
         public enum MapProvider
@@ -23,27 +25,34 @@ namespace MapControlLibrary
         };
 
         private MapProvider _provider;
+        private string _key;
         private bool _documentComplated;
 
         public MapControl()
         {
             InitializeComponent();
 
+            _proxy = new DocumentStateNotInitialized(this);
+
             base.ObjectForScripting = this;
             _documentComplated = false;
         }
 
-        public void Show( MapProvider provider, string key)
+        public void SetProvider(MapProvider provider, string key)
         {
-            _documentComplated = false;
             _provider = provider;
+            _key = key;
+        }
+
+        internal void _Start()
+        {
             switch (_provider)
             {
                 case MapProvider.GOOGLE:
-                    base.DocumentText = Properties.Resources.googlemapsHTML.Replace( "[[KEY]]", key);
+                    base.DocumentText = Properties.Resources.googlemapsHTML.Replace( "[[KEY]]", _key);
                     break;
                 case MapProvider.YAHOO:
-                    base.DocumentText = Properties.Resources.yahoomapsHTML.Replace("[[KEY]]", key);
+                    base.DocumentText = Properties.Resources.yahoomapsHTML.Replace("[[KEY]]", _key);
                     break;
                 default:
                     new Exception("不正なプロバイダです");
@@ -69,20 +78,44 @@ namespace MapControlLibrary
 
         public void resetMarker()
         {
+            lock(_proxy)
+            {
+                _proxy = _proxy.resetMarker();
+            }
+        }
+
+        internal void _resetMarker()
+        {
             this.Document.InvokeScript("resetMarker");
         }
 
         public void movePos(double latitude, double longitude)
+        {
+            lock (_proxy)
+            {
+                _proxy = _proxy.movePos(latitude, longitude);
+            }
+        }
+
+        internal void _movePos(double latitude, double longitude)
         {
             this.Document.InvokeScript("movePos", new object[] { latitude, longitude });
         }
 
         public void resizeMap()
         {
+            lock (_proxy)
+            {
+                _proxy = _proxy.resizeMap();
+            }
+        }
+
+        internal void _resizeMap()
+        {
             this.Document.InvokeScript("resizeMap");
         }
 
-        public void Initialize()
+        internal void _Initialize()
         {
             this.Document.InvokeScript("Initialize");
             _documentComplated = true;
@@ -90,15 +123,39 @@ namespace MapControlLibrary
 
         public void dropMarker()
         {
+            lock (_proxy)
+            {
+                _proxy = _proxy.dropMarker();
+            }
+        }
+
+        internal void _dropMarker()
+        {
             this.Document.InvokeScript("dropMarker");
         }
 
         public void clearPoint()
         {
+            lock (_proxy)
+            {
+                _proxy = _proxy.clearPoint();
+            }
+        }
+
+        internal void _clearPoint()
+        {
             this.Document.InvokeScript("clearPoint");
         }
 
         public void addPoint(double latitude, double longitude, string title)
+        {
+            lock (_proxy)
+            {
+                _proxy = _proxy.addPoint(latitude, longitude, title);
+            }
+        }
+
+        internal void _addPoint(double latitude, double longitude, string title)
         {
             string markerText = string.Empty;
             if (0 < title.Length)
@@ -121,12 +178,23 @@ namespace MapControlLibrary
 
         public void drawPolyline()
         {
+            lock (_proxy)
+            {
+                _proxy = _proxy.drawPolyline();
+            }
+        }
+
+        internal void _drawPolyline()
+        {
             this.Document.InvokeScript("drawPolyline");
         }
 
         protected override void OnDocumentCompleted(WebBrowserDocumentCompletedEventArgs e)
         {
-            this.Initialize();
+            lock (_proxy)
+            {
+                _proxy = _proxy.Initialize();
+            }
 
             base.OnDocumentCompleted(e);
         }
