@@ -127,8 +127,9 @@ namespace MapControlLibrary
         {
             _parent._Initialize();
 
-            IInternalRequest req;
+            System.Diagnostics.Debug.Print("request count={0}", _request.Count);
 
+            IInternalRequest req;
             while (0 < _request.Count)
             {
                 req = _request.Dequeue();
@@ -155,7 +156,7 @@ namespace MapControlLibrary
         public IDocumentState resizeMap()
         {
             // 読み込み前なら、リサイズは処理しないでよい
-            _request.Enqueue(new resizeMapRequest());
+            //_request.Enqueue(new resizeMapRequest());
 
             return this;
         }

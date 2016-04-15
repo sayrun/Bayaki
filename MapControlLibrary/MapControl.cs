@@ -47,7 +47,7 @@ namespace MapControlLibrary
             switch (_provider)
             {
                 case MapProvider.GOOGLE:
-                    base.DocumentText = Properties.Resources.googlemapsHTML.Replace( "[[KEY]]", _key);
+                    base.DocumentText = Properties.Resources.googlemapsHTML.Replace("[[KEY]]", _key);
                     break;
                 case MapProvider.YAHOO:
                     base.DocumentText = Properties.Resources.yahoomapsHTML.Replace("[[KEY]]", _key);
@@ -192,7 +192,6 @@ namespace MapControlLibrary
             {
                 _proxy = _proxy.Initialize();
             }
-
             base.OnDocumentCompleted(e);
         }
 
