@@ -16,9 +16,9 @@ namespace Bayaki
 
         public TrackPointPreviewForm(bykIFv1.TrackItem trackItem)
         {
-            InitializeComponent();
+                InitializeComponent();
 
-            _trackItem = trackItem;
+                _trackItem = trackItem;
         }
 
         private void TrackPointPreviewForm_Load(object sender, EventArgs e)
@@ -34,10 +34,10 @@ namespace Bayaki
 #error      コンパイルオプションとして対象のマッププロバイダを設定してください。
 #endif
 #endif
-            TestFunc();
+            DrawRouteMap();
         }
 
-        private void TestFunc()
+        private void DrawRouteMap()
         {
             // 初期化してあげます
             _mapView.clearPoint();
@@ -71,11 +71,6 @@ namespace Bayaki
 
             // 描画を実行します。
             _mapView.drawPolyline();
-        }
-
-        private void _mapView_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-        {
-            
         }
     }
 }

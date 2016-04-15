@@ -40,7 +40,6 @@
             this._mapView.ScrollBarsEnabled = false;
             this._mapView.Size = new System.Drawing.Size(893, 538);
             this._mapView.TabIndex = 0;
-            this._mapView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._mapView_DocumentCompleted);
             // 
             // TrackPointPreviewForm
             // 
