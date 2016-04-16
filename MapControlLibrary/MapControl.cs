@@ -36,10 +36,26 @@ namespace MapControlLibrary
             base.ObjectForScripting = this;
         }
 
-        public void SetProvider(MapProvider provider, string key)
+        /// <summary>
+        /// Mapを表示します。
+        /// </summary>
+        /// <param name="provider">Mapの提供元を設定します</param>
+        /// <param name="key">Key(ID)を設定します</param>
+        /// <param name="delay">ture時、処理メソッドがコールされるまで地図表示をしません。アクセス数低減目的。遅延描画時はDocumentに任意のHTMLを表示できます。</param>
+        public void Initialize(MapProvider provider, string key, bool delay = true)
         {
             _provider = provider;
             _key = key;
+
+            // すぐに表示する必要がある場合
+            if(! delay)
+            {
+                lock( _proxy)
+                {
+                    _proxy = new DocumentStateInitalizing(this);
+                    _Start();
+                }
+            }
         }
 
         internal void _Start()
@@ -190,7 +206,7 @@ namespace MapControlLibrary
         {
             lock (_proxy)
             {
-                _proxy = _proxy.Initialize();
+                _proxy = _proxy.initializeScript();
             }
             base.OnDocumentCompleted(e);
         }

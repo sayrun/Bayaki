@@ -7,7 +7,7 @@ namespace MapControlLibrary
 {
     internal interface IDocumentState
     {
-        IDocumentState Initialize();
+        IDocumentState initializeScript();
         IDocumentState resetMarker();
         IDocumentState movePos(double latitude, double longitude);
         IDocumentState resizeMap();

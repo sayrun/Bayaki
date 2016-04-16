@@ -123,7 +123,7 @@ namespace MapControlLibrary
             return this;
         }
 
-        public IDocumentState Initialize()
+        public IDocumentState initializeScript()
         {
             _parent._Initialize();
 

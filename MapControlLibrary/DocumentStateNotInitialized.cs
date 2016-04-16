@@ -58,7 +58,7 @@ namespace MapControlLibrary
             return result;
         }
 
-        public IDocumentState Initialize()
+        public IDocumentState initializeScript()
         {
             return this;
         }
