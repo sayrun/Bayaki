@@ -247,6 +247,7 @@
             // 
             // _previewImage
             // 
+            this._previewImage.BackColor = System.Drawing.SystemColors.Window;
             this._previewImage.ContextMenuStrip = this._previewImageContextMenu;
             this._previewImage.Dock = System.Windows.Forms.DockStyle.Fill;
             this._previewImage.Location = new System.Drawing.Point(0, 0);

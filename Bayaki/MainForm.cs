@@ -817,16 +817,22 @@ namespace Bayaki
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            bool delay = false;
+#if DEBUG
+            delay = true;
+#endif
 #if _MAP_GOOGLE
-            _mapView.SetProvider(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
+            _mapView.Initialize(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE, delay);
 #else
 #if _MAP_YAHOO
-            _mapView.SetProvider(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
+            _mapView.Initialize(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO, delay);
 #else
 #error      コンパイルオプションとして対象のマッププロバイダを設定してください。
 #endif
 #endif
-
+#if DEBUG
+            _mapView.DocumentText = "<html><body bgcolor='lightgray'><table width='100%' height='100%'><tr><td valign='middle' align='center' >...</tr></td></table></body></html>";
+#endif
             // 保存先フォルダがないなら作る
             if ( !System.IO.Directory.Exists(_workPath))
             {
