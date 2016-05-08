@@ -90,6 +90,38 @@ namespace MapControlLibrary.Properties {
         
         /// <summary>
         ///   &lt;html&gt;
+        ///&lt;head&gt;
+        ///&lt;title&gt;error&lt;/title&gt;
+        ///&lt;/head&gt;
+        ///&lt;body bgcolor=&apos;#cfbfbf&apos;&gt;
+        ///&lt;p&gt;networkが利用できないため、mapを表示できません。&lt;/p&gt;
+        ///&lt;/body&gt;
+        ///&lt;/html&gt; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string nonetHTML {
+            get {
+                return ResourceManager.GetString("nonetHTML", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   &lt;html&gt;
+        ///&lt;head&gt;
+        ///&lt;title&gt;error&lt;/title&gt;
+        ///&lt;/head&gt;
+        ///&lt;body bgcolor=&apos;#cfbfbf&apos;&gt;
+        ///&lt;p&gt;scriptエラーが発生したため、mapを表示できません。&lt;/p&gt;
+        ///&lt;/body&gt;
+        ///&lt;/html&gt; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string scriptErrorHTML {
+            get {
+                return ResourceManager.GetString("scriptErrorHTML", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   &lt;html&gt;
         ///&lt;script src=&quot;http://js.api.olp.yahooapis.jp/OpenLocalPlatform/V1/jsapi?appid=[[KEY]]&quot; type=&quot;text/javascript&quot;  charset=&quot;UTF-8&quot; &gt;&lt;/script&gt;
         ///&lt;script type=&quot;text/javascript&quot;&gt;
         ///var map;
@@ -99,13 +131,13 @@ namespace MapControlLibrary.Properties {
         ///var count = 0;
         ///
         ///function Initialize() {
-        ///    map = new Y.Map(&quot;Ymap&quot;);
-        ///    map.addControl( new Y.SliderZoomControl() );
-        ///    map.addControl( new Y.LayerSetControl() );
-        ///    map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
-        ///}
-        ///
-        ///functio [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///	try{
+        ///		map = new Y.Map(&quot;Ymap&quot;);
+        ///		map.addControl( new Y.SliderZoomControl() );
+        ///		map.addControl( new Y.LayerSetControl() );
+        ///		map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
+        ///	}catch(e)
+        ///	 [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string yahoomapsHTML {
             get {

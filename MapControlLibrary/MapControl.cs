@@ -10,6 +10,7 @@ using System.Windows.Forms;
 namespace MapControlLibrary
 {
     public delegate void NotifyMakerDrag(double lat, double lon);
+    public delegate void NotifyError(string function);
 
     [System.Runtime.InteropServices.ComVisible(true)]
     public partial class MapControl: WebBrowser
@@ -17,6 +18,7 @@ namespace MapControlLibrary
         private IDocumentState _proxy;
 
         public event NotifyMakerDrag OnMakerDrag;
+        public event NotifyError OnErrorOccurd;
 
         public enum MapProvider
         {
@@ -60,17 +62,31 @@ namespace MapControlLibrary
 
         internal void _Start()
         {
-            switch (_provider)
+            base.ScriptErrorsSuppressed = true;
+
+            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
             {
-                case MapProvider.GOOGLE:
-                    base.DocumentText = Properties.Resources.googlemapsHTML.Replace("[[KEY]]", _key);
-                    break;
-                case MapProvider.YAHOO:
-                    base.DocumentText = Properties.Resources.yahoomapsHTML.Replace("[[KEY]]", _key);
-                    break;
-                default:
-                    new Exception("不正なプロバイダです");
-                    return;
+                switch (_provider)
+                {
+                    case MapProvider.GOOGLE:
+                        base.DocumentText = Properties.Resources.googlemapsHTML.Replace("[[KEY]]", _key);
+                        break;
+                    case MapProvider.YAHOO:
+                        base.DocumentText = Properties.Resources.yahoomapsHTML.Replace("[[KEY]]", _key);
+                        break;
+                    default:
+                        new Exception("不正なプロバイダです");
+                        return;
+                }
+            }
+            else
+            {
+                lock (_proxy)
+                {
+                    _proxy = new DocumentStateNetworkNotAvailable();
+                }
+                // ネットワークが利用できないので、エラー用のHTMLを表示します。
+                base.DocumentText = Properties.Resources.nonetHTML;
             }
         }
 
@@ -88,6 +104,25 @@ namespace MapControlLibrary
             double dLon = (double)lon;
 
             OnMakerDrag(dLat, dLon);
+        }
+
+        public void notifyErrorOccurd(string function)
+        {
+            // 状態を無効にします
+            lock (_proxy)
+            {
+                _proxy = _proxy.onErrorOccurd(function);
+            }
+
+            OnErrorOccurd(function);
+        }
+
+        internal void _showScriptErrorMsg(string function)
+        {
+            // エラー用のHTMLを表示します。
+            base.DocumentText = Properties.Resources.scriptErrorHTML;
+
+            MessageBox.Show(string.Format("スクリプトエラーが発生しました。\n\n発生した処理:{0}", function), this.DocumentTitle, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         public void resetMarker()

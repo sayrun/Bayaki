@@ -15,5 +15,7 @@ namespace MapControlLibrary
         IDocumentState clearPoint();
         IDocumentState addPoint(double latitude, double longitude, string title);
         IDocumentState drawPolyline();
+
+        IDocumentState onErrorOccurd(string functionName);
     }
 }

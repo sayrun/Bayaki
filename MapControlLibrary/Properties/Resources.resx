@@ -231,6 +231,26 @@ function dropMarker() {
 &lt;/body&gt;
 &lt;/html&gt;</value>
   </data>
+  <data name="nonetHTML" xml:space="preserve">
+    <value>&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;error&lt;/title&gt;
+&lt;/head&gt;
+&lt;body bgcolor='#cfbfbf'&gt;
+&lt;p&gt;networkが利用できないため、mapを表示できません。&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</value>
+  </data>
+  <data name="scriptErrorHTML" xml:space="preserve">
+    <value>&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;error&lt;/title&gt;
+&lt;/head&gt;
+&lt;body bgcolor='#cfbfbf'&gt;
+&lt;p&gt;scriptエラーが発生したため、mapを表示できません。&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</value>
+  </data>
   <data name="yahoomapsHTML" xml:space="preserve">
     <value>&lt;html&gt;
 &lt;script src="http://js.api.olp.yahooapis.jp/OpenLocalPlatform/V1/jsapi?appid=[[KEY]]" type="text/javascript"  charset="UTF-8" &gt;&lt;/script&gt;
@@ -242,85 +262,124 @@ var intersts = null;
 var count = 0;
 
 function Initialize() {
-    map = new Y.Map("Ymap");
-    map.addControl( new Y.SliderZoomControl() );
-    map.addControl( new Y.LayerSetControl() );
-    map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
+	try{
+		map = new Y.Map("Ymap");
+		map.addControl( new Y.SliderZoomControl() );
+		map.addControl( new Y.LayerSetControl() );
+		map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
+	}catch(e)
+	{
+		window.external.notifyErrorOccurd( "Initialize");
+	}
 }
 
 function movePos( lat, lon) {
-	if( null != marker)
+	try{
+		if( null != marker)
+		{
+			map.clearFeatures();
+		}
+		var latlon = new Y.LatLng(lat,lon);
+
+		marker = new Y.Marker( latlon);
+		marker.setDraggable(true);
+		marker.bind("dragend", function(latlng){
+			var latlon = marker.getLatLng();
+			window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    		});
+		map.addFeature(marker);
+		map.panTo(latlon,false);
+	}catch(e)
 	{
-		map.clearFeatures();
+		window.external.notifyErrorOccurd( "movePos");
 	}
-	var latlon = new Y.LatLng(lat,lon);
-	
-	marker = new Y.Marker( latlon);
-	marker.setDraggable(true);
-	marker.bind("dragend", function(latlng){
-		var latlon = marker.getLatLng();
-		window.external.notifyLatLon( latlon.lat(), latlon.lng());
-    });
-	map.addFeature(marker);
-	map.panTo(latlon,false);
 }
 
 function resetMarker() {
-	marker = null;
-	map.clearFeatures();
+	try{
+		marker = null;
+		map.clearFeatures();
+	}catch(e)
+	{
+		window.external.notifyErrorOccurd( "resetMarker");
+	}
 }
 
 function resizeMap() {
-	map.updateSize();
+	try{
+		map.updateSize();
+	}catch(e)
+	{
+		window.external.notifyErrorOccurd( "resizeMap");
+	}
 }
 
 function addPoint( lat, lon, interest) {
-	path[count] = new Y.LatLng(lat,lon);
-	intersts[count] = interest;
-	count++;
+	try{
+		path[count] = new Y.LatLng(lat,lon);
+		intersts[count] = interest;
+		count++;
+	}catch(e)
+	{
+		window.external.notifyErrorOccurd( "addPoint");
+	}
 }
 
 function drawPolyline() {
-	var line = new Y.Polyline(path);
-	map.addFeature(line);
+	try{
+		var line = new Y.Polyline(path);
+		map.addFeature(line);
 
-	var bounds = new Y.LatLngBounds();
-	for( index = 0; index &lt; count; ++index) {
-		if( "" != intersts[index]) {
-			marker = new Y.Marker( path[ index], { title: intersts[index]});
-			map.addFeature(marker);
+		var bounds = new Y.LatLngBounds();
+		for( index = 0; index &lt; count; ++index) {
+			if( "" != intersts[index]) {
+				marker = new Y.Marker( path[ index], { title: intersts[index]});
+				map.addFeature(marker);
+			}
+			bounds.extend(path[ index]);
 		}
-		bounds.extend(path[ index]);
-	}
 
-	map.setCenter(path[0]);
-	map.drawBounds(bounds, Y.LayerSetId.NORMAL);
+		map.setCenter(path[0]);
+		map.drawBounds(bounds, Y.LayerSetId.NORMAL);
+	}catch(e)
+	{
+		window.external.notifyErrorOccurd( "drawPolyline");
+	}
 }
 
 function clearPoint() {
-	path = [];
-	intersts = [];
-	count = 0;
-	map.clearFeatures();
+	try{
+		path = [];
+		intersts = [];
+		count = 0;
+		map.clearFeatures();
+	}catch(e)
+	{
+		window.external.notifyErrorOccurd( "clearPoint");
+	}
 }
 
 function dropMarker() {
-	if( null == marker) {
-		var latlon = map.getCenter();
-		marker = new Y.Marker( latlon);
-		map.addFeature(marker);
-		
-		window.external.notifyLatLon( latlon.lat(), latlon.lng());
-	}
+	try{
+		if( null == marker) {
+			var latlon = map.getCenter();
+			marker = new Y.Marker( latlon);
+			map.addFeature(marker);
 	
-	marker.setDraggable(true);
-	marker.bind("dragend", function(latlng){
-		var latlon = marker.getLatLng();
-		window.external.notifyLatLon( latlon.lat(), latlon.lng());
-    });
-	map.panTo(marker.getLatLng(),false);
-}
+			window.external.notifyLatLon( latlon.lat(), latlon.lng());
+		}
 
+		marker.setDraggable(true);
+		marker.bind("dragend", function(latlng){
+			var latlon = marker.getLatLng();
+			window.external.notifyLatLon( latlon.lat(), latlon.lng());
+		});
+		map.panTo(marker.getLatLng(),false);
+	}catch(e)
+	{
+		window.external.notifyErrorOccurd( "dropMarker");
+	}
+}
 &lt;/script&gt;
 &lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0"&gt;
 &lt;div id="Ymap" style="width:100%; height:100%"&gt;&lt;/div&gt;
