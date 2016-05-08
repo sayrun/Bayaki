@@ -71,16 +71,17 @@ namespace MapControlLibrary.Properties {
         ///var drawLine = null;
         ///
         ///function Initialize() {
-        ///	var y = 34.784167;
-        ///	var x = 135.400806;
-        ///	var latlng = new google.maps.LatLng(y, x);
-        ///	var opts = {
+        ///	try{
+        ///		var y = 34.784167;
+        ///		var x = 135.400806;
+        ///		var latlng = new google.maps.LatLng(y, x);
+        ///		var opts = {
         ///			zoom: 14,
         ///			center: latlng,
         ///			streetViewControl: false,
         ///			mapTypeId: google.maps.MapTypeId.ROADMAP
         ///		};
-        ///	map = new google.maps.Ma [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///		map = new go [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string googlemapsHTML {
             get {

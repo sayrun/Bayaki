@@ -108,12 +108,12 @@ namespace MapControlLibrary
 
         public void notifyErrorOccurd(string function)
         {
-            // 状態を無効にします
             lock (_proxy)
             {
                 _proxy = _proxy.onErrorOccurd(function);
             }
 
+            // エラーを通知します。
             OnErrorOccurd(function);
         }
 
@@ -121,8 +121,6 @@ namespace MapControlLibrary
         {
             // エラー用のHTMLを表示します。
             base.DocumentText = Properties.Resources.scriptErrorHTML;
-
-            MessageBox.Show(string.Format("スクリプトエラーが発生しました。\n\n発生した処理:{0}", function), this.DocumentTitle, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         public void resetMarker()
