@@ -100,14 +100,5 @@ namespace MapControlLibrary
 
             return this;
         }
-
-        public IDocumentState onErrorOccurd(string functionName)
-        {
-            IDocumentState result = new DocumentStateNetworkNotAvailable();
-
-            _parent._showScriptErrorMsg(functionName);
-
-            return result;
-        }
     }
 }

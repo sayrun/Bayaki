@@ -71,6 +71,7 @@ namespace MapControlLibrary.Properties {
         ///var drawLine = null;
         ///
         ///function Initialize() {
+        ///	var result = false;
         ///	try{
         ///		var y = 34.784167;
         ///		var x = 135.400806;
@@ -79,9 +80,7 @@ namespace MapControlLibrary.Properties {
         ///			zoom: 14,
         ///			center: latlng,
         ///			streetViewControl: false,
-        ///			mapTypeId: google.maps.MapTypeId.ROADMAP
-        ///		};
-        ///		map = new go [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///			mapTypeId: google.maps.MapTypeId.ROADMAP [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string googlemapsHTML {
             get {
@@ -132,13 +131,12 @@ namespace MapControlLibrary.Properties {
         ///var count = 0;
         ///
         ///function Initialize() {
+        ///	var result = false;
         ///	try{
         ///		map = new Y.Map(&quot;Ymap&quot;);
         ///		map.addControl( new Y.SliderZoomControl() );
         ///		map.addControl( new Y.LayerSetControl() );
-        ///		map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
-        ///	}catch(e)
-        ///	 [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///		map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.N [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string yahoomapsHTML {
             get {

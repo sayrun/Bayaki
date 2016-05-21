@@ -126,8 +126,8 @@ namespace MapControlLibrary
         public IDocumentState initializeScript()
         {
             _parent._Initialize();
-
             System.Diagnostics.Debug.Print("request count={0}", _request.Count);
+
 
             IInternalRequest req;
             while (0 < _request.Count)
@@ -159,15 +159,6 @@ namespace MapControlLibrary
             //_request.Enqueue(new resizeMapRequest());
 
             return this;
-        }
-
-        public IDocumentState onErrorOccurd(string functionName)
-        {
-            IDocumentState result = new DocumentStateNetworkNotAvailable();
-
-            _parent._showScriptErrorMsg(functionName);
-
-            return result;
         }
     }
 

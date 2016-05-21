@@ -44,9 +44,11 @@
   <ItemGroup>
     <Compile Include="DocumentStateInitalizing.cs" />
     <Compile Include="DocumentStateInitialized.cs" />
+    <Compile Include="DocumentStateJavascriptError.cs" />
     <Compile Include="DocumentStateNetworkNotAvailable.cs" />
     <Compile Include="DocumentStateNotInitialized.cs" />
     <Compile Include="IDocumentState.cs" />
+    <Compile Include="JavascriptInvokeException.cs" />
     <Compile Include="MapControl.cs">
       <SubType>Component</SubType>
     </Compile>

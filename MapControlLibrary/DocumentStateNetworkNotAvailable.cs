@@ -7,9 +7,14 @@ namespace MapControlLibrary
 {
     class DocumentStateNetworkNotAvailable : IDocumentState
     {
-        public DocumentStateNetworkNotAvailable()
-        {
+        private MapControl _parent;
 
+        public DocumentStateNetworkNotAvailable(MapControl parent)
+        {
+            _parent = parent;
+
+            // ネットワークが利用できないので、エラー用のHTMLを表示します。
+            _parent._SetNetUnavailableHTML();
         }
 
         public IDocumentState addPoint(double latitude, double longitude, string title)
@@ -48,11 +53,6 @@ namespace MapControlLibrary
         }
 
         public IDocumentState resizeMap()
-        {
-            return this;
-        }
-
-        public IDocumentState onErrorOccurd(string functionName)
         {
             return this;
         }

@@ -10,7 +10,6 @@ using System.Windows.Forms;
 namespace MapControlLibrary
 {
     public delegate void NotifyMakerDrag(double lat, double lon);
-    public delegate void NotifyError(string function);
 
     [System.Runtime.InteropServices.ComVisible(true)]
     public partial class MapControl: WebBrowser
@@ -18,7 +17,6 @@ namespace MapControlLibrary
         private IDocumentState _proxy;
 
         public event NotifyMakerDrag OnMakerDrag;
-        public event NotifyError OnErrorOccurd;
 
         public enum MapProvider
         {
@@ -66,6 +64,7 @@ namespace MapControlLibrary
 
             if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
             {
+                // ネットワークが利用できるので、MAPスクリプトを読み込みます
                 switch (_provider)
                 {
                     case MapProvider.GOOGLE:
@@ -81,12 +80,11 @@ namespace MapControlLibrary
             }
             else
             {
+                // ネットワークが利用できない
                 lock (_proxy)
                 {
-                    _proxy = new DocumentStateNetworkNotAvailable();
+                    _proxy = new DocumentStateNetworkNotAvailable(this);
                 }
-                // ネットワークが利用できないので、エラー用のHTMLを表示します。
-                base.DocumentText = Properties.Resources.nonetHTML;
             }
         }
 
@@ -106,98 +104,157 @@ namespace MapControlLibrary
             OnMakerDrag(dLat, dLon);
         }
 
-        public void notifyErrorOccurd(string function)
-        {
-            lock (_proxy)
-            {
-                _proxy = _proxy.onErrorOccurd(function);
-            }
-
-            // エラーを通知します。
-            OnErrorOccurd(function);
-        }
-
-        internal void _showScriptErrorMsg(string function)
-        {
-            // エラー用のHTMLを表示します。
-            base.DocumentText = Properties.Resources.scriptErrorHTML;
-        }
-
         public void resetMarker()
         {
             lock(_proxy)
             {
-                _proxy = _proxy.resetMarker();
+                try
+                {
+                    _proxy = _proxy.resetMarker();
+                }
+                catch (Exception)
+                {
+                    _proxy = new DocumentStateJavascriptError(this);
+                }
             }
         }
 
         internal void _resetMarker()
         {
-            this.Document.InvokeScript("resetMarker");
+            InvokeScript("resetMarker");
         }
 
         public void movePos(double latitude, double longitude)
         {
             lock (_proxy)
             {
-                _proxy = _proxy.movePos(latitude, longitude);
+                try
+                {
+                    _proxy = _proxy.movePos(latitude, longitude);
+                }
+                catch (Exception)
+                {
+                    _proxy = new DocumentStateJavascriptError(this);
+                }
+            }
+        }
+
+        private void InvokeScript(string functionName)
+        {
+            object obj = this.Document.InvokeScript(functionName);
+
+            bool result;
+            if (!bool.TryParse(obj.ToString(), out result))
+            {
+                result = false;
+            }
+            
+            // javascriptが実行できなかったっぽい
+            if( false == result)
+            {
+                throw new JavascriptInvokeException(functionName);
+            }
+        }
+
+        private void InvokeScript(string functionName, object[] param)
+        {
+            object obj = this.Document.InvokeScript(functionName, param);
+
+            bool result;
+            if (!bool.TryParse(obj.ToString(), out result))
+            {
+                result = false;
+            }
+
+            // javascriptが実行できなかったっぽい
+            if (false == result)
+            {
+                throw new JavascriptInvokeException(functionName);
             }
         }
 
         internal void _movePos(double latitude, double longitude)
         {
-            this.Document.InvokeScript("movePos", new object[] { latitude, longitude });
+            InvokeScript("movePos", new object[] { latitude, longitude });
         }
 
         public void resizeMap()
         {
             lock (_proxy)
             {
-                _proxy = _proxy.resizeMap();
+                try
+                {
+                    _proxy = _proxy.resizeMap();
+                }
+                catch (Exception)
+                {
+                    _proxy = new DocumentStateJavascriptError(this);
+                }
             }
         }
 
         internal void _resizeMap()
         {
-            this.Document.InvokeScript("resizeMap");
+            InvokeScript("resizeMap");
         }
 
         internal void _Initialize()
         {
-            this.Document.InvokeScript("Initialize");
+            InvokeScript("Initialize");
         }
 
         public void dropMarker()
         {
             lock (_proxy)
             {
-                _proxy = _proxy.dropMarker();
+                try
+                {
+                    _proxy = _proxy.dropMarker();
+                }
+                catch (Exception)
+                {
+                    _proxy = new DocumentStateJavascriptError(this);
+                }
             }
         }
 
         internal void _dropMarker()
         {
-            this.Document.InvokeScript("dropMarker");
+            InvokeScript("dropMarker");
         }
 
         public void clearPoint()
         {
             lock (_proxy)
             {
-                _proxy = _proxy.clearPoint();
+                try
+                {
+                    _proxy = _proxy.clearPoint();
+                }
+                catch (Exception)
+                {
+                    _proxy = new DocumentStateJavascriptError(this);
+                }
             }
         }
 
         internal void _clearPoint()
         {
-            this.Document.InvokeScript("clearPoint");
+            InvokeScript("clearPoint");
         }
 
         public void addPoint(double latitude, double longitude, string title)
         {
             lock (_proxy)
             {
-                _proxy = _proxy.addPoint(latitude, longitude, title);
+                try
+                {
+                    _proxy = _proxy.addPoint(latitude, longitude, title);
+                }
+                catch (Exception)
+                {
+                    _proxy = new DocumentStateJavascriptError(this);
+                }
             }
         }
 
@@ -215,31 +272,44 @@ namespace MapControlLibrary
                         markerText = string.Format("{0}<br>{1:0.######}, {2:0.######}", title, latitude, longitude);
                         break;
                     default:
-                        new Exception("不正なプロバイダです");
-                        return;
+                        throw new Exception("不正なプロバイダです");
                 }
             }
-            this.Document.InvokeScript("addPoint", new object[] { latitude, longitude, markerText });
+            InvokeScript("addPoint", new object[] { latitude, longitude, markerText });
         }
 
         public void drawPolyline()
         {
             lock (_proxy)
             {
-                _proxy = _proxy.drawPolyline();
+                try
+                {
+                    _proxy = _proxy.drawPolyline();
+                }
+                catch (Exception)
+                {
+                    _proxy = new DocumentStateJavascriptError(this);
+                }
             }
         }
 
         internal void _drawPolyline()
         {
-            this.Document.InvokeScript("drawPolyline");
+            InvokeScript("drawPolyline");
         }
 
         protected override void OnDocumentCompleted(WebBrowserDocumentCompletedEventArgs e)
         {
             lock (_proxy)
             {
-                _proxy = _proxy.initializeScript();
+                try
+                {
+                    _proxy = _proxy.initializeScript();
+                }
+                catch(Exception)
+                {
+                    _proxy = new DocumentStateJavascriptError(this);
+                }
             }
             base.OnDocumentCompleted(e);
         }
@@ -248,9 +318,29 @@ namespace MapControlLibrary
         {
             lock (_proxy)
             {
-                _proxy = _proxy.resizeMap();
+                try
+                {
+                    _proxy = _proxy.resizeMap();
+                }
+                catch (Exception)
+                {
+                    _proxy = new DocumentStateJavascriptError(this);
+                }
             }
             base.OnResize(e);
+        }
+
+        internal void _SetNetUnavailableHTML()
+        {
+            // ネットワークが利用できないので、エラー用のHTMLを表示します。
+            base.DocumentText = Properties.Resources.nonetHTML;
+        }
+
+        internal void _SetJavascriptErrorHTML()
+        {
+            // ネットワークが利用できないので、エラー用のHTMLを表示します。
+            base.DocumentText = Properties.Resources.scriptErrorHTML;
+
         }
     }
 }
