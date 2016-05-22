@@ -188,16 +188,20 @@ logdata Erase</value>
     <value>データはありませんでした。</value>
   </data>
   <data name="MSG4" xml:space="preserve">
-    <value>Skytraqの接続に失敗しました\n\n{0}</value>
+    <value>Skytraqの接続に失敗しました
+
+{0}</value>
   </data>
   <data name="MSG5" xml:space="preserve">
-    <value>Logデータを消去します。\nよろしいですか？</value>
+    <value>Logデータを消去します。
+よろしいですか？</value>
   </data>
   <data name="MSG6" xml:space="preserve">
     <value>消去しました</value>
   </data>
   <data name="MSG7" xml:space="preserve">
-    <value>消去できませんでした。\n・ポートがあっていますか？\n・電源はONになっていますか？</value>
+    <value>消去できませんでした。\n・ポートがあっていますか？
+・電源はONになっていますか？</value>
   </data>
   <data name="MSG8" xml:space="preserve">
     <value>Ephemerisを書き込みました</value>

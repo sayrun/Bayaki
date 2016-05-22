@@ -265,7 +265,9 @@ namespace SkyTraqPlugin.Properties {
         }
         
         /// <summary>
-        ///   Skytraqの接続に失敗しました\n\n{0} に類似しているローカライズされた文字列を検索します。
+        ///   Skytraqの接続に失敗しました
+        ///
+        ///{0} に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string MSG4 {
             get {
@@ -274,7 +276,8 @@ namespace SkyTraqPlugin.Properties {
         }
         
         /// <summary>
-        ///   Logデータを消去します。\nよろしいですか？ に類似しているローカライズされた文字列を検索します。
+        ///   Logデータを消去します。
+        ///よろしいですか？ に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string MSG5 {
             get {
@@ -292,7 +295,8 @@ namespace SkyTraqPlugin.Properties {
         }
         
         /// <summary>
-        ///   消去できませんでした。\n・ポートがあっていますか？\n・電源はONになっていますか？ に類似しているローカライズされた文字列を検索します。
+        ///   消去できませんでした。\n・ポートがあっていますか？
+        ///・電源はONになっていますか？ に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string MSG7 {
             get {
