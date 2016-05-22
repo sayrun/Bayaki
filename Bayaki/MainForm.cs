@@ -452,7 +452,6 @@ namespace Bayaki
             using (FileStream fs = new FileStream(jpegItem.FilePath, FileMode.Open, FileAccess.Read))
             {
                 bmp = Bitmap.FromStream(fs);
-                fs.Close();
             }
 
             _previewImage.Image = bmp;
@@ -535,6 +534,22 @@ namespace Bayaki
             NowProcessingForm<JPEGFileItem> npf = new NowProcessingForm<JPEGFileItem>(new UpdateJpegFile(), items.ToArray());
             if( DialogResult.OK == npf.ShowDialog(this))
             {
+                // 更新できなので、チェックボックスを外します。
+                try
+                {
+                    _targets.BeginUpdate();
+                    foreach (ListViewItem lvItem in _targets.Items)
+                    {
+                        // チェックされていないのは保存対象外
+                        if (!lvItem.Checked) continue;
+
+                        lvItem.Checked = false;
+                    }
+                }
+                finally
+                {
+                    _targets.EndUpdate();
+                }
                 MessageBox.Show(Properties.Resources.MSG3, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }

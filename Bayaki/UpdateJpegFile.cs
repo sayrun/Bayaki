@@ -119,12 +119,23 @@ namespace Bayaki
                 // 保存するためにクローズする
                 bmp.Dispose();
                 fs.Close();
+                fs.Dispose();
+                fs = null;
+
+                // 元ファイルの作成日/更新日を取得します。
+                FileInfo fiOld = new FileInfo(jpegItem.FilePath);
 
                 // 元ファイルを削除します。
                 File.Delete(jpegItem.FilePath);
 
                 // 一時ファイルを移動します。
                 File.Move(workPath, jpegItem.FilePath);
+
+                // 元ファイルの作成日/更新日を設定します。
+                FileInfo fiNew = new FileInfo(jpegItem.FilePath);
+                fiNew.CreationTime = fiOld.CreationTime;
+                fiNew.LastWriteTime = fiOld.LastWriteTime;
+                fiNew.LastAccessTime = fiOld.LastAccessTime;
             }
             finally
             {
