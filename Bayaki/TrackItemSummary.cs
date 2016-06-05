@@ -226,9 +226,12 @@ namespace Bayaki
                 bykIFv1.Point ormore = trackItem.Items[trackItem.Items.Count - 1];
 
                 TimeSpan s3 = utcTime - ormore.Time;
-                if (s3.TotalSeconds <= margineSeconds)
+                if (0 <= s3.TotalSeconds)
                 {
-                    return ormore;
+                    if (s3.TotalSeconds <= margineSeconds)
+                    {
+                        return ormore;
+                    }
                 }
             }
 
