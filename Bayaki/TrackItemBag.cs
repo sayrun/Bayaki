@@ -15,6 +15,7 @@ namespace Bayaki
         private List<TrackItemSummary> _locations;
         private string _savePath;
         private const int MAX_TIMEDIFF = (60 * 20); // 根拠ないけど、20分以上差異があれば採用しない
+        private const int MAX_DISTDIFF = (80 * MAX_TIMEDIFF);   // 根拠ないけど、最大誤差時間＊80m範囲は近い時間を採用させる
 
         public event BagChanged OnChanged;
 
@@ -186,7 +187,7 @@ namespace Bayaki
             {
                 if (summary.IsContein(localTime, MAX_TIMEDIFF))
                 {
-                    bykIFv1.Point point = summary.GetPoint(localTime, MAX_TIMEDIFF);
+                    bykIFv1.Point point = summary.GetPoint(localTime, MAX_TIMEDIFF, MAX_DISTDIFF);
                     if (null != point)
                     {
                         TimeSpan s = point.Time - utcdt;
@@ -211,8 +212,8 @@ namespace Bayaki
             DateTime utcdt = localTime.Subtract(System.TimeZoneInfo.Local.GetUtcOffset(localTime));
 
             var points = from d in _locations
-                         where (null != d.GetPoint(localTime, MAX_TIMEDIFF))
-                         select new { Point = d.GetPoint(localTime, MAX_TIMEDIFF), Distance = Math.Abs((d.GetPoint(localTime, MAX_TIMEDIFF).Time - utcdt).TotalSeconds) };
+                         where (null != d.GetPoint(localTime, MAX_TIMEDIFF, MAX_DISTDIFF))
+                         select new { Point = d.GetPoint(localTime, MAX_TIMEDIFF, MAX_DISTDIFF), Distance = Math.Abs((d.GetPoint(localTime, MAX_TIMEDIFF, MAX_DISTDIFF).Time - utcdt).TotalSeconds) };
 
             // 一致しないならNULLを返す
             if (0 >= points.Count()) return null;
