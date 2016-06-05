@@ -8,16 +8,12 @@ using System.Windows.Forms;
 
 namespace Bayaki
 {
-    internal delegate void BagChanged(TrackItemBag sender);
-
     internal class TrackItemBag
     {
         private List<TrackItemSummary> _locations;
         private string _savePath;
         private const int MAX_TIMEDIFF = (60 * 20); // 根拠ないけど、20分以上差異があれば採用しない
         private const int MAX_DISTDIFF = (80 * MAX_TIMEDIFF);   // 根拠ないけど、最大誤差時間＊80m範囲は近い時間を採用させる
-
-        public event BagChanged OnChanged;
 
         public TrackItemBag(string savePath)
         {
@@ -55,7 +51,6 @@ namespace Bayaki
                     BinaryFormatter bf = new BinaryFormatter();
                     _locations = bf.Deserialize(stream) as List<TrackItemSummary>;
                 }
-                OnChanged(this);
             }
             else
             {
@@ -86,7 +81,6 @@ namespace Bayaki
                 if (0 < _locations.Count)
                 {
                     Save();
-                    OnChanged(this);
                 }
             }
         }
@@ -110,7 +104,6 @@ namespace Bayaki
             {
                 _locations.Insert(0, tiSum);
             }
-            OnChanged(this);
 
             return tiSum.ID;
         }
@@ -124,8 +117,6 @@ namespace Bayaki
                     _locations.Remove(item);
                     // 関連情報も消す
                     item.Remove();
-
-                    OnChanged(this);
 
                     break;
                 }
@@ -143,8 +134,6 @@ namespace Bayaki
                     _locations.Remove(item);
                     _locations.Insert(index - 1, item);
 
-                    OnChanged(this);
-
                     break;
                 }
             }
@@ -160,8 +149,6 @@ namespace Bayaki
 
                     _locations.Remove(item);
                     _locations.Insert(index + 1, item);
-
-                    OnChanged(this);
 
                     break;
                 }

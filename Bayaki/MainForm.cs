@@ -13,6 +13,7 @@ using System.Xml.Serialization;
 using System.Reflection;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Bayaki
 {
@@ -60,7 +61,6 @@ namespace Bayaki
             // データ保存用フォルダを作成
             _workPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), DIRECTORY_DATAFOLDER);
             _trackItemBag = new TrackItemBag(_workPath);
-            _trackItemBag.OnChanged += _trackItemBag_OnChanged;
 
             _images = new List<JPEGFileItem>();
             _pluginPath = new List<string>();
@@ -80,11 +80,6 @@ namespace Bayaki
             this.Text = string.Format("{0} - Ver.{1}", this.Text, ver.ToString());
 
             _dropFiles = new List<string>();
-        }
-
-        private void _trackItemBag_OnChanged(TrackItemBag sender)
-        {
-            UpdateLocationList();
         }
 
         private void _mapView_OnMakerDrag(double lat, double lon)
@@ -227,12 +222,35 @@ namespace Bayaki
 
             if (blNewTracks)
             {
-                // データが変化したので保存します。
-                _trackItemBag.Save();
+                this.UseWaitCursor = true;
+
 
                 // 読み込んでいるイメージに対して再度位置情報のマッチングを実施する
                 LocationMatching();
+
+                // リストを更新する
+                UpdateLocationList();
+
+#if true
+                // データが変化したので保存します。
+                var task = Task.Factory.StartNew(() =>
+                {
+                    _trackItemBag.Save();
+                }).ContinueWith(_ =>
+                {
+                    this.UseWaitCursor = false;
+
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+#else
+                _trackItemBag.Save();
+                this.UseWaitCursor = false;
+#endif
             }
+        }
+
+        private void CursorNormal()
+        {
+            this.UseWaitCursor = false;
         }
 
         private void LocationMatching()
@@ -483,14 +501,36 @@ namespace Bayaki
             if (0 >= _locationSources.SelectedItems.Count) return;
             if (DialogResult.OK != MessageBox.Show(Properties.Resources.MSG1, this.Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question)) return;
 
+            bool removed = false;
             foreach( ListViewItem item in _locationSources.SelectedItems)
             {
                 TrackItemSummary tiSum = item.Tag as TrackItemSummary;
                 if (null == tiSum) continue;
 
                 _trackItemBag.Remove(tiSum.ID);
+                removed = true;
             }
-            _trackItemBag.Save();
+            if (removed)
+            {
+                this.UseWaitCursor = true;
+
+                UpdateLocationList();
+
+#if true
+                // データが変化したので保存します。
+                var task = Task.Factory.StartNew(() =>
+                {
+                    _trackItemBag.Save();
+                }).ContinueWith(_ =>
+                {
+                    this.UseWaitCursor = false;
+
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+#else
+                _trackItemBag.Save();
+                this.UseWaitCursor = false;
+#endif
+            }
         }
 
         private void _upPriority_Click(object sender, EventArgs e)
@@ -503,6 +543,7 @@ namespace Bayaki
             _trackItemBag.Up(tiSum.ID);
 
             _trackItemBag.Save();
+            UpdateLocationList();
         }
 
         private void _downPriority_Click(object sender, EventArgs e)
@@ -515,6 +556,7 @@ namespace Bayaki
             _trackItemBag.Down(tiSum.ID);
 
             _trackItemBag.Save();
+            UpdateLocationList();
         }
 
         private void _update_Click(object sender, EventArgs e)
