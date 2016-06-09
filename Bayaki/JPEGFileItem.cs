@@ -265,11 +265,21 @@ namespace Bayaki
                     }
                 }
 
+
                 // ついでにサムネイルを作る
                 _thumNail = stretchImage(bmp, thumNailSize, transColor);
             }
 
-            _targetdate = dt;
+            // Exifに撮影日時がないならファイルの作成時を利用する
+            if (dt == DateTime.MinValue)
+            {
+                System.IO.FileInfo fi = new System.IO.FileInfo(FilePath);
+                _targetdate = fi.CreationTime;
+            }
+            else
+            {
+                _targetdate = dt;
+            }
 
             if (null != uLon && null != uLat)
             {
