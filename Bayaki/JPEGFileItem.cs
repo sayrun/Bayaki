@@ -271,7 +271,7 @@ namespace Bayaki
             }
 
             // Exifに撮影日時がないならファイルの作成時を利用する
-            if (dt == DateTime.MinValue)
+            if (0 == dt.CompareTo(DateTime.MinValue))
             {
                 System.IO.FileInfo fi = new System.IO.FileInfo(FilePath);
                 _targetdate = fi.CreationTime;
