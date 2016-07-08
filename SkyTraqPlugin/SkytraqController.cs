@@ -645,7 +645,8 @@ namespace SkyTraqPlugin
             new DateTime(2006, 1, 1, 0, 0, 0),
             new DateTime(2009, 1, 1, 0, 0, 0),
             new DateTime(2012, 7, 1, 0, 0, 0),
-            new DateTime(2015, 7, 1, 0, 0, 0)
+            new DateTime(2015, 7, 1, 0, 0, 0),
+            new DateTime(2017, 1, 1, 0, 0, 0)
         };
 
         private DateTime GPSTIME2diffUTC(long WN, long TOW)
