@@ -135,6 +135,10 @@
       <Project>{5f304f85-b09a-4ff0-9197-dbabf1bdeeaf}</Project>
       <Name>bykIFv1</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GraphControlLibrary\GraphControlLibrary.csproj">
+      <Project>{a05ce690-6a9a-4110-acee-41fd311277d6}</Project>
+      <Name>GraphControlLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MapControlLibrary\MapControlLibrary.csproj">
       <Project>{1df971fe-cf3d-4610-812c-406a1b9abe32}</Project>
       <Name>MapControlLibrary</Name>
