@@ -130,6 +130,7 @@ namespace GraphControlLibrary
 
 
                 // X座標を描画
+                if( 0 < gset.XScale.Items.Count)
                 {
                     Single xwidth = gset.XScale.Max.Value - gset.XScale.Min.Value;
                     Single widthWork;
@@ -147,6 +148,7 @@ namespace GraphControlLibrary
                 }
 
                 // Y軸を描画
+                if( 0 < gset.YScale.Items.Count)
                 {
                     Single yheight = gset.YScale.Max.Value - gset.YScale.Min.Value;
                     Single heightWork;
@@ -165,6 +167,7 @@ namespace GraphControlLibrary
                 }
 
                 //グラフ線を描画
+                if(0 < gset.Items.Count)
                 {
                     Single xwidth = gset.XScale.Max.Value - gset.XScale.Min.Value;
                     Single yheight = gset.YScale.Max.Value - gset.YScale.Min.Value;
