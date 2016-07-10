@@ -90,7 +90,7 @@ namespace GraphControlLibrary
                 }
             }
             string s = sb.ToString();
-            toolTip1.Show(s, this);
+            //toolTip1.Show(s, this);
         }
 
         public void BegineUpdate()
@@ -101,6 +101,8 @@ namespace GraphControlLibrary
         public void EndUpdate()
         {
             DrawGraph();
+
+            this.Invalidate();
         }
 
         private void DrawGraph()

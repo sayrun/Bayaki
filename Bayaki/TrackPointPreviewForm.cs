@@ -13,12 +13,14 @@ namespace Bayaki
     public partial class TrackPointPreviewForm : Form
     {
         private bykIFv1.TrackItem _trackItem;
+        Single maxSpeed;
 
         public TrackPointPreviewForm(bykIFv1.TrackItem trackItem)
         {
-                InitializeComponent();
+            InitializeComponent();
 
-                _trackItem = trackItem;
+            _trackItem = trackItem;
+            maxSpeed = 200;
         }
 
         private void TrackPointPreviewForm_Load(object sender, EventArgs e)
@@ -64,6 +66,72 @@ namespace Bayaki
         {
             bykIFv1.Point start = _trackItem.Items[0];
             bykIFv1.Point end = _trackItem.Items[_trackItem.Items.Count - 1];
+
+
+            List<GraphControlLibrary.PointData> speedList = new List<GraphControlLibrary.PointData>();
+
+            {
+                // １分平均
+                bykIFv1.Point p1 = _trackItem.Items[0];
+                double speed = p1.Speed;
+                int itemCount = 1;
+                for (int index = 1; index < _trackItem.Items.Count; ++index)
+                {
+
+                    if (p1.Time.Year != _trackItem.Items[index].Time.Year
+                        || p1.Time.Month != _trackItem.Items[index].Time.Month
+                        || p1.Time.Day != _trackItem.Items[index].Time.Day
+                        || p1.Time.Hour != _trackItem.Items[index].Time.Hour
+                        || p1.Time.Minute != _trackItem.Items[index].Time.Minute)
+                    {
+                        System.Diagnostics.Debug.Print("{2} - {0}/{1}", speed, itemCount, p1.Time);
+
+                        speed /= itemCount;
+                        // m/sからkm/hへ
+                        speed *= 3600;
+                        speed /= 1000;
+
+                        TimeSpan s2 = p1.Time - start.Time;
+
+                        if (0 < speedList.Count)
+                        {
+                            double hoge = (s2.TotalSeconds - speedList[speedList.Count - 1].X);
+                            if (60 < (s2.TotalSeconds - speedList[speedList.Count - 1].X))
+                            {
+                                speedList.Add(new GraphControlLibrary.PointData(speedList[speedList.Count - 1].X + 1, 0));
+                                if (120 < (s2.TotalSeconds - speedList[speedList.Count - 1].X))
+                                {
+                                    speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds - 1, 0));
+                                }
+                            }
+                        }
+
+                        speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds, (Single)speed));
+
+                        speed = GetSpeed(_trackItem.Items[index], p1);
+                        p1 = _trackItem.Items[index];
+                        //speed = p1.Speed;
+                        itemCount = 1;
+                    }
+                    else
+                    {
+                        double speedSrc = GetSpeed(_trackItem.Items[index], p1);
+                        if (0 < speedSrc)
+                        {
+                            speed += speedSrc;
+                            ++itemCount;
+                        }
+                    }
+                    // 最後のデータを加工する
+                    if (index == (_trackItem.Items.Count - 1))
+                    {
+                        speed /= itemCount;
+
+                        TimeSpan s2 = p1.Time - start.Time;
+                        speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds, (Single)speed));
+                    }
+                }
+            }
 
             TimeSpan s = end.Time - start.Time;
             Single TotalSeconds = (Single)s.TotalSeconds;
@@ -147,138 +215,12 @@ namespace Bayaki
                 }
             }
 
-            double maxSpeed = 0;
-            {
-                int[] hoge = new int[] { 0, 0, 0, 0, 0 };
-                // <=25/<=50/<=100/<=150/150<
-                // 7/14/28/42
-
-                foreach (bykIFv1.Point p in _trackItem.Items)
-                {
-                    if (0 >= p.Speed) continue;
-
-                    if( 7 > p.Speed)
-                    {
-                        ++hoge[0];
-                    }
-                    else
-                    {
-                        if( 14 > p.Speed)
-                        {
-                            ++hoge[1];
-                        }
-                        else
-                        {
-                            if( 24 > p.Speed)
-                            {
-                                ++hoge[2];
-                            }
-                            else
-                            {
-                                if( 42 > p.Speed)
-                                {
-                                    ++hoge[3];
-                                }
-                                else
-                                {
-                                    ++hoge[4];
-                                }
-                            }
-                        }
-                    }
-                }
-                int maxCount = 0;
-                int target = 0;
-                for( int index = 0; index < hoge.Length; ++index)
-                {
-                    if( maxCount < hoge[index])
-                    {
-                        target = index;
-                        maxCount = hoge[index];
-                    }
-                }
-                switch(target)
-                {
-                    case 0:
-                        maxSpeed = 50;
-                        break;
-                    case 1:
-                        maxSpeed = 100;
-                        break;
-                    case 2:
-                        maxSpeed = 200;
-                        break;
-                    case 3:
-                        maxSpeed = 250;
-                        break;
-                    default:
-                        maxSpeed = 300;
-                        break;
-                }
-            }
             GraphControlLibrary.ScaleSet ss2 = new GraphControlLibrary.ScaleSet("時速", "km/h", new GraphControlLibrary.ScaleData("0 km", 0), new GraphControlLibrary.ScaleData(string.Format("{0:F2}", maxSpeed), (float)maxSpeed), new HogeY());
             ss2.Items.Add(new GraphControlLibrary.ScaleData(string.Format("{0:F0}", maxSpeed / 2), (Single)(maxSpeed / 2)));
             ss2.Items.Add(new GraphControlLibrary.ScaleData(string.Format("{0:F0}", maxSpeed), (Single)(maxSpeed)));
             GraphControlLibrary.GraphSet gset = new GraphControlLibrary.GraphSet(ss, ss2, true);
 
-
-            // １分平均
-            bykIFv1.Point p1 = _trackItem.Items[0];
-            double speed = p1.Speed;
-            int itemCount = 1;
-            for ( int index = 1; index < _trackItem.Items.Count; ++index)
-            {
-                if( p1.Time.Year != _trackItem.Items[index].Time.Year
-                    || p1.Time.Month != _trackItem.Items[index].Time.Month
-                    || p1.Time.Day != _trackItem.Items[index].Time.Day
-                    || p1.Time.Hour != _trackItem.Items[index].Time.Hour
-                    || p1.Time.Minute != _trackItem.Items[index].Time.Minute)
-                {
-                    System.Diagnostics.Debug.Print("{2} - {0}/{1}", speed, itemCount, p1.Time);
-
-                    speed /= itemCount;
-                    // m/sからkm/hへ
-                    speed *= 3600;
-                    speed /= 1000;
-
-                    TimeSpan s2 = p1.Time - start.Time;
-
-                    if (0 < gset.Items.Count)
-                    {
-                        double hoge = (s2.TotalSeconds - gset.Items[gset.Items.Count - 1].X);
-                        if (60 < (s2.TotalSeconds - gset.Items[gset.Items.Count - 1].X))
-                        {
-                            gset.Items.Add(new GraphControlLibrary.PointData(gset.Items[gset.Items.Count - 1].X + 1, 0));
-                            if (120 < (s2.TotalSeconds - gset.Items[gset.Items.Count - 1].X))
-                            {
-                                gset.Items.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds - 1, 0));
-                            }
-                        }
-                    }
-
-                    gset.Items.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds, (Single)speed));
-
-                    p1 = _trackItem.Items[index];
-                    speed = p1.Speed;
-                    itemCount = 1;
-                }
-                else
-                {
-                    if (0 < _trackItem.Items[index].Speed)
-                    {
-                        speed += _trackItem.Items[index].Speed;
-                        ++itemCount;
-                    }
-                }
-                // 最後のデータを加工する
-                if (index == (_trackItem.Items.Count - 1))
-                {
-                    speed /= itemCount;
-
-                    TimeSpan s2 = p1.Time - start.Time;
-                    gset.Items.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds, (Single)speed));
-                }
-            }
+            gset.Items.AddRange(speedList);
 
             _graphView.BegineUpdate();
 
@@ -286,6 +228,80 @@ namespace Bayaki
 
             _graphView.EndUpdate();
         }
+
+        private class Speedrange
+        {
+            public readonly int Range;
+            public int Count;
+
+            public Speedrange( int r)
+            {
+                Range = r;
+                Count = 0;
+            }
+        };
+
+        #region 速度を設定する
+        private double GetSpeed(bykIFv1.Point current, bykIFv1.Point prev)
+        {
+            if (0 < current.Speed) return current.Speed;
+
+            // 10分以上差があるなら、時速算出しない
+            TimeSpan ts = current.Time - prev.Time;
+            if (ts.TotalMinutes >= 60) return current.Speed;
+
+            double dis = Distance(current, prev);
+            double result = dis / ts.TotalSeconds;
+
+            return result;
+        }
+
+        /// <summary>
+        /// 二点間の距離を求める(ヒュベニの公式)
+        /// ※
+        /// </summary>
+        /// <param name="pt1"></param>
+        /// <param name="pt2"></param>
+        /// <returns></returns>
+        private double Distance(bykIFv1.Point pt1, bykIFv1.Point pt2)
+        {
+            const double PI = 3.1415926535898;
+            // a = 6,378,137
+            const double a = 6378137;
+            // f = 1 / 298.257 223 563
+            const double f = 1 / 298.257223563;
+            // b = a - ( a * f)
+            const double b = a - (a * f);
+
+            double x1 = (pt1.Longitude * PI) / 180;
+            double x2 = (pt2.Longitude * PI) / 180;
+            double y1 = (pt1.Latitude * PI) / 180;
+            double y2 = (pt2.Latitude * PI) / 180;
+
+            // e = √((a^2 - b^2) / a^2)
+            //double e = Math.Sqrt((Math.Pow(a, 2) + Math.Pow(b, 2)) / Math.Pow(a, 2));
+            const double e = 1.4118447577583941;
+            // μy = (y1 + y2) / 2
+            double uy = (y1 + y2) / 2;
+            // W = √(1-(e^2 * sin(μy)^2))
+            double W = Math.Sqrt(1 - (Math.Pow(e, 2) * Math.Pow(Math.Sin((uy * PI) / 180), 2)));
+            // N = a / W
+            double N = a / W;
+            // M = a * (1 - e^2) / W^3
+            double M = (a * (1 - Math.Pow(e, 2))) / Math.Pow(W, 3);
+            // dy = y1 - y2
+            double dy = y1 - y2;
+            // dx = x1 - x2
+            double dx = x1 - x2;
+
+            // d = √((dy*M)^2 + (dx*N*cos μy)^2)
+            double d = Math.Sqrt(Math.Pow(dy * M, 2) + Math.Pow(dx * N * Math.Cos(uy), 2));
+
+            return d;
+
+        }
+        #endregion
+
 
         private void DrawRouteMap()
         {
@@ -321,6 +337,40 @@ namespace Bayaki
 
             // 描画を実行します。
             _mapView.drawPolyline();
+        }
+
+        private void rangeXXkmToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+            if (null == item) return;
+
+            maxSpeed = (int)item.Tag;
+
+            GraphControlLibrary.GraphSet gset = _graphView.Items[0];
+
+            GraphControlLibrary.ScaleSet ss2 = new GraphControlLibrary.ScaleSet("時速", "km/h", new GraphControlLibrary.ScaleData("0 km", 0), new GraphControlLibrary.ScaleData(string.Format("{0:F2}", maxSpeed), (float)maxSpeed), new HogeY());
+            ss2.Items.Add(new GraphControlLibrary.ScaleData(string.Format("{0:F0}", maxSpeed / 2), (Single)(maxSpeed / 2)));
+            ss2.Items.Add(new GraphControlLibrary.ScaleData(string.Format("{0:F0}", maxSpeed), (Single)(maxSpeed)));
+            GraphControlLibrary.GraphSet newGset = new GraphControlLibrary.GraphSet(gset.XScale, ss2, true);
+
+            newGset.Items.AddRange(gset.Items);
+
+            _graphView.BegineUpdate();
+
+            _graphView.Items.Clear();
+            _graphView.Items.Add(newGset);
+
+            _graphView.EndUpdate();
+        }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+            Single work;
+            foreach (ToolStripMenuItem item in contextMenuStrip1.Items)
+            {
+                work = (int)item.Tag;
+                item.Checked = (maxSpeed == work);
+            }
         }
     }
 }
