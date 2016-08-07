@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="GPXLoaderv1.cs" />
     <Compile Include="JPEGFileItem.cs" />
+    <Compile Include="kml21.cs" />
     <Compile Include="KMLLoaderv1.cs" />
     <Compile Include="KMLReader.cs" />
     <Compile Include="LoadJpegFile.cs" />
