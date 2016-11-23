@@ -67,7 +67,8 @@ namespace Bayaki
 
             // ツールバーにGPS情報取得プラグインを追加する
             AddToolbar(new GPXLoaderv1());
-            AddToolbar(new KMLLoaderv1());
+            // KMLでは時間と位置は緩やかに表現されるので、特定が難しいから。。。
+            //AddToolbar(new KMLLoaderv1());
 
             // 地図情報をJavascriptからもらう        
             _mapView.OnMakerDrag += _mapView_OnMakerDrag;
