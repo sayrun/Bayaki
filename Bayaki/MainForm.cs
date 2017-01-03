@@ -12,6 +12,8 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using System.Reflection;
 using System.Xml;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Bayaki
 {
@@ -22,8 +24,10 @@ namespace Bayaki
         private List<string> _pluginPath;
         private TrackItemBag _trackItemBag;
 
-        private Color TRANS_COLOR = Color.White;
+        private List<string> _dropFiles;
 
+
+        private Color TRANS_COLOR = Color.White;
 
         private const string DIRECTORY_DATAFOLDER = "Bayaki Folder";
 
@@ -34,6 +38,13 @@ namespace Bayaki
             CSV,
             KML
         };
+
+        private const Int32 WM_USER = 0x400;
+        private const Int32 WM_DROPFILE_LISTUP = WM_USER + 1;
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
 
         public MainForm()
         {
@@ -50,14 +61,14 @@ namespace Bayaki
             // データ保存用フォルダを作成
             _workPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), DIRECTORY_DATAFOLDER);
             _trackItemBag = new TrackItemBag(_workPath);
-            TrackItemSummary.SavePath = _workPath;
 
             _images = new List<JPEGFileItem>();
             _pluginPath = new List<string>();
 
             // ツールバーにGPS情報取得プラグインを追加する
             AddToolbar(new GPXLoaderv1());
-            AddToolbar(new KMLLoaderv1());
+            // KMLでは時間と位置は緩やかに表現されるので、特定が難しいから。。。
+            //AddToolbar(new KMLLoaderv1());
 
             // 地図情報をJavascriptからもらう        
             _mapView.OnMakerDrag += _mapView_OnMakerDrag;
@@ -68,6 +79,8 @@ namespace Bayaki
             System.Version ver = asm.GetName().Version;
             // バージョン番号を表示
             this.Text = string.Format("{0} - Ver.{1}", this.Text, ver.ToString());
+
+            _dropFiles = new List<string>();
         }
 
         private void _mapView_OnMakerDrag(double lat, double lon)
@@ -130,12 +143,46 @@ namespace Bayaki
         {
             try
             {
+                int selIndex = -1;
+                UInt32 ID = 0;
+                // 選択されているITEMのIDを記録しておく
+                if (1 == _locationSources.SelectedItems.Count)
+                {
+                    TrackItemSummary tiSum = _locationSources.SelectedItems[0].Tag as TrackItemSummary;
+                    if (null != tiSum)
+                    {
+                        ID = tiSum.ID;
+                    }
+                }
+
                 _locationSources.BeginUpdate();
                 _locationSources.Items.Clear();
-
-                foreach(ListViewItem viewItem in _trackItemBag.GetListViewItems())
+                // Itemを再設定
+                foreach (TrackItemSummary tiSum in _trackItemBag.Items)
                 {
+                    ListViewItem viewItem = new ListViewItem(new string[] { tiSum.Name, tiSum.From.ToString("yyyy/MM/dd HH:mm:ss"), tiSum.To.ToString("yyyy/MM/dd HH:mm:ss"), tiSum.PointCount.ToString() });
+                    if (null != tiSum.Description && 0 <= tiSum.Description.Length)
+                    {
+                        viewItem.ToolTipText = tiSum.Description;
+                    }
+                    viewItem.Tag = tiSum;
+
                     _locationSources.Items.Add(viewItem);
+
+                    if (0 != ID)
+                    {
+                        // 選択されていたIDと同じITEMのindexを記録
+                        if (ID == tiSum.ID)
+                        {
+                            selIndex = _locationSources.Items.Count - 1;
+                        }
+                    }
+                }
+
+                // 選択されていたIDを再選択
+                if( 0 <= selIndex)
+                {
+                    _locationSources.SelectedIndices.Add(selIndex);
                 }
             }
             finally
@@ -170,21 +217,41 @@ namespace Bayaki
 
                 System.Diagnostics.Debug.Print(string.Format("create:{1} name:{0}", track.Name, track.CreateTime));
 
-                TrackItemSummary summary = new TrackItemSummary(track);
-                _trackItemBag.AddItem(summary);
+                _trackItemBag.AddItem(track);
                 blNewTracks = true;
             }
 
             if (blNewTracks)
             {
-                // データが変化したので保存します。
-                _trackItemBag.Save();
-                // 画面を更新します
-                UpdateLocationList();
+                this.UseWaitCursor = true;
+
 
                 // 読み込んでいるイメージに対して再度位置情報のマッチングを実施する
                 LocationMatching();
+
+                // リストを更新する
+                UpdateLocationList();
+
+#if true
+                // データが変化したので保存します。
+                var task = Task.Factory.StartNew(() =>
+                {
+                    _trackItemBag.Save();
+                }).ContinueWith(_ =>
+                {
+                    this.UseWaitCursor = false;
+
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+#else
+                _trackItemBag.Save();
+                this.UseWaitCursor = false;
+#endif
             }
+        }
+
+        private void CursorNormal()
+        {
+            this.UseWaitCursor = false;
         }
 
         private void LocationMatching()
@@ -271,6 +338,7 @@ namespace Bayaki
 
                 if( DialogResult.OK == npf.ShowDialog(this))
                 {
+                    // 画像を読み込んだので、位置情報の確定を行う
                     foreach( ListViewItem item in ljf.Items)
                     {
                         JPEGFileItem jpegItem = item.Tag as JPEGFileItem;
@@ -314,6 +382,31 @@ namespace Bayaki
             }
         }
 
+        protected override void WndProc(ref Message m)
+        {
+            switch (m.Msg)
+            {
+                case WM_DROPFILE_LISTUP:
+                    {
+                        string[] dropFiles = null;
+                        // 処理対象を取得
+                        lock (_dropFiles)
+                        {
+                            dropFiles = _dropFiles.ToArray();
+                            _dropFiles.Clear();
+                        }
+                        // 画面表示する
+                        if (null != dropFiles)
+                        {
+                            LoadDropFiles(dropFiles, true);
+                        }
+                    }
+                    return;
+            }
+
+            base.WndProc(ref m);
+        }
+
         private void _targets_DragDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -321,7 +414,16 @@ namespace Bayaki
                 // ドラッグ中のファイルやディレクトリの取得
                 string[] dropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                LoadDropFiles(dropFiles, true);
+                // ドロップ元がロックしないように処理を積み替える
+                {
+                    lock (_dropFiles)
+                    {
+                        _dropFiles.AddRange(dropFiles);
+                    }
+                    PostMessage(this.Handle, WM_DROPFILE_LISTUP, IntPtr.Zero, IntPtr.Zero);
+                }
+
+                e.Effect = DragDropEffects.Copy;
             }
         }
 
@@ -332,7 +434,17 @@ namespace Bayaki
                 // ドラッグ中のファイルやディレクトリの取得
                 string[] dropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                LoadDropFiles(dropFiles, false);
+                // ドロップ元がロックしないように処理を積み替える
+                {
+                    lock (_dropFiles)
+                    {
+                        _dropFiles.AddRange(dropFiles);
+                    }
+                    PostMessage(this.Handle, WM_DROPFILE_LISTUP, IntPtr.Zero, IntPtr.Zero);
+                }
+
+
+                e.Effect = DragDropEffects.Copy;
 
                 _dropCover.Visible = false;
             }
@@ -359,7 +471,6 @@ namespace Bayaki
             using (FileStream fs = new FileStream(jpegItem.FilePath, FileMode.Open, FileAccess.Read))
             {
                 bmp = Bitmap.FromStream(fs);
-                fs.Close();
             }
 
             _previewImage.Image = bmp;
@@ -391,27 +502,46 @@ namespace Bayaki
             if (0 >= _locationSources.SelectedItems.Count) return;
             if (DialogResult.OK != MessageBox.Show(Properties.Resources.MSG1, this.Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question)) return;
 
-            foreach (ListViewItem item in _locationSources.SelectedItems)
+            bool removed = false;
+            foreach( ListViewItem item in _locationSources.SelectedItems)
             {
-                TrackItemSummary summary = item.Tag as TrackItemSummary;
-                if (null == summary) continue;
+                TrackItemSummary tiSum = item.Tag as TrackItemSummary;
+                if (null == tiSum) continue;
 
-                _locationSources.Items.Remove(item);
-                _trackItemBag.RemoveItem(summary);
+                _trackItemBag.Remove(tiSum.ID);
+                removed = true;
             }
-            _trackItemBag.Save();
+            if (removed)
+            {
+                this.UseWaitCursor = true;
+
+                UpdateLocationList();
+
+#if true
+                // データが変化したので保存します。
+                var task = Task.Factory.StartNew(() =>
+                {
+                    _trackItemBag.Save();
+                }).ContinueWith(_ =>
+                {
+                    this.UseWaitCursor = false;
+
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+#else
+                _trackItemBag.Save();
+                this.UseWaitCursor = false;
+#endif
+            }
         }
 
         private void _upPriority_Click(object sender, EventArgs e)
         {
             if (1 != _locationSources.SelectedItems.Count) return;
 
-            ListViewItem lvItem = _locationSources.SelectedItems[0];
-            TrackItemSummary summary = lvItem.Tag as TrackItemSummary;
+            TrackItemSummary tiSum = _locationSources.SelectedItems[0].Tag as TrackItemSummary;
+            if (null == tiSum) return;
 
-            if (null == summary) return;
-
-            _trackItemBag.Up(summary);
+            _trackItemBag.Up(tiSum.ID);
 
             _trackItemBag.Save();
             UpdateLocationList();
@@ -421,12 +551,10 @@ namespace Bayaki
         {
             if (1 != _locationSources.SelectedItems.Count) return;
 
-            ListViewItem lvItem = _locationSources.SelectedItems[0];
-            TrackItemSummary summary = lvItem.Tag as TrackItemSummary;
+            TrackItemSummary tiSum = _locationSources.SelectedItems[0].Tag as TrackItemSummary;
+            if (null == tiSum) return;
 
-            if (null == summary) return;
-
-            _trackItemBag.Down(summary);
+            _trackItemBag.Down(tiSum.ID);
 
             _trackItemBag.Save();
             UpdateLocationList();
@@ -449,6 +577,22 @@ namespace Bayaki
             NowProcessingForm<JPEGFileItem> npf = new NowProcessingForm<JPEGFileItem>(new UpdateJpegFile(), items.ToArray());
             if( DialogResult.OK == npf.ShowDialog(this))
             {
+                // 更新できなので、チェックボックスを外します。
+                try
+                {
+                    _targets.BeginUpdate();
+                    foreach (ListViewItem lvItem in _targets.Items)
+                    {
+                        // チェックされていないのは保存対象外
+                        if (!lvItem.Checked) continue;
+
+                        lvItem.Checked = false;
+                    }
+                }
+                finally
+                {
+                    _targets.EndUpdate();
+                }
                 MessageBox.Show(Properties.Resources.MSG3, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
@@ -638,7 +782,6 @@ namespace Bayaki
                 trackItem.Name = e.Label;
 
                 _trackItemBag.Save();
-
             }
         }
 
@@ -732,16 +875,22 @@ namespace Bayaki
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            bool delay = false;
+#if DEBUG
+            delay = true;
+#endif
 #if _MAP_GOOGLE
-            _mapView.Show(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
+            _mapView.Initialize(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE, delay);
 #else
 #if _MAP_YAHOO
-            _mapView.Show(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
+            _mapView.Initialize(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO, delay);
 #else
 #error      コンパイルオプションとして対象のマッププロバイダを設定してください。
 #endif
 #endif
-
+#if DEBUG
+            _mapView.DocumentText = "<html><body bgcolor='lightgray'><table width='100%' height='100%'><tr><td valign='middle' align='center' >...</tr></td></table></body></html>";
+#endif
             // 保存先フォルダがないなら作る
             if ( !System.IO.Directory.Exists(_workPath))
             {

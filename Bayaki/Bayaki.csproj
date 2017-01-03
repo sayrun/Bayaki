@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="GPXLoaderv1.cs" />
     <Compile Include="JPEGFileItem.cs" />
+    <Compile Include="kml21.cs" />
     <Compile Include="KMLLoaderv1.cs" />
     <Compile Include="KMLReader.cs" />
     <Compile Include="LoadJpegFile.cs" />
@@ -83,7 +84,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrackItemBag.cs" />
+    <Compile Include="TrackItemCacheModified.cs" />
     <Compile Include="TrackItemReader.cs" />
+    <Compile Include="ITrackItemCache.cs" />
+    <Compile Include="TrackItemCacheLoaded.cs" />
+    <Compile Include="TrackItemCacheNotLoaded.cs" />
+    <Compile Include="TrackItemCacheNotYetSaved.cs" />
     <Compile Include="TrackItemWriter.cs" />
     <Compile Include="TrackItemSummary.cs" />
     <Compile Include="TrackPointPreviewForm.cs">
@@ -129,6 +135,10 @@
     <ProjectReference Include="..\bykIFv1\bykIFv1.csproj">
       <Project>{5f304f85-b09a-4ff0-9197-dbabf1bdeeaf}</Project>
       <Name>bykIFv1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GraphControlLibrary\GraphControlLibrary.csproj">
+      <Project>{a05ce690-6a9a-4110-acee-41fd311277d6}</Project>
+      <Name>GraphControlLibrary</Name>
     </ProjectReference>
     <ProjectReference Include="..\MapControlLibrary\MapControlLibrary.csproj">
       <Project>{1df971fe-cf3d-4610-812c-406a1b9abe32}</Project>

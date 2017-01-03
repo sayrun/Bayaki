@@ -13,12 +13,14 @@ namespace Bayaki
     public partial class TrackPointPreviewForm : Form
     {
         private bykIFv1.TrackItem _trackItem;
+        Single maxSpeed;
 
         public TrackPointPreviewForm(bykIFv1.TrackItem trackItem)
         {
             InitializeComponent();
 
             _trackItem = trackItem;
+            maxSpeed = 200;
         }
 
         private void TrackPointPreviewForm_Load(object sender, EventArgs e)
@@ -26,17 +28,282 @@ namespace Bayaki
             this.Text = _trackItem.Name;
 
 #if _MAP_GOOGLE
-            _mapView.Show(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
+            _mapView.Initialize(MapControlLibrary.MapControl.MapProvider.GOOGLE, Properties.Resources.KEY_GOOGLE);
 #else
 #if _MAP_YAHOO
-            _mapView.Show(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
+            _mapView.Initialize(MapControlLibrary.MapControl.MapProvider.YAHOO, Properties.Resources.KEY_YAHOO);
 #else
 #error      コンパイルオプションとして対象のマッププロバイダを設定してください。
 #endif
 #endif
+            DrawRouteMap();
+            SetGraphData();
         }
 
-        private void _mapView_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        internal class HogeX : GraphControlLibrary.IDataFormater
+        {
+            private DateTime _dt;
+            public HogeX(DateTime dt)
+            {
+                _dt = dt.ToLocalTime();
+            }
+            public string ConvertFrom(float d)
+            {
+                DateTime date = _dt.AddSeconds(d);
+                return date.ToString();
+            }
+        }
+
+        internal class HogeY : GraphControlLibrary.IDataFormater
+        {
+            public string ConvertFrom(float d)
+            {
+                return string.Format("{0:F2} km/h", d);
+            }
+        }
+
+        private void SetGraphData()
+        {
+            bykIFv1.Point start = _trackItem.Items[0];
+            bykIFv1.Point end = _trackItem.Items[_trackItem.Items.Count - 1];
+
+
+            List<GraphControlLibrary.PointData> speedList = new List<GraphControlLibrary.PointData>();
+
+            {
+                // １分平均
+                bykIFv1.Point p1 = _trackItem.Items[0];
+                double speed = p1.Speed;
+                int itemCount = 1;
+                for (int index = 1; index < _trackItem.Items.Count; ++index)
+                {
+
+                    if (p1.Time.Year != _trackItem.Items[index].Time.Year
+                        || p1.Time.Month != _trackItem.Items[index].Time.Month
+                        || p1.Time.Day != _trackItem.Items[index].Time.Day
+                        || p1.Time.Hour != _trackItem.Items[index].Time.Hour
+                        || p1.Time.Minute != _trackItem.Items[index].Time.Minute)
+                    {
+                        System.Diagnostics.Debug.Print("{2} - {0}/{1}", speed, itemCount, p1.Time);
+
+                        speed /= itemCount;
+                        // m/sからkm/hへ
+                        speed *= 3600;
+                        speed /= 1000;
+
+                        TimeSpan s2 = p1.Time - start.Time;
+
+                        if (0 < speedList.Count)
+                        {
+                            double hoge = (s2.TotalSeconds - speedList[speedList.Count - 1].X);
+                            if (60 < (s2.TotalSeconds - speedList[speedList.Count - 1].X))
+                            {
+                                speedList.Add(new GraphControlLibrary.PointData(speedList[speedList.Count - 1].X + 1, 0));
+                                if (120 < (s2.TotalSeconds - speedList[speedList.Count - 1].X))
+                                {
+                                    speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds - 1, 0));
+                                }
+                            }
+                        }
+
+                        speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds, (Single)speed));
+
+                        speed = GetSpeed(_trackItem.Items[index], p1);
+                        p1 = _trackItem.Items[index];
+                        //speed = p1.Speed;
+                        itemCount = 1;
+                    }
+                    else
+                    {
+                        double speedSrc = GetSpeed(_trackItem.Items[index], p1);
+                        if (0 < speedSrc)
+                        {
+                            speed += speedSrc;
+                            ++itemCount;
+                        }
+                    }
+                    // 最後のデータを加工する
+                    if (index == (_trackItem.Items.Count - 1))
+                    {
+                        speed /= itemCount;
+
+                        TimeSpan s2 = p1.Time - start.Time;
+                        speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds, (Single)speed));
+                    }
+                }
+            }
+
+            TimeSpan s = end.Time - start.Time;
+            Single TotalSeconds = (Single)s.TotalSeconds;
+
+            GraphControlLibrary.ScaleData xMin = new GraphControlLibrary.ScaleData(start.Time.ToString(), 0);
+            GraphControlLibrary.ScaleData xMax = new GraphControlLibrary.ScaleData(end.Time.ToString(), TotalSeconds);
+            GraphControlLibrary.ScaleSet ss = new GraphControlLibrary.ScaleSet( "時間", "s", xMin, xMax, new HogeX(start.Time));
+
+            if( 1 <= s.TotalDays)
+            {
+                // 一日以上の差があるので、0:00にだけ線を引く
+                DateTime scale = new DateTime(start.Time.Year, start.Time.Month, start.Time.Day, 0, 0, 0);
+                while(end.Time > scale)
+                {
+                    scale = scale.AddDays(1);
+                    TimeSpan s2 = scale - start.Time;
+                    if (end.Time > scale)
+                    {
+                        ss.Items.Add(new GraphControlLibrary.ScaleData(scale.ToLocalTime().ToString("yyyy/MM/dd"), (Single)s2.TotalSeconds));
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if( 1 <= s.TotalHours)
+                {
+                    // 一時間以上差があるので、x:00に線を引く
+                    DateTime scale = new DateTime(start.Time.Year, start.Time.Month, start.Time.Day, start.Time.Hour, 0, 0);
+                    while (end.Time > scale)
+                    {
+                        scale = scale.AddHours(1);
+                        TimeSpan s2 = scale - start.Time;
+                        if (end.Time > scale)
+                        {
+                            if (0 >= ss.Items.Count)
+                            {
+                                ss.Items.Add(new GraphControlLibrary.ScaleData(scale.ToLocalTime().ToString("yyyy/MM/dd HH:mm"), (Single)s2.TotalSeconds));
+                            }
+                            else
+                            {
+                                ss.Items.Add(new GraphControlLibrary.ScaleData(scale.ToLocalTime().ToString("HH:mm"), (Single)s2.TotalSeconds));
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if( 1 <= s.TotalMinutes)
+                    {
+                        // 1分以上差があるので、5分ごとに線を引く
+                        DateTime scale = new DateTime(start.Time.Year, start.Time.Month, start.Time.Day, start.Time.Hour, start.Time.Minute, 0);
+                        while (end.Time > scale)
+                        {
+                            scale = scale.AddMinutes(5);
+                            TimeSpan s2 = scale - start.Time;
+                            if (end.Time > scale)
+                            {
+                                if (0 >= ss.Items.Count)
+                                {
+                                    ss.Items.Add(new GraphControlLibrary.ScaleData(scale.ToLocalTime().ToString("yyyy/MM/dd HH:mm"), (Single)s2.TotalSeconds));
+                                }
+                                else
+                                {
+                                    ss.Items.Add(new GraphControlLibrary.ScaleData(scale.ToLocalTime().ToString("HH:mm"), (Single)s2.TotalSeconds));
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            GraphControlLibrary.ScaleSet ss2 = new GraphControlLibrary.ScaleSet("時速", "km/h", new GraphControlLibrary.ScaleData("0 km", 0), new GraphControlLibrary.ScaleData(string.Format("{0:F2}", maxSpeed), (float)maxSpeed), new HogeY());
+            ss2.Items.Add(new GraphControlLibrary.ScaleData(string.Format("{0:F0}", maxSpeed / 2), (Single)(maxSpeed / 2)));
+            ss2.Items.Add(new GraphControlLibrary.ScaleData(string.Format("{0:F0}", maxSpeed), (Single)(maxSpeed)));
+            GraphControlLibrary.GraphSet gset = new GraphControlLibrary.GraphSet(ss, ss2, true);
+
+            gset.Items.AddRange(speedList);
+
+            _graphView.BegineUpdate();
+
+            _graphView.Items.Add(gset);
+
+            _graphView.EndUpdate();
+        }
+
+        private class Speedrange
+        {
+            public readonly int Range;
+            public int Count;
+
+            public Speedrange( int r)
+            {
+                Range = r;
+                Count = 0;
+            }
+        };
+
+        #region 速度を設定する
+        private double GetSpeed(bykIFv1.Point current, bykIFv1.Point prev)
+        {
+            if (0 < current.Speed) return current.Speed;
+
+            // 10分以上差があるなら、時速算出しない
+            TimeSpan ts = current.Time - prev.Time;
+            if (ts.TotalMinutes >= 60) return current.Speed;
+
+            double dis = Distance(current, prev);
+            double result = dis / ts.TotalSeconds;
+
+            return result;
+        }
+
+        /// <summary>
+        /// 二点間の距離を求める(ヒュベニの公式)
+        /// ※
+        /// </summary>
+        /// <param name="pt1"></param>
+        /// <param name="pt2"></param>
+        /// <returns></returns>
+        private double Distance(bykIFv1.Point pt1, bykIFv1.Point pt2)
+        {
+            const double PI = 3.1415926535898;
+            // a = 6,378,137
+            const double a = 6378137;
+            // f = 1 / 298.257 223 563
+            const double f = 1 / 298.257223563;
+            // b = a - ( a * f)
+            const double b = a - (a * f);
+
+            double x1 = (pt1.Longitude * PI) / 180;
+            double x2 = (pt2.Longitude * PI) / 180;
+            double y1 = (pt1.Latitude * PI) / 180;
+            double y2 = (pt2.Latitude * PI) / 180;
+
+            // e = √((a^2 - b^2) / a^2)
+            //double e = Math.Sqrt((Math.Pow(a, 2) + Math.Pow(b, 2)) / Math.Pow(a, 2));
+            const double e = 1.4118447577583941;
+            // μy = (y1 + y2) / 2
+            double uy = (y1 + y2) / 2;
+            // W = √(1-(e^2 * sin(μy)^2))
+            double W = Math.Sqrt(1 - (Math.Pow(e, 2) * Math.Pow(Math.Sin((uy * PI) / 180), 2)));
+            // N = a / W
+            double N = a / W;
+            // M = a * (1 - e^2) / W^3
+            double M = (a * (1 - Math.Pow(e, 2))) / Math.Pow(W, 3);
+            // dy = y1 - y2
+            double dy = y1 - y2;
+            // dx = x1 - x2
+            double dx = x1 - x2;
+
+            // d = √((dy*M)^2 + (dx*N*cos μy)^2)
+            double d = Math.Sqrt(Math.Pow(dy * M, 2) + Math.Pow(dx * N * Math.Cos(uy), 2));
+
+            return d;
+
+        }
+        #endregion
+
+
+        private void DrawRouteMap()
         {
             // 初期化してあげます
             _mapView.clearPoint();
@@ -45,10 +312,10 @@ namespace Bayaki
             bykIFv1.Point pm = _trackItem.Items[0];
             string markerText = string.Empty;
 
-            _mapView.addPoint( pm.Latitude, pm.Longitude, string.Format( Properties.Resources.MSG7, pm.Time.ToLocalTime()));
+            _mapView.addPoint(pm.Latitude, pm.Longitude, string.Format(Properties.Resources.MSG7, pm.Time.ToLocalTime()));
             foreach (bykIFv1.Point p in _trackItem.Items)
             {
-                if( p.Interest || (pm.Time.AddSeconds(6) < p.Time))
+                if (p.Interest || (pm.Time.AddSeconds(6) < p.Time))
                 {
                     pm = p;
                     if (pm == _trackItem.Items[_trackItem.Items.Count - 1])
@@ -70,6 +337,40 @@ namespace Bayaki
 
             // 描画を実行します。
             _mapView.drawPolyline();
+        }
+
+        private void rangeXXkmToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+            if (null == item) return;
+
+            maxSpeed = (int)item.Tag;
+
+            GraphControlLibrary.GraphSet gset = _graphView.Items[0];
+
+            GraphControlLibrary.ScaleSet ss2 = new GraphControlLibrary.ScaleSet("時速", "km/h", new GraphControlLibrary.ScaleData("0 km", 0), new GraphControlLibrary.ScaleData(string.Format("{0:F2}", maxSpeed), (float)maxSpeed), new HogeY());
+            ss2.Items.Add(new GraphControlLibrary.ScaleData(string.Format("{0:F0}", maxSpeed / 2), (Single)(maxSpeed / 2)));
+            ss2.Items.Add(new GraphControlLibrary.ScaleData(string.Format("{0:F0}", maxSpeed), (Single)(maxSpeed)));
+            GraphControlLibrary.GraphSet newGset = new GraphControlLibrary.GraphSet(gset.XScale, ss2, true);
+
+            newGset.Items.AddRange(gset.Items);
+
+            _graphView.BegineUpdate();
+
+            _graphView.Items.Clear();
+            _graphView.Items.Add(newGset);
+
+            _graphView.EndUpdate();
+        }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+            Single work;
+            foreach (ToolStripMenuItem item in contextMenuStrip1.Items)
+            {
+                work = (int)item.Tag;
+                item.Checked = (maxSpeed == work);
+            }
         }
     }
 }

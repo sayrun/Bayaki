@@ -128,106 +128,198 @@ var count = 0;
 var drawLine = null;
 
 function Initialize() {
-	var y = 34.784167;
-	var x = 135.400806;
-	var latlng = new google.maps.LatLng(y, x);
-	var opts = {
+	var result = false;
+	try{
+		var y = 34.784167;
+		var x = 135.400806;
+		var latlng = new google.maps.LatLng(y, x);
+		var opts = {
 			zoom: 14,
 			center: latlng,
 			streetViewControl: false,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
-	map = new google.maps.Map(document.getElementById("gmap"), opts);
+		map = new google.maps.Map(document.getElementById("gmap"), opts);
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function movePos( lat, lon) {
-	var pos = new google.maps.LatLng(lat, lon);
+	var result = false;
+	try{
+		var pos = new google.maps.LatLng(lat, lon);
 
-	if( null != marker)
+		if( null != marker)
+		{
+			marker.setMap(null);
+			marker = null;
+		}
+
+		marker = new google.maps.Marker( { map: map, position: pos } );
+		marker.setDraggable(true);
+		google.maps.event.addListener(marker, "dragend", function(e){
+			var latlon = marker.getPosition();
+			window.external.notifyLatLon( latlon.lat(), latlon.lng());
+		});
+		marker.setMap(map);
+		map.setCenter(pos);
+
+		result = true;
+	}catch(e)
 	{
-		marker.setMap(null);
-		marker = null;
+		// エラーは戻り値で通知するようにしてみる。
 	}
-
-	marker = new google.maps.Marker( { map: map, position: pos } );
-	marker.setDraggable(true);
-	google.maps.event.addListener(marker, "dragend", function(e){
-		var latlon = marker.getPosition();
-		window.external.notifyLatLon( latlon.lat(), latlon.lng());
-    });
-    marker.setMap(map);
-	map.setCenter(pos);
+	return result.toString();
 }
 
 function resetMarker() {
-	if( null != marker) {
-		marker.setMap(null);
-		marker = null;
+	var result = false;
+	try{
+		if( null != marker) {
+			marker.setMap(null);
+			marker = null;
+		}
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
 	}
+	return result.toString();
 }
 
 function resizeMap() {
-	var center = map.getCenter();
-	google.maps.event.trigger(map, 'resize');
-	map.setCenter(center);
+	var result = false;
+	try{
+		var center = map.getCenter();
+		google.maps.event.trigger(map, 'resize');
+		map.setCenter(center);
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function addPoint( lat, lon, interest) {
-	path[count] = new google.maps.LatLng(lat, lon);
-	intersts[count] = interest;
-	count++;
+	var result = false;
+	try{
+		path[count] = new google.maps.LatLng(lat, lon);
+		intersts[count] = interest;
+		count++;
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function drawPolyline() {
-	if(null != drawLine)
-	{
-		drawLine.setMap(null);
-		drawLine = null;
-	}
-	
-	drawLine = new google.maps.Polyline({
-		path: path,
-		strokeColor: '#8855FF',
-		strokeOpacity: 0.8,
-		strokeWeight: 4
-	});
-
-	var bounds = new google.maps.LatLngBounds();
-	for( index = 0; index &lt; count; ++index) {
-		if( "" != intersts[index]) {
-			marker = new google.maps.Marker( { map: map, position: path[ index], title: intersts[index]} );
-			marker.setMap(map);
+	var result = false;
+	try{
+		if(null != drawLine)
+		{
+			drawLine.setMap(null);
+			drawLine = null;
 		}
-		bounds.extend(path[ index]);
-	}
 
-	drawLine.setMap(map);
-	map.fitBounds (bounds);
+		drawLine = new google.maps.Polyline({
+			path: path,
+			strokeColor: '#8855FF',
+			strokeOpacity: 0.8,
+			strokeWeight: 4
+		});
+
+		var bounds = new google.maps.LatLngBounds();
+		for( index = 0; index &lt; count; ++index) {
+			if( "" != intersts[index]) {
+				marker = new google.maps.Marker( { map: map, position: path[ index], title: intersts[index]} );
+				marker.setMap(map);
+			}
+			bounds.extend(path[ index]);
+		}
+
+		drawLine.setMap(map);
+		map.fitBounds (bounds);
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function clearPoint() {
-	path = [];
-	intersts = [];
-	count = 0;
+	var result = false;
+	try{
+		path = [];
+		intersts = [];
+		count = 0;
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function dropMarker() {
-	if( null == marker) {
-		var latlon = map.getCenter();
-		marker = new google.maps.Marker( { map: map, position: latlon } );
+	var result = false;
+	try{
+		if( null == marker) {
+			var latlon = map.getCenter();
+			marker = new google.maps.Marker( { map: map, position: latlon } );
 		
-		window.external.notifyLatLon( latlon.lat(), latlon.lng());
+			window.external.notifyLatLon( latlon.lat(), latlon.lng());
+		}
+
+		marker.setDraggable(true);
+		google.maps.event.addListener(marker, "dragend", function(e){
+			var latlon = marker.getPosition();
+			window.external.notifyLatLon( latlon.lat(), latlon.lng());
+		});
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
 	}
-	
-	marker.setDraggable(true);
-	google.maps.event.addListener(marker, "dragend", function(e){
-		var latlon = marker.getPosition();
-		window.external.notifyLatLon( latlon.lat(), latlon.lng());
-    });
+	return result.toString();
 }
 &lt;/script&gt;
 &lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0"&gt;
 &lt;div id="gmap" style="width:100%; height:100%"&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</value>
+  </data>
+  <data name="nonetHTML" xml:space="preserve">
+    <value>&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;error&lt;/title&gt;
+&lt;/head&gt;
+&lt;body bgcolor='#cfbfbf'&gt;
+&lt;p&gt;networkが利用できないため、mapを表示できません。&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</value>
+  </data>
+  <data name="scriptErrorHTML" xml:space="preserve">
+    <value>&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;error&lt;/title&gt;
+&lt;/head&gt;
+&lt;body bgcolor='#cfbfbf'&gt;
+&lt;p&gt;scriptエラーが発生したため、mapを表示できません。&lt;/p&gt;
 &lt;/body&gt;
 &lt;/html&gt;</value>
   </data>
@@ -242,85 +334,156 @@ var intersts = null;
 var count = 0;
 
 function Initialize() {
-    map = new Y.Map("Ymap");
-    map.addControl( new Y.SliderZoomControl() );
-    map.addControl( new Y.LayerSetControl() );
-    map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
+	var result = false;
+	try{
+		map = new Y.Map("Ymap");
+		map.addControl( new Y.SliderZoomControl() );
+		map.addControl( new Y.LayerSetControl() );
+		map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function movePos( lat, lon) {
-	if( null != marker)
+	var result = false;
+	try{
+		if( null != marker)
+		{
+			map.clearFeatures();
+		}
+		var latlon = new Y.LatLng(lat,lon);
+
+		marker = new Y.Marker( latlon);
+		marker.setDraggable(true);
+		marker.bind("dragend", function(latlng){
+			var latlon = marker.getLatLng();
+			window.external.notifyLatLon( latlon.lat(), latlon.lng());
+    		});
+		map.addFeature(marker);
+		map.panTo(latlon,false);
+
+		result = true;
+	}catch(e)
 	{
-		map.clearFeatures();
+		// エラーは戻り値で通知するようにしてみる。
 	}
-	var latlon = new Y.LatLng(lat,lon);
-	
-	marker = new Y.Marker( latlon);
-	marker.setDraggable(true);
-	marker.bind("dragend", function(latlng){
-		var latlon = marker.getLatLng();
-		window.external.notifyLatLon( latlon.lat(), latlon.lng());
-    });
-	map.addFeature(marker);
-	map.panTo(latlon,false);
+	return result.toString();
 }
 
 function resetMarker() {
-	marker = null;
-	map.clearFeatures();
+	var result = false;
+	try{
+		marker = null;
+		map.clearFeatures();
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function resizeMap() {
-	map.updateSize();
+	var result = false;
+	try{
+		map.updateSize();
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function addPoint( lat, lon, interest) {
-	path[count] = new Y.LatLng(lat,lon);
-	intersts[count] = interest;
-	count++;
+	var result = false;
+	try{
+		path[count] = new Y.LatLng(lat,lon);
+		intersts[count] = interest;
+		count++;
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function drawPolyline() {
-	var line = new Y.Polyline(path);
-	map.addFeature(line);
+	var result = false;
+	try{
+		var line = new Y.Polyline(path);
+		map.addFeature(line);
 
-	var bounds = new Y.LatLngBounds();
-	for( index = 0; index &lt; count; ++index) {
-		if( "" != intersts[index]) {
-			marker = new Y.Marker( path[ index], { title: intersts[index]});
-			map.addFeature(marker);
+		var bounds = new Y.LatLngBounds();
+		for( index = 0; index &lt; count; ++index) {
+			if( "" != intersts[index]) {
+				marker = new Y.Marker( path[ index], { title: intersts[index]});
+				map.addFeature(marker);
+			}
+			bounds.extend(path[ index]);
 		}
-		bounds.extend(path[ index]);
-	}
 
-	map.setCenter(path[0]);
-	map.drawBounds(bounds, Y.LayerSetId.NORMAL);
+		map.setCenter(path[0]);
+		map.drawBounds(bounds, Y.LayerSetId.NORMAL);
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function clearPoint() {
-	path = [];
-	intersts = [];
-	count = 0;
-	map.clearFeatures();
+	var result = false;
+	try{
+		path = [];
+		intersts = [];
+		count = 0;
+		map.clearFeatures();
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
 }
 
 function dropMarker() {
-	if( null == marker) {
-		var latlon = map.getCenter();
-		marker = new Y.Marker( latlon);
-		map.addFeature(marker);
-		
-		window.external.notifyLatLon( latlon.lat(), latlon.lng());
-	}
+	var result = false;
+	try{
+		if( null == marker) {
+			var latlon = map.getCenter();
+			marker = new Y.Marker( latlon);
+			map.addFeature(marker);
 	
-	marker.setDraggable(true);
-	marker.bind("dragend", function(latlng){
-		var latlon = marker.getLatLng();
-		window.external.notifyLatLon( latlon.lat(), latlon.lng());
-    });
-	map.panTo(marker.getLatLng(),false);
-}
+			window.external.notifyLatLon( latlon.lat(), latlon.lng());
+		}
 
+		marker.setDraggable(true);
+		marker.bind("dragend", function(latlng){
+			var latlon = marker.getLatLng();
+			window.external.notifyLatLon( latlon.lat(), latlon.lng());
+		});
+		map.panTo(marker.getLatLng(),false);
+
+		result = true;
+	}catch(e)
+	{
+		// エラーは戻り値で通知するようにしてみる。
+	}
+	return result.toString();
+}
 &lt;/script&gt;
 &lt;body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0"&gt;
 &lt;div id="Ymap" style="width:100%; height:100%"&gt;&lt;/div&gt;

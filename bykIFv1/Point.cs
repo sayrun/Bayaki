@@ -7,7 +7,6 @@ using System.Device.Location;
 
 namespace bykIFv1
 {
-    [Serializable]
     public class Point : IComparable<Point>, IComparable<DateTime>
     {
         public readonly DateTime Time;

@@ -32,6 +32,9 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this._dropCover = new System.Windows.Forms.Label();
+            this._targetsSel = new System.Windows.Forms.Button();
+            this._allSel = new System.Windows.Forms.Button();
+            this._clearSel = new System.Windows.Forms.Button();
             this._update = new System.Windows.Forms.Button();
             this._targets = new System.Windows.Forms.ListView();
             this._targetsImage = new System.Windows.Forms.ImageList(this.components);
@@ -68,9 +71,6 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._exportFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this._clearSel = new System.Windows.Forms.Button();
-            this._allSel = new System.Windows.Forms.Button();
-            this._targetsSel = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -134,6 +134,39 @@
             this._dropCover.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this._dropCover.DragDrop += new System.Windows.Forms.DragEventHandler(this._dropCover_DragDrop);
             this._dropCover.DragEnter += new System.Windows.Forms.DragEventHandler(this._dropCover_DragEnter);
+            // 
+            // _targetsSel
+            // 
+            this._targetsSel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._targetsSel.Location = new System.Drawing.Point(637, 273);
+            this._targetsSel.Name = "_targetsSel";
+            this._targetsSel.Size = new System.Drawing.Size(75, 23);
+            this._targetsSel.TabIndex = 1;
+            this._targetsSel.Text = "対象選択";
+            this._targetsSel.UseVisualStyleBackColor = true;
+            this._targetsSel.Click += new System.EventHandler(this._targetsSel_Click);
+            // 
+            // _allSel
+            // 
+            this._allSel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._allSel.Location = new System.Drawing.Point(556, 273);
+            this._allSel.Name = "_allSel";
+            this._allSel.Size = new System.Drawing.Size(75, 23);
+            this._allSel.TabIndex = 1;
+            this._allSel.Text = "全選択";
+            this._allSel.UseVisualStyleBackColor = true;
+            this._allSel.Click += new System.EventHandler(this._allSel_Click);
+            // 
+            // _clearSel
+            // 
+            this._clearSel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._clearSel.Location = new System.Drawing.Point(718, 273);
+            this._clearSel.Name = "_clearSel";
+            this._clearSel.Size = new System.Drawing.Size(75, 23);
+            this._clearSel.TabIndex = 1;
+            this._clearSel.Text = "選択解除";
+            this._clearSel.UseVisualStyleBackColor = true;
+            this._clearSel.Click += new System.EventHandler(this._clearSel_Click);
             // 
             // _update
             // 
@@ -214,6 +247,7 @@
             // 
             // _previewImage
             // 
+            this._previewImage.BackColor = System.Drawing.SystemColors.Window;
             this._previewImage.ContextMenuStrip = this._previewImageContextMenu;
             this._previewImage.Dock = System.Windows.Forms.DockStyle.Fill;
             this._previewImage.Location = new System.Drawing.Point(0, 0);
@@ -288,6 +322,7 @@
             this._locationSources.ContextMenuStrip = this._locationContextMenu;
             this._locationSources.Dock = System.Windows.Forms.DockStyle.Fill;
             this._locationSources.FullRowSelect = true;
+            this._locationSources.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this._locationSources.HideSelection = false;
             this._locationSources.LabelEdit = true;
             this._locationSources.Location = new System.Drawing.Point(3, 28);
@@ -456,39 +491,6 @@
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.removeToolStripMenuItem.Text = "プラグイン削除...";
-            // 
-            // _clearSel
-            // 
-            this._clearSel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._clearSel.Location = new System.Drawing.Point(718, 273);
-            this._clearSel.Name = "_clearSel";
-            this._clearSel.Size = new System.Drawing.Size(75, 23);
-            this._clearSel.TabIndex = 1;
-            this._clearSel.Text = "選択解除";
-            this._clearSel.UseVisualStyleBackColor = true;
-            this._clearSel.Click += new System.EventHandler(this._clearSel_Click);
-            // 
-            // _allSel
-            // 
-            this._allSel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._allSel.Location = new System.Drawing.Point(556, 273);
-            this._allSel.Name = "_allSel";
-            this._allSel.Size = new System.Drawing.Size(75, 23);
-            this._allSel.TabIndex = 1;
-            this._allSel.Text = "全選択";
-            this._allSel.UseVisualStyleBackColor = true;
-            this._allSel.Click += new System.EventHandler(this._allSel_Click);
-            // 
-            // _targetsSel
-            // 
-            this._targetsSel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._targetsSel.Location = new System.Drawing.Point(637, 273);
-            this._targetsSel.Name = "_targetsSel";
-            this._targetsSel.Size = new System.Drawing.Size(75, 23);
-            this._targetsSel.TabIndex = 1;
-            this._targetsSel.Text = "対象選択";
-            this._targetsSel.UseVisualStyleBackColor = true;
-            this._targetsSel.Click += new System.EventHandler(this._targetsSel_Click);
             // 
             // MainForm
             // 

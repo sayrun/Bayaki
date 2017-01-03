@@ -12,6 +12,8 @@ namespace Bayaki
     [Serializable]
     class TrackItemSummary : ISerializable
     {
+        public readonly UInt32 ID;
+
         public readonly DateTime From;
         public readonly DateTime To;
         public readonly int PointCount;
@@ -21,14 +23,17 @@ namespace Bayaki
         private string _saveFileName;
 
         private static string _savePath;
+        private static UInt32 IDseed = 0;
 
         private const int DATA_VERSION = 0x0100;
 
-        bykIFv1.TrackItem _item;
+        ITrackItemCache _trackItemProxy;
 
         public TrackItemSummary( bykIFv1.TrackItem track)
         {
             track.Normalize();
+
+            ID = GenerateID();
 
             PointCount = track.Items.Count;
             From = track.Items[0].Time;
@@ -42,9 +47,21 @@ namespace Bayaki
             Description = track.Description;
 
             _name = track.Name;
-            _item = track;
+            _trackItemProxy = new TrackItemCacheNotYetSaved( track);
 
             _saveFileName = string.Empty;
+        }
+
+        /// <summary>
+        /// 処理用の管理IDを生成する
+        /// ここでは、起動中に有効であることが分かればよいから、生成は連番で。
+        /// </summary>
+        /// <returns></returns>
+        private static UInt32 GenerateID()
+        {
+            ++IDseed;
+
+            return IDseed;
         }
 
         public string Name
@@ -58,58 +75,11 @@ namespace Bayaki
                 if (this._name != value)
                 {
                     this._name = value;
-                    bykIFv1.TrackItem item = this.TrackItem;
+
+                    bykIFv1.TrackItem item = _trackItemProxy.GetTrackItem(out _trackItemProxy);
                     item.Name = value;
 
-                    // ファイル名が設定されているなら更新が必要
-                    if (0  < _saveFileName.Length)
-                    {
-                        // 名前を更新します。
-                        using (Stream stream = new FileStream(Path.Combine(_savePath, _saveFileName), FileMode.Open))
-                        {
-                            stream.SetLength(0);
-                            stream.Flush();
-                            using (TrackItemWriter tiw = new TrackItemWriter(stream))
-                            {
-                                // 保存します
-                                tiw.Write(_item);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private void SafeTrackItem()
-        {
-            // ファイルを作成してみて保存パス名を決める
-            _saveFileName = string.Empty;
-            string fileName = string.Empty;
-            for (int index = 1; index < int.MaxValue; ++index)
-            {
-                fileName = string.Format("TrackItem{0:D4}.dat", index);
-                try
-                {
-                    string savePath = Path.Combine(_savePath, fileName);
-                    using (Stream stream = new FileStream(Path.Combine(_savePath, fileName), FileMode.CreateNew))
-                    {
-                        stream.SetLength(0);
-                        stream.Flush();
-                        using (TrackItemWriter tiw = new TrackItemWriter(stream))
-                        {
-                            // 保存します
-                            tiw.Write(_item);
-
-                            // ファイルが作成できたからこれをファイル名にします。
-                            _saveFileName = fileName;
-                            break;
-                        }
-                    }
-                }
-                catch (IOException)
-                {
-                    // ファイル名が作成できないみたいだらから
-                    continue;
+                    _trackItemProxy.UpdateTrackItem(out _trackItemProxy, _savePath);
                 }
             }
         }
@@ -135,13 +105,15 @@ namespace Bayaki
             Description = track.Description;
 
             _name = track.Name;
-            _item = track;
+            _trackItemProxy = new TrackItemCacheLoaded(track, filePath);
 
             _saveFileName = filePath;
         }
 
         public TrackItemSummary(SerializationInfo info, StreamingContext context)
         {
+            ID = GenerateID();
+
             int version = info.GetInt32("Version");
             PointCount = info.GetInt32("PointCount");
             From = info.GetDateTime("From");
@@ -149,15 +121,14 @@ namespace Bayaki
             _name = info.GetString("Name");
             Description = info.GetString("Description");
             _saveFileName = info.GetString("saveFileName");
+
+            _trackItemProxy = new TrackItemCacheNotLoaded(_savePath, _saveFileName);
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             // 持っているデータを保存します
-            if (0 >= _saveFileName.Length && null != _item)
-            {
-                SafeTrackItem();
-            }
+            _saveFileName = _trackItemProxy.SaveTrackItem(out _trackItemProxy, _savePath);
 
             info.AddValue("Version", DATA_VERSION);
             info.AddValue("PointCount", PointCount);
@@ -185,52 +156,38 @@ namespace Bayaki
             return (From.AddSeconds(-1 * margineSeconds) <= targetDate && To.AddSeconds(margineSeconds) >= targetDate);
         }
 
-        private void RestoreTrackItem()
-        {
-            if (null == _item)
-            {
-                string locations = System.IO.Path.Combine(_savePath, _saveFileName);
-                using (TrackItemReader tir = new TrackItemReader(locations))
-                {
-                    _item = tir.Read();
-
-                    // 変更された名前を設定する
-                    _item.Name = this._name;
-                }
-            }
-        }
-
         public bykIFv1.TrackItem TrackItem
         {
             get
             {
-                RestoreTrackItem();
-                return _item;
+                bykIFv1.TrackItem result = _trackItemProxy.GetTrackItem(out _trackItemProxy);
+
+                return result;
             }
         }
 
-        public bykIFv1.Point GetPoint(DateTime targetDate, double margineSeconds)
+        public bykIFv1.Point GetPoint(DateTime targetDate, double margineSeconds, double margineDstaince)
         {
             // 含まれない場合NULLを返すよ
             if (!IsContein(targetDate, margineSeconds)) return null;
-
-            // 読み込まれていない場合読み込む
-            RestoreTrackItem();
 
             // 指定された時間をUTCに変換する
             TimeSpan diff = System.TimeZoneInfo.Local.GetUtcOffset(targetDate);
             DateTime utcTime = targetDate.Subtract(diff);
             bykIFv1.Point orless = null;
-            foreach ( bykIFv1.Point pnt in _item.Items)
+            bykIFv1.TrackItem trackItem = _trackItemProxy.GetTrackItem(out _trackItemProxy);
+            foreach ( bykIFv1.Point pnt in trackItem.Items)
             {
-                if(utcTime > pnt.Time)
-                {
-                    orless = pnt;
-                }
-                if(utcTime == pnt.Time)
+                if (utcTime == pnt.Time)
                 {
                     return pnt;
                 }
+
+                if (utcTime > pnt.Time)
+                {
+                    orless = pnt;
+                }
+
                 // ソートされているから省略する
                 if (utcTime < pnt.Time)
                 {
@@ -252,6 +209,24 @@ namespace Bayaki
                                 return pnt;
                             }
                         }
+
+                        // 前回値の二点間の距離をみるよ
+                        double d = Distance(orless, pnt);
+                        if (d < margineDstaince)
+                        {
+                            // 前後の距離が近いので、時間のブレは大きいが、位置情報として採用する
+                            // 近い方
+                            if (s1 < s2)
+                            {
+                                return orless;
+                            }
+                            else
+                            {
+                                return pnt;
+                            }
+
+
+                        }
                     }
                     else
                     {
@@ -266,39 +241,72 @@ namespace Bayaki
             }
 
             // 最終の点よりも少しあとを再処理する
-            if (2 < _item.Items.Count)
+            if (2 < trackItem.Items.Count)
             {
-                bykIFv1.Point ormore = _item.Items[_item.Items.Count - 1];
+                bykIFv1.Point ormore = trackItem.Items[trackItem.Items.Count - 1];
 
                 TimeSpan s3 = utcTime - ormore.Time;
-                if (s3.TotalSeconds <= margineSeconds)
+                if (0 <= s3.TotalSeconds)
                 {
-                    return ormore;
+                    if (s3.TotalSeconds <= margineSeconds)
+                    {
+                        return ormore;
+                    }
                 }
             }
 
             return null;
         }
 
-        public ListViewItem GetListViewItem()
-        {
-            ListViewItem viewItem = new ListViewItem(_name);
-            viewItem.SubItems.Add(From.ToString("yyyy/MM/dd HH:mm:ss"));
-            viewItem.SubItems.Add(To.ToString("yyyy/MM/dd HH:mm:ss"));
-            viewItem.SubItems.Add(PointCount.ToString());
-            if ( null != Description && 0 <= Description.Length)
-            {
-                viewItem.ToolTipText = Description;
-            }
-            viewItem.Tag = this;
-
-            return viewItem;
-        }
-
         public void Remove()
         {
             string locations = System.IO.Path.Combine(_savePath, _saveFileName);
             File.Delete(locations);
+        }
+
+        /// <summary>
+        /// 二点間の距離を求める(ヒュベニの公式)
+        /// ※
+        /// </summary>
+        /// <param name="pt1"></param>
+        /// <param name="pt2"></param>
+        /// <returns></returns>
+        private double Distance(bykIFv1.Point pt1, bykIFv1.Point pt2 )
+        {
+            const double PI = 3.1415926535898;
+            // a = 6,378,137
+            const double a = 6378137;
+            // f = 1 / 298.257 223 563
+            const double f = 1 / 298.257223563;
+            // b = a - ( a * f)
+            const double b = a - (a * f);
+
+            double x1 = (pt1.Longitude * PI) / 180;
+            double x2 = (pt2.Longitude * PI) / 180;
+            double y1 = (pt1.Latitude * PI) / 180;
+            double y2 = (pt2.Latitude * PI) / 180;
+
+            // e = √((a^2 - b^2) / a^2)
+            //double e = Math.Sqrt((Math.Pow(a, 2) + Math.Pow(b, 2)) / Math.Pow(a, 2));
+            const double e = 1.4118447577583941;
+            // μy = (y1 + y2) / 2
+            double uy = (y1 + y2) / 2;
+            // W = √(1-(e^2 * sin(μy)^2))
+            double W = Math.Sqrt(1 - (Math.Pow(e, 2) * Math.Pow(Math.Sin((uy * PI) / 180), 2)));
+            // N = a / W
+            double N = a / W;
+            // M = a * (1 - e^2) / W^3
+            double M = (a * (1 - Math.Pow(e, 2))) / Math.Pow(W, 3);
+            // dy = y1 - y2
+            double dy = y1 - y2;
+            // dx = x1 - x2
+            double dx = x1 - x2;
+
+            // d = √((dy*M)^2 + (dx*N*cos μy)^2)
+            double d = Math.Sqrt(Math.Pow(dy * M, 2) + Math.Pow(dx * N * Math.Cos(uy), 2));
+
+            return d;
+
         }
     }
 }

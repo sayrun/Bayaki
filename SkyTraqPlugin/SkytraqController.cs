@@ -24,6 +24,9 @@ namespace SkyTraqPlugin
         private const int READ_TIMEOUT = (10 * 1000);
         private const int READ_TIMEOUT_INTERNAL = (100);
 
+        private const int WRITE_TIMEOUT = (10 * 1000);
+        private const int WRITE_TIMEOUT_INTERNAL = (100);
+
         private const int EPHEMERIS_BLOCK_SIZE = 0x56;
         private const int EPHEMERIS_WRITE_SIZE = 8192;
 
@@ -43,6 +46,7 @@ namespace SkyTraqPlugin
             _com = new SerialPort(portName, 38400, Parity.None, 8, StopBits.One);
 
             _com.ReadTimeout = READ_TIMEOUT;
+            _com.WriteTimeout = WRITE_TIMEOUT;
             _com.Open();
 
             // 同期しつつバージョンを取得してみる
@@ -53,12 +57,14 @@ namespace SkyTraqPlugin
         /// コンストラクタ
         /// </summary>
         /// <param name="portName">ポート名称</param>
-        /// <param name="timeout">タイムアウト値</param>
-        private SkytraqController(string portName, int timeout)
+        /// <param name="readTimeout">読み込みタイムアウト値</param>
+        /// <param name="writeTimeout">書き込みタイムアウト値</param>
+        private SkytraqController(string portName, int readTimeout, int writeTimeout)
         {
             _com = new SerialPort(portName, 38400, Parity.None, 8, StopBits.One);
 
-            _com.ReadTimeout = timeout;
+            _com.ReadTimeout = readTimeout;
+            _com.WriteTimeout = writeTimeout;
             _com.Open();
 
             // 同期しつつバージョンを取得してみる
@@ -93,12 +99,13 @@ namespace SkyTraqPlugin
                 }
                 try
                 {
+                    int readTimeout = _com.ReadTimeout;
                     // 読み出しのタイムアウトを短くする
                     _com.ReadTimeout = READ_TIMEOUT_INTERNAL;
                     // ソフトバージョンを取得してみる
                     version = GetSoftwareVersion();
                     // タイムアウト値をもどします。
-                    _com.ReadTimeout = READ_TIMEOUT;
+                    _com.ReadTimeout = readTimeout;
 
                     System.Diagnostics.Debug.Print("Soft Type=0x{0:X2}", version.SoftType);
                     System.Diagnostics.Debug.Print("Kernel Vresion=0x{0:X8}", version.KernelVersion);
@@ -473,7 +480,6 @@ namespace SkyTraqPlugin
                 // empty
                 case 0xE000:
                     return null;
-                    break;
 
                 // FIX FULL POI
                 case 0x6000:
@@ -639,7 +645,8 @@ namespace SkyTraqPlugin
             new DateTime(2006, 1, 1, 0, 0, 0),
             new DateTime(2009, 1, 1, 0, 0, 0),
             new DateTime(2012, 7, 1, 0, 0, 0),
-            new DateTime(2015, 7, 1, 0, 0, 0)
+            new DateTime(2015, 7, 1, 0, 0, 0),
+            new DateTime(2017, 1, 1, 0, 0, 0)
         };
 
         private DateTime GPSTIME2diffUTC(long WN, long TOW)
@@ -867,7 +874,7 @@ namespace SkyTraqPlugin
             {
                 try
                 {
-                    port = new SkytraqController(portName, READ_TIMEOUT_INTERNAL);
+                    port = new SkytraqController(portName, READ_TIMEOUT_INTERNAL, WRITE_TIMEOUT_INTERNAL);
 
                     return portName;
                 }

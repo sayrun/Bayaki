@@ -98,7 +98,7 @@ namespace Bayaki
                                                                         {
                                                                             TimeSpan s = item.Time - olditem.Time;
 
-                                                                            double maxDistance = _maxSpeed * s.TotalSeconds;
+                                                                            double maxDistance = Math.Abs( _maxSpeed * s.TotalSeconds);
 
                                                                             // 音速を超える移動は破棄する
                                                                             skip = (maxDistance < item.Location.GetDistanceTo(olditem.Location));
@@ -106,8 +106,8 @@ namespace Bayaki
                                                                         if (false == skip)
                                                                         {
                                                                             result.Items.Add(item);
-                                                                            olditem = item;
                                                                         }
+                                                                        olditem = item;
                                                                     }
 
                                                                     datetime = string.Empty;

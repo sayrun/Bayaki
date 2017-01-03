@@ -13,12 +13,13 @@ namespace Bayaki
         private List<TrackItemSummary> _locations;
         private string _savePath;
         private const int MAX_TIMEDIFF = (60 * 20); // 根拠ないけど、20分以上差異があれば採用しない
-
+        private const int MAX_DISTDIFF = (80 * MAX_TIMEDIFF);   // 根拠ないけど、最大誤差時間＊80m範囲は近い時間を採用させる
 
         public TrackItemBag(string savePath)
         {
             _locations = new List<TrackItemSummary>();
             _savePath = savePath;
+            TrackItemSummary.SavePath = savePath;
         }
 
         public void Save()
@@ -84,89 +85,131 @@ namespace Bayaki
             }
         }
 
-        public ListViewItem[] GetListViewItems()
+        public IEnumerable<TrackItemSummary> Items
         {
-            ListViewItem[] items = new ListViewItem[_locations.Count];
-
-            for( int index = 0; index < _locations.Count; ++index)
+            get
             {
-                items[index] = _locations[index].GetListViewItem();
+                return _locations;
+            }
+        }
+
+        public UInt32 AddItem(bykIFv1.TrackItem track)
+        {
+            TrackItemSummary tiSum = new TrackItemSummary(track);
+            if (0 == _locations.Count)
+            {
+                _locations.Add(tiSum);
+            }
+            else
+            {
+                _locations.Insert(0, tiSum);
             }
 
-            return items;
+            return tiSum.ID;
         }
 
-        public void AddItem(TrackItemSummary item)
+        public void Remove(UInt32 ID)
         {
-            _locations.Add(item);
+            foreach( TrackItemSummary item in _locations)
+            {
+                if( item.ID == ID)
+                {
+                    _locations.Remove(item);
+                    // 関連情報も消す
+                    item.Remove();
+
+                    break;
+                }
+            }
         }
 
-        public void RemoveItem(TrackItemSummary item)
+        public void Up( UInt32 ID)
         {
-            _locations.Remove(item);
-            // 関連情報も消す
-            item.Remove();
+            for( int index = 0; index < _locations.Count; ++index)
+            {
+                if(ID == _locations[index].ID)
+                {
+                    TrackItemSummary item = _locations[index];
+
+                    _locations.Remove(item);
+                    _locations.Insert(index - 1, item);
+
+                    break;
+                }
+            }
         }
 
-        public void Up(TrackItemSummary item)
+        public void Down(UInt32 ID)
         {
-            int index = _locations.IndexOf(item);
-            if (0 >= index) return;
+            for (int index = 0; index < _locations.Count; ++index)
+            {
+                if (ID == _locations[index].ID)
+                {
+                    TrackItemSummary item = _locations[index];
 
-            _locations.Remove(item);
-            _locations.Insert(index - 1, item);
-        }
+                    _locations.Remove(item);
+                    _locations.Insert(index + 1, item);
 
-        public void Down(TrackItemSummary item)
-        {
-            int index = _locations.IndexOf(item);
-            if (_locations.Count <= index) return;
-
-            _locations.Remove(item);
-            _locations.Insert(index + 1, item);
-
+                    break;
+                }
+            }
         }
 
         public bykIFv1.Point FindPoint(DateTime localTime)
         {
-            List<bykIFv1.Point> points = new List<bykIFv1.Point>();
+            return FindPointForeach(localTime);
+        }
+
+        private bykIFv1.Point FindPointForeach(DateTime localTime)
+        {
+            // 複数の位置情報元で一致したら、近いデータを採用する
+            // 比較用にUTCにする
+            DateTime utcdt = localTime.Subtract(System.TimeZoneInfo.Local.GetUtcOffset(localTime));
+
+            bykIFv1.Point result = null;
+            double diff = 0;
+            double diffOld = double.MaxValue;
+
             foreach (TrackItemSummary summary in _locations)
             {
                 if (summary.IsContein(localTime, MAX_TIMEDIFF))
                 {
-                    bykIFv1.Point point = summary.GetPoint(localTime, MAX_TIMEDIFF);
+                    bykIFv1.Point point = summary.GetPoint(localTime, MAX_TIMEDIFF, MAX_DISTDIFF);
                     if (null != point)
                     {
-                        points.Add(point);
+                        TimeSpan s = point.Time - utcdt;
+                        diff = Math.Abs(s.TotalSeconds);
+
+                        if (diffOld > diff)
+                        {
+                            result = point;
+                            diffOld = diff;
+                        }
                     }
                 }
             }
+            
+            return result;
+        }
 
-            // 一致しないならNULLを返す
-            if (0 >= points.Count) return null;
-
-            // 一致したものが１つならそれを返す
-            if (1 == points.Count) return points[0];
-
+        private bykIFv1.Point FindPointLinQ(DateTime localTime)
+        {
             // 複数の位置情報元で一致したら、近いデータを採用する
             // 比較用にUTCにする
             DateTime utcdt = localTime.Subtract(System.TimeZoneInfo.Local.GetUtcOffset(localTime));
-            // 複数の結果が得られたら、より時間の小さいほう
-            bykIFv1.Point result = null;
-            double diff = 0;
-            double diffOld = double.MaxValue;
-            foreach (bykIFv1.Point pnt in points)
-            {
-                TimeSpan s = pnt.Time - utcdt;
-                diff = Math.Abs(s.TotalSeconds);
-                if (diff >= MAX_TIMEDIFF) continue;
-                if (diffOld > diff)
-                {
-                    result = pnt;
-                    diffOld = diff;
-                }
-            }
-            return result;
+
+            var points = from d in _locations
+                         where (null != d.GetPoint(localTime, MAX_TIMEDIFF, MAX_DISTDIFF))
+                         select new { Point = d.GetPoint(localTime, MAX_TIMEDIFF, MAX_DISTDIFF), Distance = Math.Abs((d.GetPoint(localTime, MAX_TIMEDIFF, MAX_DISTDIFF).Time - utcdt).TotalSeconds) };
+
+            // 一致しないならNULLを返す
+            if (0 >= points.Count()) return null;
+
+            var hoge = from dd in points
+                       orderby dd.Distance
+                       select dd.Point;
+
+            return hoge.First();
         }
     }
 }

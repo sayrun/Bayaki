@@ -117,66 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="GPXLoader_ICON" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\GPXLoader_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="GPXLoader_NAME" xml:space="preserve">
-    <value>GPXLoader</value>
-  </data>
-  <data name="MSG1" xml:space="preserve">
-    <value>削除してもよいですか？</value>
-  </data>
-  <data name="SkytraqDownloader_NAME" xml:space="preserve">
-    <value>Skytraq Downloader</value>
-  </data>
-  <data name="HeaderSeed" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\HeaderSeed.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="KMLLoader_ICON" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\KMLLoader_ICON.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="KMLLoader_NAME" xml:space="preserve">
-    <value>KMLLoader</value>
-  </data>
-  <data name="MSG2" xml:space="preserve">
-    <value>plugin[{0}]でエラーが発生しました。
-
-詳細
-{1}</value>
-  </data>
-  <data name="MSG3" xml:space="preserve">
-    <value>更新しました</value>
-  </data>
-  <data name="MSG4" xml:space="preserve">
-    <value>プラグイン選択</value>
-  </data>
-  <data name="MSG5" xml:space="preserve">
-    <value>位置情報を削除しますか？</value>
-  </data>
-  <data name="MSG6" xml:space="preserve">
-    <value>二重起動はできません。</value>
-  </data>
-  <data name="MSG7" xml:space="preserve">
-    <value>{0}(記録開始)</value>
-  </data>
-  <data name="MSG8" xml:space="preserve">
-    <value>{0}(記録終了)</value>
-  </data>
-  <data name="KEY_GOOGLE" xml:space="preserve">
-    <value>AIzaSyDlepDvnD6x9Fkm-5l9IfqiH12kZiiO78g</value>
-  </data>
-  <data name="KEY_YAHOO" xml:space="preserve">
-    <value>dj0zaiZpPUpJRmx2aEp4RUwyMyZzPWNvbnN1bWVyc2VjcmV0Jng9MDM-</value>
-  </data>
-  <data name="MSG9" xml:space="preserve">
-    <value>選択されたプラグインはインストール済みです。</value>
-  </data>
-  <data name="MSG10" xml:space="preserve">
-    <value>位置情報元の保存ファイルを読み込めませんでした。
-再起動して解決しない場合はマイドキュメント フォルダにある「Bayaki Folder\BayakiSummary.dat」を削除してから再起動してみてください。
-
-理由：
-{0}</value>
-  </data>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
 </root>

@@ -71,20 +71,52 @@ namespace MapControlLibrary.Properties {
         ///var drawLine = null;
         ///
         ///function Initialize() {
-        ///	var y = 34.784167;
-        ///	var x = 135.400806;
-        ///	var latlng = new google.maps.LatLng(y, x);
-        ///	var opts = {
+        ///	var result = false;
+        ///	try{
+        ///		var y = 34.784167;
+        ///		var x = 135.400806;
+        ///		var latlng = new google.maps.LatLng(y, x);
+        ///		var opts = {
         ///			zoom: 14,
         ///			center: latlng,
         ///			streetViewControl: false,
-        ///			mapTypeId: google.maps.MapTypeId.ROADMAP
-        ///		};
-        ///	map = new google.maps.Ma [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///			mapTypeId: google.maps.MapTypeId.ROADMAP [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string googlemapsHTML {
             get {
                 return ResourceManager.GetString("googlemapsHTML", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   &lt;html&gt;
+        ///&lt;head&gt;
+        ///&lt;title&gt;error&lt;/title&gt;
+        ///&lt;/head&gt;
+        ///&lt;body bgcolor=&apos;#cfbfbf&apos;&gt;
+        ///&lt;p&gt;networkが利用できないため、mapを表示できません。&lt;/p&gt;
+        ///&lt;/body&gt;
+        ///&lt;/html&gt; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string nonetHTML {
+            get {
+                return ResourceManager.GetString("nonetHTML", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   &lt;html&gt;
+        ///&lt;head&gt;
+        ///&lt;title&gt;error&lt;/title&gt;
+        ///&lt;/head&gt;
+        ///&lt;body bgcolor=&apos;#cfbfbf&apos;&gt;
+        ///&lt;p&gt;scriptエラーが発生したため、mapを表示できません。&lt;/p&gt;
+        ///&lt;/body&gt;
+        ///&lt;/html&gt; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string scriptErrorHTML {
+            get {
+                return ResourceManager.GetString("scriptErrorHTML", resourceCulture);
             }
         }
         
@@ -99,13 +131,12 @@ namespace MapControlLibrary.Properties {
         ///var count = 0;
         ///
         ///function Initialize() {
-        ///    map = new Y.Map(&quot;Ymap&quot;);
-        ///    map.addControl( new Y.SliderZoomControl() );
-        ///    map.addControl( new Y.LayerSetControl() );
-        ///    map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.NORMAL);
-        ///}
-        ///
-        ///functio [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///	var result = false;
+        ///	try{
+        ///		map = new Y.Map(&quot;Ymap&quot;);
+        ///		map.addControl( new Y.SliderZoomControl() );
+        ///		map.addControl( new Y.LayerSetControl() );
+        ///		map.drawMap(new Y.LatLng(34.784167, 135.400806), 16, Y.LayerSetId.N [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string yahoomapsHTML {
             get {
