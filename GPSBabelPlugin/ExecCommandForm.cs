@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace GPSBabelPlugin
 {
@@ -51,10 +53,7 @@ namespace GPSBabelPlugin
                     return;
                 }
 
-                this.UseWaitCursor = true;
-
-                // 受け渡し用の一時ファイルを作成します
-                string tempFileName = System.IO.Path.GetTempFileName();
+                this.Cursor = Cursors.WaitCursor;
 
                 System.Diagnostics.Process p = new System.Diagnostics.Process();
                 p.StartInfo.FileName = _execPath.Text;
@@ -66,31 +65,37 @@ namespace GPSBabelPlugin
                 //ウィンドウを表示しないようにする
                 p.StartInfo.CreateNoWindow = true;
 
-                // 一時ファイルに出力させる
-                p.StartInfo.Arguments = string.Format("{0} -o gpx -F {1}", _parameters.Text, tempFileName);
+                // 結果をGPXとしてstdoutに出力させる（-oは出力形式 -Fは出力先[-]はstdout指定
+                p.StartInfo.Arguments = string.Format("{0} -o gpx -F -", _parameters.Text);
 
+                // stdoutを受け取る
+                StringBuilder sb = new StringBuilder();
+                p.OutputDataReceived += delegate (object s, System.Diagnostics.DataReceivedEventArgs dre) { sb.AppendLine(dre.Data); };
+
+                // GPSBabelを起動する
                 p.Start();
+
                 //出力を読み取る
-                string results = p.StandardOutput.ReadToEnd();  // なぜか読めない
-                System.Diagnostics.Debug.Print(results);
+                p.BeginOutputReadLine();
 
                 //プロセス終了まで待機する
                 p.WaitForExit();
                 p.Close();
 
-                try
+                // stdoutの結果をgpxに読み込む
+                using (MemoryStream ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(sb.ToString())))
                 {
-                    // 一時ファイルから読み込む
-                    using (Bayaki.TrackItemReader tir = new Bayaki.TrackItemReader(tempFileName))
+                    using (TextReader tr = new StreamReader(ms))
                     {
-                        bykIFv1.TrackItem item = tir.Read();
-                        _item = (0 < item.Items.Count) ? item : null;
+                        using (XmlReader xr = new XmlTextReader(tr))
+                        {
+                            using (Bayaki.TrackItemReader tir = new Bayaki.TrackItemReader(xr))
+                            {
+                                bykIFv1.TrackItem item = tir.Read();
+                                _item = (0 < item.Items.Count) ? item : null;
+                            }
+                        }
                     }
-                }
-                finally
-                {
-                    // 一時ファイルを削除する
-                    System.IO.File.Delete(tempFileName);
                 }
 
                 // 成功していたら設定を反映させます。
@@ -99,13 +104,16 @@ namespace GPSBabelPlugin
                 Properties.Settings.Default.GPSBabel_Param0 = _parameters.Text;
                 Properties.Settings.Default.Save();
 
+                // 正常終了
                 DialogResult = DialogResult.OK;
             }
             catch (Exception ex)
             {
-                this.UseWaitCursor = false;
+                this.Cursor = Cursors.Default;
 
                 MessageBox.Show(ex.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                // 異常終了とする
                 DialogResult = DialogResult.Cancel;
             }
             finally
@@ -114,7 +122,7 @@ namespace GPSBabelPlugin
                 _cancel.Enabled = true;
                 _selExecFile.Enabled = true;
 
-                this.UseWaitCursor = false;
+                this.Cursor = Cursors.Default;
             }
         }
 
