@@ -424,27 +424,6 @@ namespace Bayaki
                 }
 
                 e.Effect = DragDropEffects.Copy;
-            }
-        }
-
-        private void _dropCover_DragDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                // ドラッグ中のファイルやディレクトリの取得
-                string[] dropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-                // ドロップ元がロックしないように処理を積み替える
-                {
-                    lock (_dropFiles)
-                    {
-                        _dropFiles.AddRange(dropFiles);
-                    }
-                    PostMessage(this.Handle, WM_DROPFILE_LISTUP, IntPtr.Zero, IntPtr.Zero);
-                }
-
-
-                e.Effect = DragDropEffects.Copy;
 
                 _dropCover.Visible = false;
             }

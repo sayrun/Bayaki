@@ -132,7 +132,7 @@
             this._dropCover.TabIndex = 2;
             this._dropCover.Text = "JPEGファイルをここにドロップしてください";
             this._dropCover.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this._dropCover.DragDrop += new System.Windows.Forms.DragEventHandler(this._dropCover_DragDrop);
+            this._dropCover.DragDrop += new System.Windows.Forms.DragEventHandler(this._targets_DragDrop);
             this._dropCover.DragEnter += new System.Windows.Forms.DragEventHandler(this._dropCover_DragEnter);
             // 
             // _targetsSel
