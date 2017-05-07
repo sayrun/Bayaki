@@ -93,6 +93,22 @@ namespace Bayaki
             }
         }
 
+        public UInt32 AddItem( UInt32 id, bykIFv1.TrackItem track)
+        {
+            TrackItemSummary tiSum = new TrackItemSummary(track);
+            int index = _locations.FindIndex(x => x.ID == id);
+            if (0 > index)
+            {
+                _locations.Add(tiSum);
+            }
+            else
+            {
+                _locations.Insert(index, tiSum);
+            }
+
+            return tiSum.ID;
+        }
+
         public UInt32 AddItem(bykIFv1.TrackItem track)
         {
             TrackItemSummary tiSum = new TrackItemSummary(track);

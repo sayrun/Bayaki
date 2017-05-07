@@ -950,5 +950,63 @@ namespace Bayaki
                 item.Checked = (jpegItem.IsModifed);
             }
         }
+
+        private void _splitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (1 != _locationSources.SelectedItems.Count) return;
+            ListViewItem lvItem = _locationSources.SelectedItems[0];
+            TrackItemSummary trackSummary = lvItem.Tag as TrackItemSummary;
+            if (null == trackSummary) return;
+
+            bykIFv1.TrackItem trackItem = trackSummary.TrackItem;
+
+            trackItem.Name = trackSummary.Name;
+
+            SplitForm sf = new SplitForm(trackItem);
+
+            if (DialogResult.OK != sf.ShowDialog()) return;
+
+            UInt32 inserPosID = trackSummary.ID;
+            bool blNewTracks = false;
+            foreach (bykIFv1.TrackItem track in sf.Items)
+            {
+                if (null == track) continue;
+                if (1 > track.Items.Count) continue;
+
+                System.Diagnostics.Debug.Print(string.Format("create:{1} name:{0}", track.Name, track.CreateTime));
+
+                inserPosID = _trackItemBag.AddItem(inserPosID, track);
+                blNewTracks = true;
+            }
+
+            if (blNewTracks)
+            {
+                // 分割されたので元データを削除します
+                _trackItemBag.Remove(trackSummary.ID);
+
+                this.UseWaitCursor = true;
+
+                // 読み込んでいるイメージに対して再度位置情報のマッチングを実施する
+                LocationMatching();
+
+                // リストを更新する
+                UpdateLocationList();
+
+#if true
+                // データが変化したので保存します。
+                var task = Task.Factory.StartNew(() =>
+                {
+                    _trackItemBag.Save();
+                }).ContinueWith(_ =>
+                {
+                    this.UseWaitCursor = false;
+
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+#else
+                _trackItemBag.Save();
+                this.UseWaitCursor = false;
+#endif
+            }
+        }
     }
 }

@@ -71,6 +71,7 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._exportFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this._splitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -364,6 +365,7 @@
             // 
             this._locationContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._renameTarckItem,
+            this._splitToolStripMenuItem,
             this._exportTrackItem,
             this._routePreview,
             this.toolStripSeparator1,
@@ -372,13 +374,13 @@
             this.toolStripSeparator2,
             this._deleteTrackItem});
             this._locationContextMenu.Name = "_locationContextMenu";
-            this._locationContextMenu.Size = new System.Drawing.Size(132, 148);
+            this._locationContextMenu.Size = new System.Drawing.Size(153, 192);
             this._locationContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this._locationContextMenu_Opening);
             // 
             // _renameTarckItem
             // 
             this._renameTarckItem.Name = "_renameTarckItem";
-            this._renameTarckItem.Size = new System.Drawing.Size(131, 22);
+            this._renameTarckItem.Size = new System.Drawing.Size(152, 22);
             this._renameTarckItem.Text = "名称変更...";
             this._renameTarckItem.Click += new System.EventHandler(this._renameTarckItem_Click);
             // 
@@ -389,13 +391,13 @@
             this._exportCSV,
             this._exportKML});
             this._exportTrackItem.Name = "_exportTrackItem";
-            this._exportTrackItem.Size = new System.Drawing.Size(131, 22);
+            this._exportTrackItem.Size = new System.Drawing.Size(152, 22);
             this._exportTrackItem.Text = "出力...";
             // 
             // _exportGPX
             // 
             this._exportGPX.Name = "_exportGPX";
-            this._exportGPX.Size = new System.Drawing.Size(98, 22);
+            this._exportGPX.Size = new System.Drawing.Size(152, 22);
             this._exportGPX.Text = "GPX";
             this._exportGPX.Click += new System.EventHandler(this._export_Click);
             // 
@@ -403,7 +405,7 @@
             // 
             this._exportCSV.Enabled = false;
             this._exportCSV.Name = "_exportCSV";
-            this._exportCSV.Size = new System.Drawing.Size(98, 22);
+            this._exportCSV.Size = new System.Drawing.Size(152, 22);
             this._exportCSV.Text = "CSV";
             this._exportCSV.Click += new System.EventHandler(this._export_Click);
             // 
@@ -411,7 +413,7 @@
             // 
             this._exportKML.Enabled = false;
             this._exportKML.Name = "_exportKML";
-            this._exportKML.Size = new System.Drawing.Size(98, 22);
+            this._exportKML.Size = new System.Drawing.Size(152, 22);
             this._exportKML.Text = "KML";
             this._exportKML.Click += new System.EventHandler(this._export_Click);
             // 
@@ -419,38 +421,38 @@
             // 
             this._routePreview.Font = new System.Drawing.Font("メイリオ", 9F, System.Drawing.FontStyle.Bold);
             this._routePreview.Name = "_routePreview";
-            this._routePreview.Size = new System.Drawing.Size(131, 22);
+            this._routePreview.Size = new System.Drawing.Size(152, 22);
             this._routePreview.Text = "道順表示";
             this._routePreview.Click += new System.EventHandler(this._routePreview_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(128, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
             // 
             // _upPriority
             // 
             this._upPriority.Name = "_upPriority";
-            this._upPriority.Size = new System.Drawing.Size(131, 22);
+            this._upPriority.Size = new System.Drawing.Size(152, 22);
             this._upPriority.Text = "上へ";
             this._upPriority.Click += new System.EventHandler(this._upPriority_Click);
             // 
             // _downPriority
             // 
             this._downPriority.Name = "_downPriority";
-            this._downPriority.Size = new System.Drawing.Size(131, 22);
+            this._downPriority.Size = new System.Drawing.Size(152, 22);
             this._downPriority.Text = "下へ";
             this._downPriority.Click += new System.EventHandler(this._downPriority_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(128, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
             // 
             // _deleteTrackItem
             // 
             this._deleteTrackItem.Name = "_deleteTrackItem";
-            this._deleteTrackItem.Size = new System.Drawing.Size(131, 22);
+            this._deleteTrackItem.Size = new System.Drawing.Size(152, 22);
             this._deleteTrackItem.Text = "削除...";
             this._deleteTrackItem.Click += new System.EventHandler(this._deleteTrackItem_Click);
             // 
@@ -491,6 +493,13 @@
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.removeToolStripMenuItem.Text = "プラグイン削除...";
+            // 
+            // _splitToolStripMenuItem
+            // 
+            this._splitToolStripMenuItem.Name = "_splitToolStripMenuItem";
+            this._splitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this._splitToolStripMenuItem.Text = "分割...";
+            this._splitToolStripMenuItem.Click += new System.EventHandler(this._splitToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -565,6 +574,7 @@
         private System.Windows.Forms.Button _targetsSel;
         private System.Windows.Forms.Button _allSel;
         private System.Windows.Forms.Button _clearSel;
+        private System.Windows.Forms.ToolStripMenuItem _splitToolStripMenuItem;
     }
 }
 
