@@ -166,8 +166,8 @@ namespace GraphControlLibrary
 
                 }
 
-                //グラフ線を描画
-                if(0 < gset.Items.Count)
+                //グラフ線を描画:2点以上必要なので
+                if(1 < gset.Items.Count)
                 {
                     Single xwidth = gset.XScale.Max.Value - gset.XScale.Min.Value;
                     Single yheight = gset.YScale.Max.Value - gset.YScale.Min.Value;

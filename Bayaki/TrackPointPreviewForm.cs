@@ -71,21 +71,24 @@ namespace Bayaki
             List<GraphControlLibrary.PointData> speedList = new List<GraphControlLibrary.PointData>();
 
             {
-                // １分平均
+                double range = 60;
+                {
+                    TimeSpan ts = _trackItem.Items[_trackItem.Items.Count - 1].Time - _trackItem.Items[0].Time;
+                    if( 1 >= ts.TotalMinutes)
+                    {
+                        range = 1;
+                    }
+                }
+
+                // １分平均（データが1分以下なら平均しないよ）
                 bykIFv1.Point p1 = _trackItem.Items[0];
                 double speed = p1.Speed;
                 int itemCount = 1;
                 for (int index = 1; index < _trackItem.Items.Count; ++index)
                 {
-
-                    if (p1.Time.Year != _trackItem.Items[index].Time.Year
-                        || p1.Time.Month != _trackItem.Items[index].Time.Month
-                        || p1.Time.Day != _trackItem.Items[index].Time.Day
-                        || p1.Time.Hour != _trackItem.Items[index].Time.Hour
-                        || p1.Time.Minute != _trackItem.Items[index].Time.Minute)
+                    TimeSpan ts = _trackItem.Items[index].Time - p1.Time;
+                    if (range < ts.TotalSeconds)
                     {
-                        System.Diagnostics.Debug.Print("{2} - {0}/{1}", speed, itemCount, p1.Time);
-
                         speed /= itemCount;
                         // m/sからkm/hへ
                         speed *= 3600;
