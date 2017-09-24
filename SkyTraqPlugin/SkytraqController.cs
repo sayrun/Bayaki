@@ -807,7 +807,7 @@ namespace SkyTraqPlugin
                 if (calcCS != resultCS)
                 {
                     System.Diagnostics.Debug.Print("step-6-1");
-                    if (3 <= retryCount)
+                    if (5 <= retryCount)
                     {
                         throw new Exception("データ取得のリトライが失敗した");
                     }
@@ -824,7 +824,7 @@ namespace SkyTraqPlugin
                     index += readSectors;
                 }
                 System.Diagnostics.Debug.Print("step-7");
-                System.Threading.Thread.Sleep(100);
+                System.Threading.Thread.Sleep(200);
             }
         }
 
