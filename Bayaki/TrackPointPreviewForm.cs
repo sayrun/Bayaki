@@ -81,58 +81,53 @@ namespace Bayaki
                 }
 
                 // １分平均（データが1分以下なら平均しないよ）
-                bykIFv1.Point p1 = _trackItem.Items[0];
-                double speed = p1.Speed;
-                int itemCount = 1;
-                for (int index = 1; index < _trackItem.Items.Count; ++index)
+                for (DateTime time = start.Time; time <= end.Time; time = time.AddSeconds(60))
                 {
-                    TimeSpan ts = _trackItem.Items[index].Time - p1.Time;
-                    if (range < ts.TotalSeconds)
+                    DateTime work = time.AddSeconds(60);
+                    // 60分いないのデータ一覧を取得
+                    var q = _trackItem.Items.Where(x => time <= x.Time && work > x.Time).OrderBy(x => x.Time);
+
+                    // 取得したデータ一覧で速度を求める
+                    bykIFv1.Point p1 = null;
+                    double speed = 0;
+                    int itemCount = 0;
+                    foreach (bykIFv1.Point p in q)
+                    {
+                        if (null == p1)
+                        {
+                            // 最初の一湖なので、データを取り出すだけね。
+                            speed = p.Speed;
+                            itemCount = 1;
+                        }
+                        else
+                        {
+                            // 前回値との差分から速度をみるよ
+                            double speedSrc = GetSpeed(p, p1);
+                            if (0 < speedSrc)
+                            {
+                                speed += speedSrc;
+                                ++itemCount;
+                            }
+                        }
+                        p1 = p;
+                    }
+                    TimeSpan s2 = time - start.Time;
+
+                    // 速度を平均とkm/hへ変換する
+                    if (0 < itemCount)
                     {
                         speed /= itemCount;
                         // m/sからkm/hへ
                         speed *= 3600;
                         speed /= 1000;
-
-                        TimeSpan s2 = p1.Time - start.Time;
-
-                        if (0 < speedList.Count)
-                        {
-                            double hoge = (s2.TotalSeconds - speedList[speedList.Count - 1].X);
-                            if (60 < (s2.TotalSeconds - speedList[speedList.Count - 1].X))
-                            {
-                                speedList.Add(new GraphControlLibrary.PointData(speedList[speedList.Count - 1].X + 1, 0));
-                                if (120 < (s2.TotalSeconds - speedList[speedList.Count - 1].X))
-                                {
-                                    speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds - 1, 0));
-                                }
-                            }
-                        }
-
-                        speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds, (Single)speed));
-
-                        speed = GetSpeed(_trackItem.Items[index], p1);
-                        p1 = _trackItem.Items[index];
-                        //speed = p1.Speed;
-                        itemCount = 1;
                     }
                     else
                     {
-                        double speedSrc = GetSpeed(_trackItem.Items[index], p1);
-                        if (0 < speedSrc)
-                        {
-                            speed += speedSrc;
-                            ++itemCount;
-                        }
+                        speed = 0;
                     }
-                    // 最後のデータを加工する
-                    if (index == (_trackItem.Items.Count - 1))
-                    {
-                        speed /= itemCount;
 
-                        TimeSpan s2 = p1.Time - start.Time;
-                        speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds, (Single)speed));
-                    }
+                    // 登録
+                    speedList.Add(new GraphControlLibrary.PointData((Single)s2.TotalSeconds, (Single)speed));
                 }
             }
 
