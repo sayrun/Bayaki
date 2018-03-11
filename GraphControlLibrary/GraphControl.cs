@@ -109,84 +109,87 @@ namespace GraphControlLibrary
         {
             Graphics gs = Graphics.FromImage(_bitmap);
 
-            gs.FillRectangle(Brushes.White, 0, 0, _bitmap.Width -1, _bitmap.Height-1);
-            gs.DrawRectangle(Pens.DarkGray, 0, 0, _bitmap.Width-1, _bitmap.Height-1);
+            gs.FillRectangle(Brushes.White, 0, 0, _bitmap.Width - 1, _bitmap.Height - 1);
+            gs.DrawRectangle(Pens.DarkGray, 0, 0, _bitmap.Width - 1, _bitmap.Height - 1);
 
-            foreach (GraphSet gset in _items)
+            if (null != _items)
             {
-                if (false == gset.DrawScale)
-                    continue;
-
-                foreach (ScaleData xs in gset.XScale.Items)
+                foreach (GraphSet gset in _items)
                 {
-                    if (gset.XScale.Min.Value > xs.Value) throw new Exception("X座標で、最小値よりもメモリが小さい");
-                    if (gset.XScale.Max.Value < xs.Value) throw new Exception("X座標で、最大値よりもメモリが大きい");
-                }
-                foreach (ScaleData ys in gset.YScale.Items)
-                {
-                    if (gset.YScale.Min.Value > ys.Value) throw new Exception("Y座標で、最小値よりもメモリが小さい");
-                    if (gset.YScale.Max.Value < ys.Value) throw new Exception("Y座標で、最大値よりもメモリが大きい");
-                }
+                    if (false == gset.DrawScale)
+                        continue;
 
-
-                // X座標を描画
-                if( 0 < gset.XScale.Items.Count)
-                {
-                    Single xwidth = gset.XScale.Max.Value - gset.XScale.Min.Value;
-                    Single widthWork;
-                    int xTarget;
                     foreach (ScaleData xs in gset.XScale.Items)
                     {
-                        widthWork = base.ClientRectangle.Width;
-                        widthWork *= ((xs.Value - gset.XScale.Min.Value) / xwidth);
-
-                        xTarget = (int)widthWork;
-
-                        gs.DrawLine(Pens.DarkGray, xTarget, 0, xTarget, _bitmap.Height);
-                        gs.DrawString(xs.Text, SystemFonts.MenuFont, Brushes.DarkGray, new Point(xTarget, 0));
+                        if (gset.XScale.Min.Value > xs.Value) throw new Exception("X座標で、最小値よりもメモリが小さい");
+                        if (gset.XScale.Max.Value < xs.Value) throw new Exception("X座標で、最大値よりもメモリが大きい");
                     }
-                }
-
-                // Y軸を描画
-                if( 0 < gset.YScale.Items.Count)
-                {
-                    Single yheight = gset.YScale.Max.Value - gset.YScale.Min.Value;
-                    Single heightWork;
-                    int yTarget;
                     foreach (ScaleData ys in gset.YScale.Items)
                     {
-                        heightWork = base.ClientRectangle.Height    ;
-                        heightWork *= ((ys.Value - gset.YScale.Min.Value) / yheight);
-
-                        yTarget = _bitmap.Height - (int)heightWork;
-
-                        gs.DrawLine(Pens.DarkGray, 0, yTarget, _bitmap.Width, yTarget);
-                        gs.DrawString(ys.Text, SystemFonts.MenuFont, Brushes.DarkGray, new Point(0, yTarget));
+                        if (gset.YScale.Min.Value > ys.Value) throw new Exception("Y座標で、最小値よりもメモリが小さい");
+                        if (gset.YScale.Max.Value < ys.Value) throw new Exception("Y座標で、最大値よりもメモリが大きい");
                     }
 
-                }
 
-                //グラフ線を描画:2点以上必要なので
-                if(1 < gset.Items.Count)
-                {
-                    Single xwidth = gset.XScale.Max.Value - gset.XScale.Min.Value;
-                    Single yheight = gset.YScale.Max.Value - gset.YScale.Min.Value;
-                    List<PointF> points = new List<PointF>();
-
-                    Single sx;
-                    Single sy;
-                    foreach (PointData pd in gset.Items)
+                    // X座標を描画
+                    if (0 < gset.XScale.Items.Count)
                     {
-                        sx = ((_bitmap.Width - 1) * (pd.X - gset.XScale.Min.Value)) / xwidth;
-                        sy = _bitmap.Height - (((_bitmap.Height - 1) * (pd.Y - gset.YScale.Min.Value)) / yheight);
+                        Single xwidth = gset.XScale.Max.Value - gset.XScale.Min.Value;
+                        Single widthWork;
+                        int xTarget;
+                        foreach (ScaleData xs in gset.XScale.Items)
+                        {
+                            widthWork = base.ClientRectangle.Width;
+                            widthWork *= ((xs.Value - gset.XScale.Min.Value) / xwidth);
 
-                        points.Add(new PointF(sx, sy));
+                            xTarget = (int)widthWork;
+
+                            gs.DrawLine(Pens.DarkGray, xTarget, 0, xTarget, _bitmap.Height);
+                            gs.DrawString(xs.Text, SystemFonts.MenuFont, Brushes.DarkGray, new Point(xTarget, 0));
+                        }
                     }
 
-                    Pen p = new Pen(Color.Red, 2);
-                    gs.DrawLines(p, points.ToArray());
-                }
+                    // Y軸を描画
+                    if (0 < gset.YScale.Items.Count)
+                    {
+                        Single yheight = gset.YScale.Max.Value - gset.YScale.Min.Value;
+                        Single heightWork;
+                        int yTarget;
+                        foreach (ScaleData ys in gset.YScale.Items)
+                        {
+                            heightWork = base.ClientRectangle.Height;
+                            heightWork *= ((ys.Value - gset.YScale.Min.Value) / yheight);
 
+                            yTarget = _bitmap.Height - (int)heightWork;
+
+                            gs.DrawLine(Pens.DarkGray, 0, yTarget, _bitmap.Width, yTarget);
+                            gs.DrawString(ys.Text, SystemFonts.MenuFont, Brushes.DarkGray, new Point(0, yTarget));
+                        }
+
+                    }
+
+                    //グラフ線を描画:2点以上必要なので
+                    if (1 < gset.Items.Count)
+                    {
+                        Single xwidth = gset.XScale.Max.Value - gset.XScale.Min.Value;
+                        Single yheight = gset.YScale.Max.Value - gset.YScale.Min.Value;
+                        List<PointF> points = new List<PointF>();
+
+                        Single sx;
+                        Single sy;
+                        foreach (PointData pd in gset.Items)
+                        {
+                            sx = ((_bitmap.Width - 1) * (pd.X - gset.XScale.Min.Value)) / xwidth;
+                            sy = _bitmap.Height - (((_bitmap.Height - 1) * (pd.Y - gset.YScale.Min.Value)) / yheight);
+
+                            points.Add(new PointF(sx, sy));
+                        }
+
+                        Pen p = new Pen(Color.Red, 2);
+                        gs.DrawLines(p, points.ToArray());
+                    }
+
+                }
             }
         }
     }
