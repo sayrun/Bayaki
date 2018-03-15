@@ -246,7 +246,7 @@ namespace Bayaki
 
             // 10分以上差があるなら、時速算出しない
             TimeSpan ts = current.Time - prev.Time;
-            if (ts.TotalMinutes >= 60) return current.Speed;
+            if (ts.TotalMinutes >= 10) return current.Speed;
 
             double dis = PointDistance.Distance(current, prev);
             double result = dis / ts.TotalSeconds;
